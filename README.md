@@ -31,7 +31,7 @@ CREATE SCHEMA sensibo;
 Cargar el navegador y pegar el siguiente enlace
 
 ```
-httpsstart.spring.io#!type=maven-project&language=java&platformVersion=4.0.6&packaging=jar&configurationFileFormat=properties&jvmVersion=25&groupId=com.sensibo.platform&artifactId=pc211990u202418655&packageName=com.sensibo.platform.u202418655&dependencies=data-jpa,validation,web,devtools,postgresql,lombok,springdoc-openapi
+https://start.spring.io#!type=maven-project&language=java&platformVersion=4.0.6&packaging=jar&configurationFileFormat=properties&jvmVersion=25&groupId=com.sensibo.platform&artifactId=pc211990u202418655&packageName=com.sensibo.platform.u202418655&dependencies=data-jpa,validation,web,devtools,postgresql,lombok,springdoc-openapi
 ```
 
 Generar el proyecto Spring. Guardarlo en la carpeta `IdeaProjects1ASI0729` y luego abrirlo en `IntelliJ IDEA`.
@@ -57,7 +57,7 @@ properties
 Agregar la siguiente dependencia después de `springdoc-openapi`
 
 ```xml
-!-- httpsmvnrepository.comartifactio.github.encryptorcodepluralize --
+!-- https://mvnrepository.comartifactio.github.encryptorcodepluralize --
 dependency
     groupIdio.github.encryptorcodegroupId
     artifactIdpluralizeartifactId
@@ -69,10 +69,10 @@ Verificar que el `pom.xml` completo quede así
 
 ```xml
 xml version=1.0 encoding=UTF-8
-project xmlns=httpmaven.apache.orgPOM4.0.0
-         xmlnsxsi=httpwww.w3.org2001XMLSchema-instance
-         xsischemaLocation=httpmaven.apache.orgPOM4.0.0
-         httpsmaven.apache.orgxsdmaven-4.0.0.xsd
+project xmlns=http://maven.apache.orgPOM4.0.0
+         xmlnsxsi=http://www.w3.org2001XMLSchema-instance
+         xsischemaLocation=http://maven.apache.orgPOM4.0.0
+         https://maven.apache.orgxsdmaven-4.0.0.xsd
     modelVersion4.0.0modelVersion
     parent
         groupIdorg.springframework.bootgroupId
@@ -135,7 +135,7 @@ project xmlns=httpmaven.apache.orgPOM4.0.0
             artifactIdspringdoc-openapi-starter-webmvc-uiartifactId
             version3.0.2version
         dependency
-        !-- httpsmvnrepository.comartifactio.github.encryptorcodepluralize --
+        !-- https://mvnrepository.comartifactio.github.encryptorcodepluralize --
         dependency
             groupIdio.github.encryptorcodegroupId
             artifactIdpluralizeartifactId
@@ -834,20 +834,20 @@ public class OpenApiConfiguration {
                         .contact(new Contact()
                                 .name(Sensibo Climate Control)
                                 .email(support@sensibo.com)
-                                .url(httpssensibo.comsupport))
+                                .url(https://sensibo.com/support))
                         .license(new License()
                                 .name(Apache 2.0)
-                                .url(httpswww.apache.orglicensesLICENSE-2.0.html)))
+                                .url(https://www.apache.org/licenses/LICENSE-2.0.html)))
                 .externalDocs(new ExternalDocumentation()
                         .description(Sensibo Climate Control Platform Wiki Documentation)
-                        .url(httpssensibo.wiki.github.iodocs));
+                        .url(https://sensibo.wiki.github.io/docs));
 
         openApi.servers(List.of(
-                new Server().url(httplocalhost8096)
+                new Server().url(http://localhost:8096)
                         .description(Local Development Environment),
-                new Server().url(httpsstaging-api.sensibo.com)
+                new Server().url(https://staging-api.sensibo.com)
                         .description(Staging Environment),
-                new Server().url(httpsapi.sensibo.com)
+                new Server().url(https://api.sensibo.com)
                         .description(Production Environment)
         ));
         return openApi;
@@ -2635,9 +2635,9 @@ public class DevicesController {
 
 ## Verificación Final (Checklist)
 
-- [ ] Puerto `httplocalhost8096`
-- [ ] Swagger UI `httplocalhost8096swagger-uiindex.html`
-- [ ] OpenAPI JSON `httplocalhost8096v3api-docs`
+- [ ] Puerto `http://localhost:8096`
+- [ ] Swagger UI `http://localhost:8096/swagger-ui/index.html`
+- [ ] OpenAPI JSON `http://localhost:8096/v3/api-docs`
 - [ ] BD PostgreSQL `sensibo` con esquema `sensibo`
 - [ ] Endpoint `POST apiv1devices` → 201 Created
 - [ ] Regla 1 mismo serialNumber + macAddress → 409 Conflict
