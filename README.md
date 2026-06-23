@@ -1,4 +1,4 @@
-# Project Sensibo Climate Control v2.0
+# Project Facturease Perú - Invoice Management v1.0
 
 Datos del alumno
 - Nombre Victor Jhosef Laura Acosta
@@ -6,9 +6,9 @@ Datos del alumno
 - NRC 11990
 - Profesor Juan Anthonio Flores Moroco
 - Proyecto `pc211990u202418655`
-- Package raíz `com.sensibo.platform.u202418655`
-- Puerto 8096
-- Esquema BD `sensibo`
+- Package raíz `pe.com.facturease.platform.u202418655`
+- Puerto 8097
+- Esquema BD `facturease_db`
 
 ---
 
@@ -16,12 +16,12 @@ Datos del alumno
 
 ### Base de datos
 
-Abrir el `pgAdmin`, ingrese la contraseña `12345678` y crear la base de datos `sensibo`.
+Abrir el `pgAdmin`, ingrese la contraseña `12345678` y crear la base de datos `facturease_db`.
 
 Ejecutar el siguiente SQL para crear el esquema
 
 ```sql
-CREATE SCHEMA sensibo;
+CREATE SCHEMA facturease_db;
 ```
 
 ---
@@ -31,7 +31,7 @@ CREATE SCHEMA sensibo;
 Cargar el navegador y pegar el siguiente enlace
 
 ```
-https://start.spring.io#!type=maven-project&language=java&platformVersion=4.0.6&packaging=jar&configurationFileFormat=properties&jvmVersion=25&groupId=com.sensibo.platform&artifactId=pc211990u202418655&packageName=com.sensibo.platform.u202418655&dependencies=data-jpa,validation,web,devtools,postgresql,lombok,springdoc-openapi
+https://start.spring.io#!type=maven-project&language=java&platformVersion=4.1.0&packaging=jar&configurationFileFormat=properties&jvmVersion=26&groupId=pe.com.facturease.platform&artifactId=pc211990u202418655&packageName=pe.com.facturease.platform.u202418655&dependencies=data-jpa,validation,web,devtools,postgresql,lombok,springdoc-openapi
 ```
 
 Generar el proyecto Spring. Guardarlo en la carpeta `IdeaProjects1ASI0729` y luego abrirlo en `IntelliJ IDEA`.
@@ -40,7 +40,7 @@ Generar el proyecto Spring. Guardarlo en la carpeta `IdeaProjects1ASI0729` y lue
 
 ### Configuración del SDK
 
-Hacer click en `File` → `Project Structure`. Seleccionar `Project` de `Project Settings` y seleccionar la versión `25` de Java para el `SDK`. Si no está instalado, descárguelo. Luego Seleccionar `SDKs` de `Platform Settings` y seleccionar la versión antes seleccionada. Hacer click en `OK`.
+Hacer click en `File` → `Project Structure`. Seleccionar `Project` de `Project Settings` y seleccionar la versión `26` de Java para el `SDK`. Si no está instalado, descárguelo. Luego Seleccionar `SDKs` de `Platform Settings` y seleccionar la versión antes seleccionada. Hacer click en `OK`.
 
 ---
 
@@ -49,186 +49,173 @@ Hacer click en `File` → `Project Structure`. Seleccionar `Project` de `Project
 Abrir `pom.xml` y modificar la versión de Java en `properties`
 
 ```xml
-properties
-    java.version25java.version
-properties
+<properties>
+    <java.version>26</java.version>
+</properties>
 ```
 
 Agregar la siguiente dependencia después de `springdoc-openapi`
 
 ```xml
-!-- https://mvnrepository.comartifactio.github.encryptorcodepluralize --
-dependency
-    groupIdio.github.encryptorcodegroupId
-    artifactIdpluralizeartifactId
-    version1.0.0version
-dependency
+<!-- https://mvnrepository.com/artifact/io.github.encryptorcode/pluralize -->
+<dependency>
+    <groupId>io.github.encryptorcode</groupId>
+    <artifactId>pluralize</artifactId>
+    <version>1.0.0</version>
+</dependency>
 ```
 
 Verificar que el `pom.xml` completo quede así
 
 ```xml
-xml version=1.0 encoding=UTF-8
-project xmlns=http://maven.apache.orgPOM4.0.0
-         xmlnsxsi=http://www.w3.org2001XMLSchema-instance
-         xsischemaLocation=http://maven.apache.orgPOM4.0.0
-         https://maven.apache.orgxsdmaven-4.0.0.xsd
-    modelVersion4.0.0modelVersion
-    parent
-        groupIdorg.springframework.bootgroupId
-        artifactIdspring-boot-starter-parentartifactId
-        version4.0.6version
-        relativePath
-    parent
-    groupIdcom.sensibo.platformgroupId
-    artifactIdpc211990u202418655artifactId
-    version0.0.1-SNAPSHOTversion
-    namepc211990u202418655name
-    descriptionSensibo Climate Control - Device Registration RESTful APIdescription
-    url
-    licenses
-        license
-    licenses
-    developers
-        developer
-    developers
-    scm
-        connection
-        developerConnection
-        tag
-        url
-    scm
-    properties
-        java.version25java.version
-    properties
-    dependencies
-        dependency
-            groupIdorg.springframework.bootgroupId
-            artifactIdspring-boot-starter-data-jpaartifactId
-        dependency
-        dependency
-            groupIdorg.springframework.bootgroupId
-            artifactIdspring-boot-starter-validationartifactId
-        dependency
-        dependency
-            groupIdorg.springframework.bootgroupId
-            artifactIdspring-boot-starter-webartifactId
-        dependency
-        dependency
-            groupIdorg.springframework.bootgroupId
-            artifactIdspring-boot-devtoolsartifactId
-            scoperuntimescope
-            optionaltrueoptional
-        dependency
-        dependency
-            groupIdorg.postgresqlgroupId
-            artifactIdpostgresqlartifactId
-            scoperuntimescope
-        dependency
-        dependency
-            groupIdorg.projectlombokgroupId
-            artifactIdlombokartifactId
-            optionaltrueoptional
-        dependency
-        dependency
-            groupIdorg.springdocgroupId
-            artifactIdspringdoc-openapi-starter-webmvc-uiartifactId
-            version3.0.2version
-        dependency
-        !-- https://mvnrepository.comartifactio.github.encryptorcodepluralize --
-        dependency
-            groupIdio.github.encryptorcodegroupId
-            artifactIdpluralizeartifactId
-            version1.0.0version
-        dependency
-        dependency
-            groupIdorg.springframework.bootgroupId
-            artifactIdspring-boot-starter-testartifactId
-            scopetestscope
-        dependency
-    dependencies
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>4.1.0</version>
+        <relativePath/>
+    </parent>
+    <groupId>pe.com.facturease.platform</groupId>
+    <artifactId>pc211990u202418655</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>pc211990u202418655</name>
+    <description>Facturease Peru - Invoice Management RESTful API</description>
+    <properties>
+        <java.version>26</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.0.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.github.encryptorcode/pluralize -->
+        <dependency>
+            <groupId>io.github.encryptorcode</groupId>
+            <artifactId>pluralize</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
-    build
-        plugins
-            plugin
-                groupIdorg.springframework.bootgroupId
-                artifactIdspring-boot-maven-pluginartifactId
-                configuration
-                    excludes
-                        exclude
-                            groupIdorg.projectlombokgroupId
-                            artifactIdlombokartifactId
-                        exclude
-                    excludes
-                configuration
-            plugin
-            plugin
-                groupIdorg.apache.maven.pluginsgroupId
-                artifactIdmaven-compiler-pluginartifactId
-                executions
-                    execution
-                        iddefault-compileid
-                        phasecompilephase
-                        goalsgoalcompilegoalgoals
-                        configuration
-                            annotationProcessorPaths
-                                path
-                                    groupIdorg.projectlombokgroupId
-                                    artifactIdlombokartifactId
-                                path
-                            annotationProcessorPaths
-                        configuration
-                    execution
-                    execution
-                        iddefault-testCompileid
-                        phasetest-compilephase
-                        goalsgoaltestCompilegoalgoals
-                        configuration
-                            annotationProcessorPaths
-                                path
-                                    groupIdorg.projectlombokgroupId
-                                    artifactIdlombokartifactId
-                                path
-                            annotationProcessorPaths
-                        configuration
-                    execution
-                executions
-            plugin
-        plugins
-    build
-project
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>default-compile</id>
+                        <phase>compile</phase>
+                        <goals><goal>compile</goal></goals>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>default-testCompile</id>
+                        <phase>test-compile</phase>
+                        <goals><goal>testCompile</goal></goals>
+                        <configuration>
+                            <annotationProcessorPaths>
+                                <path>
+                                    <groupId>org.projectlombok</groupId>
+                                    <artifactId>lombok</artifactId>
+                                </path>
+                            </annotationProcessorPaths>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
 ```
 
 ---
 
 ### Proyecto Application
 
-Abrir el archivo `Pc211990u202418655Application.java` ubicado en el package `com.sensibo.platform.u202418655` y reemplazar con
+Abrir el archivo `Pc211990u202418655Application.java` ubicado en el package `pe.com.facturease.platform.u202418655` y reemplazar con
 
 ```java
-package com.sensibo.platform.u202418655;
+package pe.com.facturease.platform.u202418655;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
-
-  Main application class for the Sensibo Climate Control platform.
- 
-  pEnables JPA auditing for automatic management of entity creation
-  and last-updated timestamps across all aggregate roots.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Main application class for the Facturease Peru platform.
+ *
+ * <p>Enables JPA auditing for automatic management of entity creation
+ * and last-updated timestamps across all aggregate roots.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @SpringBootApplication
 @EnableJpaAuditing
 public class Pc211990u202418655Application {
 
-    
-      Entry point of the Spring Boot application.
-     
-      @param args command-line arguments
-     
+    /**
+     * Entry point of the Spring Boot application.
+     *
+     * @param args command-line arguments
+     */
     public static void main(String[] args) {
         SpringApplication.run(Pc211990u202418655Application.class, args);
     }
@@ -239,42 +226,44 @@ public class Pc211990u202418655Application {
 
 ### Archivo application.properties
 
-Abrir el archivo `application.properties` en `srcmainresources` y reemplazar con
+Abrir el archivo `application.properties` en `src/main/resources` y reemplazar con
 
 ```ini
 spring.application.name=pc211990u202418655
 
 # Spring DataSource Configuration
-spring.datasource.url jdbcpostgresqllocalhost5432sensibocurrentSchema=sensibo
-spring.datasource.username postgres
-spring.datasource.password 12345678
-spring.datasource.driver-class-name org.postgresql.Driver
+spring.datasource.url=jdbc:postgresql://localhost:5432/facturease_db?currentSchema=facturease_db
+spring.datasource.username=postgres
+spring.datasource.password=12345678
+spring.datasource.driver-class-name=org.postgresql.Driver
 
 # Spring Data JPA Configuration
-spring.jpa.database postgresql
-spring.jpa.show-sql true
+spring.jpa.database=postgresql
+spring.jpa.show-sql=true
 
 # Spring Data JPA Hibernate Configuration
-spring.jpa.hibernate.ddl-auto update
+spring.jpa.hibernate.ddl-auto=update
 spring.jpa.open-in-view=true
-spring.jpa.properties.hibernate.format_sql true
-spring.jpa.properties.hibernate.dialect org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.naming.physical-strategy=com.sensibo.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy.SnakeCaseWithPluralizedTablePhysicalNamingStrategy
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
+spring.jpa.hibernate.naming.physical-strategy=pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy.SnakeCaseWithPluralizedTablePhysicalNamingStrategy
 
-server.port 8096
+server.port=8097
 
-documentation.application.description=Sensibo Climate Control - Device Registration RESTful API
+documentation.application.description=Facturease Peru - Invoice Management RESTful API
 documentation.application.version=@project.version@
 
 spring.messages.basename=messages
 spring.messages.encoding=UTF-8
 ```
 
+> **Nota sobre el esquema:** dado que el enunciado indica que la base de datos relacional debe usar el esquema `facturease_db` (mismo nombre que la base de datos), si su servidor PostgreSQL requiere que el esquema sea distinto del nombre de la base, puede crear adicionalmente la base `facturease` y dentro de ella el esquema `facturease_db`, ajustando la URL JDBC a `jdbc:postgresql://localhost:5432/facturease?currentSchema=facturease_db`.
+
 ---
 
 ### Archivo messages.properties (i18n - Inglés)
 
-Crear `srcmainresourcesmessages.properties`
+Crear `src/main/resources/messages.properties`
 
 ```properties
 # Validation messages
@@ -283,11 +272,11 @@ validation.request.failed=Request validation failed
 validation.request.argument=request-argument
 
 # Error messages
-error.validation.message=Validation failed {0}
-error.business-rule.message=Business rule violation {0}
+error.validation.message=Validation failed: {0}
+error.business-rule.message=Business rule violation: {0}
 error.unexpected.message=An unexpected error occurred
 error.not-found.message={0} not found
-error.conflict.message=Conflict {0}
+error.conflict.message=Conflict: {0}
 error.generic.message=An error occurred
 ```
 
@@ -295,7 +284,7 @@ error.generic.message=An error occurred
 
 ### Archivo messages_es.properties (i18n - Español)
 
-Crear `srcmainresourcesmessages_es.properties`
+Crear `src/main/resources/messages_es.properties`
 
 ```properties
 # Validation messages
@@ -304,11 +293,11 @@ validation.request.failed=Falló la validación de la solicitud
 validation.request.argument=argumento-de-solicitud
 
 # Error messages
-error.validation.message=Error de validación {0}
-error.business-rule.message=Violación de regla de negocio {0}
+error.validation.message=Error de validación: {0}
+error.business-rule.message=Violación de regla de negocio: {0}
 error.unexpected.message=Ocurrió un error inesperado
 error.not-found.message={0} no encontrado
-error.conflict.message=Conflicto {0}
+error.conflict.message=Conflicto: {0}
 error.generic.message=Ocurrió un error
 ```
 
@@ -319,18 +308,19 @@ error.generic.message=Ocurrió un error
 Crear `README.md` en la raíz del proyecto
 
 ```markdown
-# Sensibo Climate Control - Device Registration API
+# Facturease Peru - Invoice Management API
 
 ## Description
-Sensibo Climate Control Device Registration API is a RESTful web service built with Spring Boot
-that provides backend support for registering new Sensibo devices in the platform.
-The API allows registering devices such as Smart AC Controllers, Room Sensors, Air Quality Monitors,
-and DoorWindow Sensors, enforcing all business rules including unique serial number and MAC address
-validation.
+Facturease Peru Invoice Management API is a RESTful web service built with Spring Boot
+that provides backend support for registering electronic Invoices issued by corporate
+clients of Facturease Peru. The API enforces all business rules required by the platform,
+including unique invoiceIdentifier validation, IGV (18%) tax consistency validation between
+netAmount and calculatedTax, and itemCount validation when an Invoice is registered with a
+status other than DRAFT.
 
 ## Technologies
-- Java 25
-- Spring Boot 4.0.6
+- Java 26
+- Spring Boot 4.1.0
 - Spring Data JPA
 - PostgreSQL
 - Lombok
@@ -347,7 +337,7 @@ Apache 2.0
 
 ## Shared Package - Estructura de carpetas
 
-Crear toda la siguiente estructura bajo `srcmainjavacomsensiboplatformu202418655shared`
+Crear toda la siguiente estructura bajo `src/main/java/pe/com/facturease/platform/u202418655/shared`
 
 ```
 shared
@@ -357,8 +347,10 @@ shared
 │       └── ApplicationError.java
 ├── domain
 │   └── model
-│       └── aggregates
-│           └── AbstractDomainAggregateRoot.java
+│       ├── aggregates
+│       │   └── AbstractDomainAggregateRoot.java
+│       └── valueobjects
+│           └── TaxSummary.java
 ├── infrastructure
 │   ├── documentation
 │   │   └── openapi
@@ -385,61 +377,63 @@ shared
             └── ResponseEntityAssembler.java
 ```
 
+> **Nota:** A diferencia del proyecto de ejemplo (Sensibo), aquí el bounded context `shared` **sí** contiene un value object de dominio: `TaxSummary`, tal como lo exige expresamente el enunciado de Facturease Perú ("Especifica que el tipo TaxSummary es un value object compuesto ubicado en el bounded context shared"). Por eso se agrega el paquete `shared/domain/model/valueobjects`.
+
 ---
 
 ## Shared Package - Archivos
 
 ### 01. AbstractDomainAggregateRoot.java
 
-Ruta `shareddomainmodelaggregatesAbstractDomainAggregateRoot.java`
+Ruta `shared/domain/model/aggregates/AbstractDomainAggregateRoot.java`
 
-Package `com.sensibo.platform.u202418655.shared.domain.model.aggregates`
+Package `pe.com.facturease.platform.u202418655.shared.domain.model.aggregates`
 
 ```java
-package com.sensibo.platform.u202418655.shared.domain.model.aggregates;
+package pe.com.facturease.platform.u202418655.shared.domain.model.aggregates;
 
 import org.springframework.data.domain.AbstractAggregateRoot;
 
 import java.util.Collection;
 
+/**
+ * Base class for all domain aggregate roots.
+ *
+ * <p>Extends Spring Data Commons' {@link AbstractAggregateRoot} to gain
+ * domain event registration support without pulling in any JPA or
+ * persistence concern. Identity and auditing are intentionally left
+ * to the infrastructure layer.</p>
+ *
+ * <p>All bounded-context domain aggregate roots should extend this class.</p>
+ *
+ * @param <T> the concrete aggregate root type
+ * @author Victor Jhosef Laura Acosta
+ */
+public abstract class AbstractDomainAggregateRoot<T extends AbstractDomainAggregateRoot<T>>
+        extends AbstractAggregateRoot<T> {
 
-  Base class for all domain aggregate roots.
- 
-  pExtends Spring Data Commons' {@link AbstractAggregateRoot} to gain
-  domain event registration support without pulling in any JPA or
-  persistence concern. Identity and auditing are intentionally left
-  to the infrastructure layer.p
- 
-  pAll bounded-context domain aggregate roots should extend this class.p
- 
-  @param T the concrete aggregate root type
-  @author Victor Jhosef Laura Acosta
- 
-public abstract class AbstractDomainAggregateRootT extends AbstractDomainAggregateRootT
-        extends AbstractAggregateRootT {
-
-    
-      Registers a domain event to be published after this aggregate is saved.
-     
-      @param event the domain event to register
-     
+    /**
+     * Registers a domain event to be published after this aggregate is saved.
+     *
+     * @param event the domain event to register
+     */
     protected void registerDomainEvent(Object event) {
         super.registerEvent(event);
     }
 
-    
-      Returns all domain events registered on this aggregate since the last publication.
-     
-      @return the registered domain events
-     
+    /**
+     * Returns all domain events registered on this aggregate since the last publication.
+     *
+     * @return the registered domain events
+     */
     @Override
-    public CollectionObject domainEvents() {
+    public Collection<Object> domainEvents() {
         return super.domainEvents();
     }
 
-    
-      Clears all registered domain events.
-     
+    /**
+     * Clears all registered domain events.
+     */
     @Override
     public void clearDomainEvents() {
         super.clearDomainEvents();
@@ -449,126 +443,193 @@ public abstract class AbstractDomainAggregateRootT extends AbstractDomainAggrega
 
 ---
 
-### 02. Result.java
+### 02. TaxSummary.java
 
-Ruta `sharedapplicationresultResult.java`
+Ruta `shared/domain/model/valueobjects/TaxSummary.java`
 
-Package `com.sensibo.platform.u202418655.shared.application.result`
+Package `pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects`
 
 ```java
-package com.sensibo.platform.u202418655.shared.application.result;
+package pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Objects;
+
+/**
+ * Value object representing the tax summary of a fiscal document.
+ *
+ * <p>Composed of {@code netAmount} (the net value before taxes) and
+ * {@code calculatedTax} (the accumulated tax amount). This value object
+ * is shared across bounded contexts that need to express IGV-related
+ * (Peruvian general sales tax) tax amounts.</p>
+ *
+ * <p>Validates that {@code calculatedTax} is consistent with the application
+ * of the eighteen percent (18%) national IGV rate over {@code netAmount}.</p>
+ *
+ * @param netAmount     the net amount before taxes
+ * @param calculatedTax the accumulated tax amount
+ * @author Victor Jhosef Laura Acosta
+ */
+public record TaxSummary(BigDecimal netAmount, BigDecimal calculatedTax) {
+
+    private static final BigDecimal IGV_RATE = new BigDecimal("0.18");
+
+    /**
+     * Creates a TaxSummary with validation.
+     *
+     * @throws IllegalArgumentException if either amount is null, negative,
+     *                                   or if calculatedTax is not consistent
+     *                                   with the 18% IGV rate over netAmount
+     */
+    public TaxSummary {
+        if (Objects.isNull(netAmount) || netAmount.signum() < 0)
+            throw new IllegalArgumentException(
+                    "[TaxSummary] netAmount cannot be null or negative");
+        if (Objects.isNull(calculatedTax) || calculatedTax.signum() < 0)
+            throw new IllegalArgumentException(
+                    "[TaxSummary] calculatedTax cannot be null or negative");
+
+        BigDecimal expectedTax = netAmount.multiply(IGV_RATE)
+                .setScale(2, RoundingMode.HALF_UP);
+        BigDecimal roundedCalculatedTax = calculatedTax.setScale(2, RoundingMode.HALF_UP);
+
+        if (expectedTax.compareTo(roundedCalculatedTax) != 0)
+            throw new IllegalArgumentException(
+                    "[TaxSummary] calculatedTax is not consistent with 18% IGV over netAmount");
+    }
+
+    /**
+     * Default constructor required for JPA.
+     */
+    public TaxSummary() {
+        this(BigDecimal.ZERO, BigDecimal.ZERO);
+    }
+}
+```
+
+---
+
+### 03. Result.java
+
+Ruta `shared/application/result/Result.java`
+
+Package `pe.com.facturease.platform.u202418655.shared.application.result`
+
+```java
+package pe.com.facturease.platform.u202418655.shared.application.result;
 
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Represents the result of a command or operation that can either succeed
+ * with a value or fail with an error.
+ *
+ * <p>This type encodes the possibility of failure in the type system,
+ * making error cases explicit and composable.</p>
+ *
+ * @param <T> The type of the successful result value
+ * @param <E> The type of the error/failure information
+ * @author Victor Jhosef Laura Acosta
+ */
+public sealed interface Result<T, E> {
 
-  Represents the result of a command or operation that can either succeed
-  with a value or fail with an error.
- 
-  pThis type encodes the possibility of failure in the type system,
-  making error cases explicit and composable.p
- 
-  @param T The type of the successful result value
-  @param E The type of the errorfailure information
-  @author Victor Jhosef Laura Acosta
- 
-public sealed interface ResultT, E {
+    /**
+     * Represents a successful result containing a value.
+     */
+    record Success<T, E>(T value) implements Result<T, E> {}
 
-    
-      Represents a successful result containing a value.
-     
-    record SuccessT, E(T value) implements ResultT, E {}
+    /**
+     * Represents a failed result containing error information.
+     */
+    record Failure<T, E>(E error) implements Result<T, E> {}
 
-    
-      Represents a failed result containing error information.
-     
-    record FailureT, E(E error) implements ResultT, E {}
-
-    
-      Creates a successful result with the given value.
-     
-    static T, E ResultT, E success(T value) {
-        return new Success(value);
+    /**
+     * Creates a successful result with the given value.
+     */
+    static <T, E> Result<T, E> success(T value) {
+        return new Success<>(value);
     }
 
-    
-      Creates a failed result with the given error.
-     
-    static T, E ResultT, E failure(E error) {
-        return new Failure(error);
+    /**
+     * Creates a failed result with the given error.
+     */
+    static <T, E> Result<T, E> failure(E error) {
+        return new Failure<>(error);
     }
 
-    
-      Returns true if this result is a success.
-     
+    /**
+     * Returns true if this result is a success.
+     */
     default boolean isSuccess() {
         return this instanceof Success;
     }
 
-    
-      Returns true if this result is a failure.
-     
+    /**
+     * Returns true if this result is a failure.
+     */
     default boolean isFailure() {
         return this instanceof Failure;
     }
 
-    
-      Returns an Optional containing the value if success, otherwise empty.
-     
-    default OptionalT toOptional() {
+    /**
+     * Returns an Optional containing the value if success, otherwise empty.
+     */
+    default Optional<T> toOptional() {
         return switch (this) {
-            case SuccessT, E s - Optional.of(s.value);
-            case FailureT, E f - Optional.empty();
+            case Success<T, E> s -> Optional.of(s.value);
+            case Failure<T, E> f -> Optional.empty();
         };
     }
 
-    
-      Extracts the value if successful, or returns the given default if failed.
-     
+    /**
+     * Extracts the value if successful, or returns the given default if failed.
+     */
     default T getOrElse(T defaultValue) {
         return switch (this) {
-            case SuccessT, E s - s.value;
-            case FailureT, E f - defaultValue;
+            case Success<T, E> s -> s.value;
+            case Failure<T, E> f -> defaultValue;
         };
     }
 
-    
-      Applies a function to the error if this is a failure.
-     
-    default E2 ResultT, E2 mapError(FunctionE, E2 f) {
+    /**
+     * Applies a function to the error if this is a failure.
+     */
+    default <E2> Result<T, E2> mapError(Function<E, E2> f) {
         return switch (this) {
-            case SuccessT, E s - Result.success(s.value);
-            case FailureT, E failure - Result.failure(f.apply(failure.error));
+            case Success<T, E> s -> Result.success(s.value);
+            case Failure<T, E> failure -> Result.failure(f.apply(failure.error));
         };
     }
 
-    
-      Applies a function to the value if this is a success, producing a new Result.
-     
-    default T2 ResultT2, E flatMap(FunctionT, ResultT2, E f) {
+    /**
+     * Applies a function to the value if this is a success, producing a new Result.
+     */
+    default <T2> Result<T2, E> flatMap(Function<T, Result<T2, E>> f) {
         return switch (this) {
-            case SuccessT, E s - f.apply(s.value);
-            case FailureT, E failure - Result.failure(failure.error);
+            case Success<T, E> s -> f.apply(s.value);
+            case Failure<T, E> failure -> Result.failure(failure.error);
         };
     }
 
-    
-      Applies a function to the value if this is a success.
-     
-    default T2 ResultT2, E map(FunctionT, T2 f) {
+    /**
+     * Applies a function to the value if this is a success.
+     */
+    default <T2> Result<T2, E> map(Function<T, T2> f) {
         return switch (this) {
-            case SuccessT, E s - Result.success(f.apply(s.value));
-            case FailureT, E failure - Result.failure(failure.error);
+            case Success<T, E> s -> Result.success(f.apply(s.value));
+            case Failure<T, E> failure -> Result.failure(failure.error);
         };
     }
 
-    
-      Applies a function to the error if this is a failure, allowing fallback recovery.
-     
-    default ResultT, E recover(FunctionE, ResultT, E f) {
+    /**
+     * Applies a function to the error if this is a failure, allowing fallback recovery.
+     */
+    default Result<T, E> recover(Function<E, Result<T, E>> f) {
         return switch (this) {
-            case SuccessT, E s - this;
-            case FailureT, E failure - f.apply(failure.error);
+            case Success<T, E> s -> this;
+            case Failure<T, E> failure -> f.apply(failure.error);
         };
     }
 }
@@ -576,87 +637,87 @@ public sealed interface ResultT, E {
 
 ---
 
-### 03. ApplicationError.java
+### 04. ApplicationError.java
 
-Ruta `sharedapplicationresultApplicationError.java`
+Ruta `shared/application/result/ApplicationError.java`
 
-Package `com.sensibo.platform.u202418655.shared.application.result`
+Package `pe.com.facturease.platform.u202418655.shared.application.result`
 
 ```java
-package com.sensibo.platform.u202418655.shared.application.result;
+package pe.com.facturease.platform.u202418655.shared.application.result;
 
-
-  Represents an error that occurred in the application layer.
- 
-  pDesigned to be easily mapped to HTTP responses with structured
-  error information.p
- 
-  @param code     A machine-readable error code (e.g., DEVICE_CONFLICT)
-  @param message  A human-readable error message
-  @param details  Optional additional context about the error
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Represents an error that occurred in the application layer.
+ *
+ * <p>Designed to be easily mapped to HTTP responses with structured
+ * error information.</p>
+ *
+ * @param code     A machine-readable error code (e.g., INVOICE_CONFLICT)
+ * @param message  A human-readable error message
+ * @param details  Optional additional context about the error
+ * @author Victor Jhosef Laura Acosta
+ */
 public record ApplicationError(String code, String message, String details) {
 
-    
-      Creates an ApplicationError with code and message only.
-     
+    /**
+     * Creates an ApplicationError with code and message only.
+     */
     public ApplicationError(String code, String message) {
         this(code, message, null);
     }
 
-    
-      Validation error input data is invalid or violates constraints.
-     
+    /**
+     * Validation error: input data is invalid or violates constraints.
+     */
     public static ApplicationError validationError(String fieldOrConcept, String reason) {
-        return new ApplicationError(VALIDATION_ERROR,
-                Validation failed %s.formatted(fieldOrConcept), reason);
+        return new ApplicationError("VALIDATION_ERROR",
+                "Validation failed: %s".formatted(fieldOrConcept), reason);
     }
 
-    
-      Not found error the requested resource does not exist.
-     
+    /**
+     * Not found error: the requested resource does not exist.
+     */
     public static ApplicationError notFound(String resourceType, String identifier) {
-        return new ApplicationError(%s_NOT_FOUND.formatted(resourceType.toUpperCase()),
-                %s not found %s.formatted(resourceType, identifier), null);
+        return new ApplicationError("%s_NOT_FOUND".formatted(resourceType.toUpperCase()),
+                "%s not found: %s".formatted(resourceType, identifier), null);
     }
 
-    
-      Business rule violation error operation violates domain constraints.
-     
+    /**
+     * Business rule violation error: operation violates domain constraints.
+     */
     public static ApplicationError businessRuleViolation(String rule, String reason) {
-        return new ApplicationError(BUSINESS_RULE_VIOLATION,
-                Business rule violation %s.formatted(rule), reason);
+        return new ApplicationError("BUSINESS_RULE_VIOLATION",
+                "Business rule violation: %s".formatted(rule), reason);
     }
 
-    
-      Conflict error operation cannot be completed due to conflicting state.
-     
+    /**
+     * Conflict error: operation cannot be completed due to conflicting state.
+     */
     public static ApplicationError conflict(String resource, String reason) {
-        return new ApplicationError(%s_CONFLICT.formatted(resource.toUpperCase()),
-                Conflict with %s.formatted(resource), reason);
+        return new ApplicationError("%s_CONFLICT".formatted(resource.toUpperCase()),
+                "Conflict with %s".formatted(resource), reason);
     }
 
-    
-      Unexpected error something went wrong that shouldn't have.
-     
+    /**
+     * Unexpected error: something went wrong that shouldn't have.
+     */
     public static ApplicationError unexpected(String context, String reason) {
-        return new ApplicationError(UNEXPECTED_ERROR,
-                Unexpected error in %s.formatted(context), reason);
+        return new ApplicationError("UNEXPECTED_ERROR",
+                "Unexpected error in %s".formatted(context), reason);
     }
 }
 ```
 
 ---
 
-### 04. SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
+### 05. SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
 
-Ruta `sharedinfrastructurepersistencejpaconfigurationstrategySnakeCaseWithPluralizedTablePhysicalNamingStrategy.java`
+Ruta `shared/infrastructure/persistence/jpa/configuration/strategy/SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java`
 
-Package `com.sensibo.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy`
+Package `pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy`
 
 ```java
-package com.sensibo.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy;
+package pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy;
 
 import org.hibernate.boot.model.naming.Identifier;
 import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
@@ -664,15 +725,15 @@ import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
 
 import static io.github.encryptorcode.pluralize.Pluralize.pluralize;
 
-
-  Snake Case With Pluralized Table Physical Naming Strategy.
- 
-  p{@link PhysicalNamingStrategy} implementation that converts entity
-  names to snake_case and table names to pluralized snake_case.p
- 
-  @since 1.0.0
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Snake Case With Pluralized Table Physical Naming Strategy.
+ *
+ * <p>{@link PhysicalNamingStrategy} implementation that converts entity
+ * names to snake_case and table names to pluralized snake_case.</p>
+ *
+ * @since 1.0.0
+ * @author Victor Jhosef Laura Acosta
+ */
 public class SnakeCaseWithPluralizedTablePhysicalNamingStrategy implements PhysicalNamingStrategy {
 
     @Override
@@ -700,22 +761,22 @@ public class SnakeCaseWithPluralizedTablePhysicalNamingStrategy implements Physi
         return this.toSnakeCase(identifier);
     }
 
-    
-      Converts an identifier to snake_case.
-     
+    /**
+     * Converts an identifier to snake_case.
+     */
     private Identifier toSnakeCase(final Identifier identifier) {
         if (identifier == null) return null;
-        final String regex = ([a-z])([A-Z]);
-        final String replacement = $1_$2;
+        final String regex = "([a-z])([A-Z])";
+        final String replacement = "$1_$2";
         final String newName = identifier.getText()
                 .replaceAll(regex, replacement)
                 .toLowerCase();
         return Identifier.toIdentifier(newName);
     }
 
-    
-      Converts an identifier to its plural form.
-     
+    /**
+     * Converts an identifier to its plural form.
+     */
     private Identifier toPlural(final Identifier identifier) {
         return Identifier.toIdentifier(pluralize(identifier.getText()));
     }
@@ -724,16 +785,16 @@ public class SnakeCaseWithPluralizedTablePhysicalNamingStrategy implements Physi
 
 ---
 
-### 05. AuditableAbstractPersistenceEntity.java
+### 06. AuditableAbstractPersistenceEntity.java
 
-Ruta `sharedinfrastructurepersistencejpaentitiesAuditableAbstractPersistenceEntity.java`
+Ruta `shared/infrastructure/persistence/jpa/entities/AuditableAbstractPersistenceEntity.java`
 
-Package `com.sensibo.platform.u202418655.shared.infrastructure.persistence.jpa.entities`
+Package `pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.entities`
 
 ```java
-package com.sensibo.platform.u202418655.shared.infrastructure.persistence.jpa.entities;
+package pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.entities;
 
-import jakarta.persistence.;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -741,15 +802,15 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.util.Date;
 
-
-  Base JPA persistence entity for all persistence entities that require auditing.
- 
-  pProvides {@code id}, {@code createdAt}, and {@code updatedAt} fields.
-  This class intentionally lives in the infrastructure layer to keep JPA
-  and Spring Data auditing concerns out of the domain model.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Base JPA persistence entity for all persistence entities that require auditing.
+ *
+ * <p>Provides {@code id}, {@code createdAt}, and {@code updatedAt} fields.
+ * This class intentionally lives in the infrastructure layer to keep JPA
+ * and Spring Data auditing concerns out of the domain model.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Getter
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
@@ -767,11 +828,11 @@ public abstract class AuditableAbstractPersistenceEntity {
     @Column(nullable = false)
     private Date updatedAt;
 
-    
-      Sets the id for reconstruction from an existing domain object.
-     
-      @param id the persistence identity to assign
-     
+    /**
+     * Sets the id for reconstruction from an existing domain object.
+     *
+     * @param id the persistence identity to assign
+     */
     public void setId(Long id) {
         this.id = id;
     }
@@ -780,14 +841,14 @@ public abstract class AuditableAbstractPersistenceEntity {
 
 ---
 
-### 06. OpenApiConfiguration.java
+### 07. OpenApiConfiguration.java
 
-Ruta `sharedinfrastructuredocumentationopenapiconfigurationOpenApiConfiguration.java`
+Ruta `shared/infrastructure/documentation/openapi/configuration/OpenApiConfiguration.java`
 
-Package `com.sensibo.platform.u202418655.shared.infrastructure.documentation.openapi.configuration`
+Package `pe.com.facturease.platform.u202418655.shared.infrastructure.documentation.openapi.configuration`
 
 ```java
-package com.sensibo.platform.u202418655.shared.infrastructure.documentation.openapi.configuration;
+package pe.com.facturease.platform.u202418655.shared.infrastructure.documentation.openapi.configuration;
 
 import io.swagger.v3.oas.models.ExternalDocumentation;
 import io.swagger.v3.oas.models.OpenAPI;
@@ -801,30 +862,30 @@ import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 
-
-  Configures the OpenAPI specification exposed by the platform.
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Configures the OpenAPI specification exposed by the platform.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Configuration
 public class OpenApiConfiguration {
 
-    @Value(${spring.application.name})
+    @Value("${spring.application.name}")
     String applicationName;
 
-    @Value(${documentation.application.description})
+    @Value("${documentation.application.description}")
     String applicationDescription;
 
-    @Value(${documentation.application.version})
+    @Value("${documentation.application.version}")
     String applicationVersion;
 
-    
-      Builds the OpenAPI document used by Swagger UI and client generation tools.
-     
-      @return configured OpenAPI descriptor
-     
+    /**
+     * Builds the OpenAPI document used by Swagger UI and client generation tools.
+     *
+     * @return configured OpenAPI descriptor
+     */
     @Bean
-    public OpenAPI sensiboPlatformOpenApi() {
+    public OpenAPI facturperuPlatformOpenApi() {
         var openApi = new OpenAPI();
         openApi
                 .info(new Info()
@@ -832,23 +893,23 @@ public class OpenApiConfiguration {
                         .description(this.applicationDescription)
                         .version(this.applicationVersion)
                         .contact(new Contact()
-                                .name(Sensibo Climate Control)
-                                .email(support@sensibo.com)
-                                .url(https://sensibo.com/support))
+                                .name("Facturease Peru")
+                                .email("support@facturease.com.pe")
+                                .url("https://www.facturease.com.pe"))
                         .license(new License()
-                                .name(Apache 2.0)
-                                .url(https://www.apache.org/licenses/LICENSE-2.0.html)))
+                                .name("Apache 2.0")
+                                .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
                 .externalDocs(new ExternalDocumentation()
-                        .description(Sensibo Climate Control Platform Wiki Documentation)
-                        .url(https://sensibo.wiki.github.io/docs));
+                        .description("Facturease Peru Platform Wiki Documentation")
+                        .url("https://facturease.wiki.github.io/docs"));
 
         openApi.servers(List.of(
-                new Server().url(http://localhost:8096)
-                        .description(Local Development Environment),
-                new Server().url(https://staging-api.sensibo.com)
-                        .description(Staging Environment),
-                new Server().url(https://api.sensibo.com)
-                        .description(Production Environment)
+                new Server().url("http://localhost:8097")
+                        .description("Local Development Environment"),
+                new Server().url("https://staging-api.facturease.com.pe")
+                        .description("Staging Environment"),
+                new Server().url("https://api.facturease.com.pe")
+                        .description("Production Environment")
         ));
         return openApi;
     }
@@ -857,14 +918,14 @@ public class OpenApiConfiguration {
 
 ---
 
-### 07. LocaleConfiguration.java
+### 08. LocaleConfiguration.java
 
-Ruta `sharedinfrastructurei18nconfigurationLocaleConfiguration.java`
+Ruta `shared/infrastructure/i18n/configuration/LocaleConfiguration.java`
 
-Package `com.sensibo.platform.u202418655.shared.infrastructure.i18n.configuration`
+Package `pe.com.facturease.platform.u202418655.shared.infrastructure.i18n.configuration`
 
 ```java
-package com.sensibo.platform.u202418655.shared.infrastructure.i18n.configuration;
+package pe.com.facturease.platform.u202418655.shared.infrastructure.i18n.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -874,27 +935,27 @@ import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
 import java.util.List;
 import java.util.Locale;
 
-
-  Configures locale resolution for REST requests.
- 
-  pUses the Accept-Language header to determine the response language.
-  Supports English (default) and Spanish.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Configures locale resolution for REST requests.
+ *
+ * <p>Uses the Accept-Language header to determine the response language.
+ * Supports English (default) and Spanish.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Configuration
 public class LocaleConfiguration {
 
-    
-      Creates a LocaleResolver that uses the Accept-Language header.
-     
-      @return the locale resolver instance
-     
+    /**
+     * Creates a LocaleResolver that uses the Accept-Language header.
+     *
+     * @return the locale resolver instance
+     */
     @Bean
     public LocaleResolver localeResolver() {
         var resolver = new AcceptHeaderLocaleResolver();
         resolver.setDefaultLocale(Locale.ENGLISH);
-        resolver.setSupportedLocales(List.of(Locale.ENGLISH, Locale.forLanguageTag(es)));
+        resolver.setSupportedLocales(List.of(Locale.ENGLISH, Locale.forLanguageTag("es")));
         return resolver;
     }
 }
@@ -902,31 +963,31 @@ public class LocaleConfiguration {
 
 ---
 
-### 08. ErrorResource.java
+### 09. ErrorResource.java
 
-Ruta `sharedinterfacesrestresourcesErrorResource.java`
+Ruta `shared/interfaces/rest/resources/ErrorResource.java`
 
-Package `com.sensibo.platform.u202418655.shared.interfaces.rest.resources`
+Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources`
 
 ```java
-package com.sensibo.platform.u202418655.shared.interfaces.rest.resources;
+package pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 
-
-  Standard error response resource returned from REST endpoints.
- 
-  @param code    A machine-readable error code
-  @param message A human-readable error message
-  @param details Optional additional context about the error
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Standard error response resource returned from REST endpoints.
+ *
+ * @param code    A machine-readable error code
+ * @param message A human-readable error message
+ * @param details Optional additional context about the error
+ * @author Victor Jhosef Laura Acosta
+ */
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ErrorResource(String code, String message, String details) {
 
-    
-      Creates an ErrorResource from code and message only (no details).
-     
+    /**
+     * Creates an ErrorResource from code and message only (no details).
+     */
     public ErrorResource(String code, String message) {
         this(code, message, null);
     }
@@ -935,76 +996,76 @@ public record ErrorResource(String code, String message, String details) {
 
 ---
 
-### 09. MessageResource.java
+### 10. MessageResource.java
 
-Ruta `sharedinterfacesrestresourcesMessageResource.java`
+Ruta `shared/interfaces/rest/resources/MessageResource.java`
 
-Package `com.sensibo.platform.u202418655.shared.interfaces.rest.resources`
+Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources`
 
 ```java
-package com.sensibo.platform.u202418655.shared.interfaces.rest.resources;
+package pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources;
 
-
-  Resource used for simple success or informational REST responses.
- 
-  @param message A informational message
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Resource used for simple success or informational REST responses.
+ *
+ * @param message An informational message
+ * @author Victor Jhosef Laura Acosta
+ */
 public record MessageResource(String message) {}
 ```
 
 ---
 
-### 10. ErrorResponseAssembler.java
+### 11. ErrorResponseAssembler.java
 
-Ruta `sharedinterfacesresttransformErrorResponseAssembler.java`
+Ruta `shared/interfaces/rest/transform/ErrorResponseAssembler.java`
 
-Package `com.sensibo.platform.u202418655.shared.interfaces.rest.transform`
+Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform`
 
 ```java
-package com.sensibo.platform.u202418655.shared.interfaces.rest.transform;
+package pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform;
 
-import com.sensibo.platform.u202418655.shared.application.result.ApplicationError;
-import com.sensibo.platform.u202418655.shared.interfaces.rest.resources.ErrorResource;
+import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
+import pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources.ErrorResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
-
-  Assembler for converting application errors to HTTP responses.
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Assembler for converting application errors to HTTP responses.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 public final class ErrorResponseAssembler {
 
     private ErrorResponseAssembler() {}
 
-    
-      Maps an ApplicationError to an appropriate HTTP ResponseEntity.
-     
-      @param error the ApplicationError to map
-      @return a ResponseEntity with the appropriate HTTP status and error resource
-     
-    public static ResponseEntityErrorResource toErrorResponseFromApplicationError(ApplicationError error) {
+    /**
+     * Maps an ApplicationError to an appropriate HTTP ResponseEntity.
+     *
+     * @param error the ApplicationError to map
+     * @return a ResponseEntity with the appropriate HTTP status and error resource
+     */
+    public static ResponseEntity<ErrorResource> toErrorResponseFromApplicationError(ApplicationError error) {
         HttpStatusCode status = toStatusFromErrorCode(error.code());
-        return new ResponseEntity(
+        return new ResponseEntity<>(
                 new ErrorResource(error.code(), error.message(), error.details()), status);
     }
 
-    
-      Determines the appropriate HTTP status code for a given error code.
-     
-      @param errorCode the error code string
-      @return the corresponding HttpStatus
-     
+    /**
+     * Determines the appropriate HTTP status code for a given error code.
+     *
+     * @param errorCode the error code string
+     * @return the corresponding HttpStatus
+     */
     public static HttpStatusCode toStatusFromErrorCode(String errorCode) {
         return switch (errorCode) {
-            case VALIDATION_ERROR - HttpStatus.BAD_REQUEST;
-            case String s when s.endsWith(_NOT_FOUND) - HttpStatus.NOT_FOUND;
-            case BUSINESS_RULE_VIOLATION - HttpStatusCode.valueOf(422);
-            case String s when s.endsWith(_CONFLICT) - HttpStatus.CONFLICT;
-            case UNEXPECTED_ERROR - HttpStatus.INTERNAL_SERVER_ERROR;
-            default - HttpStatus.INTERNAL_SERVER_ERROR;
+            case "VALIDATION_ERROR" -> HttpStatus.BAD_REQUEST;
+            case String s when s.endsWith("_NOT_FOUND") -> HttpStatus.NOT_FOUND;
+            case "BUSINESS_RULE_VIOLATION" -> HttpStatusCode.valueOf(422);
+            case String s when s.endsWith("_CONFLICT") -> HttpStatus.CONFLICT;
+            case "UNEXPECTED_ERROR" -> HttpStatus.INTERNAL_SERVER_ERROR;
+            default -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }
 }
@@ -1012,50 +1073,50 @@ public final class ErrorResponseAssembler {
 
 ---
 
-### 11. ResponseEntityAssembler.java
+### 12. ResponseEntityAssembler.java
 
-Ruta `sharedinterfacesresttransformResponseEntityAssembler.java`
+Ruta `shared/interfaces/rest/transform/ResponseEntityAssembler.java`
 
-Package `com.sensibo.platform.u202418655.shared.interfaces.rest.transform`
+Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform`
 
 ```java
-package com.sensibo.platform.u202418655.shared.interfaces.rest.transform;
+package pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform;
 
-import com.sensibo.platform.u202418655.shared.application.result.ApplicationError;
-import com.sensibo.platform.u202418655.shared.application.result.Result;
+import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
+import pe.com.facturease.platform.u202418655.shared.application.result.Result;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 
 import java.util.function.Function;
 
-
-  Assembler that translates application Result values into HTTP responses.
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Assembler that translates application Result values into HTTP responses.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 public final class ResponseEntityAssembler {
 
     private ResponseEntityAssembler() {}
 
-    
-      Converts a Result into an HTTP response using the provided assembler.
-     
-      @param result                    the application result
-      @param successResourceAssembler  function that maps success value to response resource
-      @param successStatus             HTTP status to use for successful responses
-      @param T                       success value type
-      @param R                       success response resource type
-      @return response entity for success or failure
-     
-    public static T, R ResponseEntity toResponseEntityFromResult(
-            ResultT, ApplicationError result,
-            FunctionT, R successResourceAssembler,
+    /**
+     * Converts a Result into an HTTP response using the provided assembler.
+     *
+     * @param result                    the application result
+     * @param successResourceAssembler  function that maps success value to response resource
+     * @param successStatus             HTTP status to use for successful responses
+     * @param <T>                       success value type
+     * @param <R>                       success response resource type
+     * @return response entity for success or failure
+     */
+    public static <T, R> ResponseEntity<?> toResponseEntityFromResult(
+            Result<T, ApplicationError> result,
+            Function<T, R> successResourceAssembler,
             HttpStatusCode successStatus
     ) {
         return switch (result) {
-            case Result.SuccessT, ApplicationError success -
-                    new ResponseEntity(successResourceAssembler.apply(success.value()), successStatus);
-            case Result.FailureT, ApplicationError failure -
+            case Result.Success<T, ApplicationError> success ->
+                    new ResponseEntity<>(successResourceAssembler.apply(success.value()), successStatus);
+            case Result.Failure<T, ApplicationError> failure ->
                     ErrorResponseAssembler.toErrorResponseFromApplicationError(failure.error());
         };
     }
@@ -1064,1429 +1125,1147 @@ public final class ResponseEntityAssembler {
 
 ---
 
-### 12. GlobalExceptionHandler.java
+### 13. GlobalExceptionHandler.java
 
-Ruta `sharedinterfacesrestGlobalExceptionHandler.java`
+Ruta `shared/interfaces/rest/GlobalExceptionHandler.java`
 
-Package `com.sensibo.platform.u202418655.shared.interfaces.rest`
+Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest`
 
 ```java
-package com.sensibo.platform.u202418655.shared.interfaces.rest;
+package pe.com.facturease.platform.u202418655.shared.interfaces.rest;
 
-import com.sensibo.platform.u202418655.shared.application.result.ApplicationError;
-import com.sensibo.platform.u202418655.shared.interfaces.rest.transform.ErrorResponseAssembler;
+import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
+import pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform.ErrorResponseAssembler;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-
-  Global exception handler for REST API.
- 
-  pProvides centralized exception handling ensuring all unhandled
-  exceptions are translated to consistent HTTP responses.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Global exception handler for REST API.
+ *
+ * <p>Provides centralized exception handling ensuring all unhandled
+ * exceptions are translated to consistent HTTP responses.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    
-      Handles validation exceptions from Spring's request body validation.
-     
+    /**
+     * Handles validation exceptions from Spring's request body validation.
+     */
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+    public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
         var fieldErrors = ex.getBindingResult().getFieldErrors();
         var errorDetails = fieldErrors.isEmpty()
-                 Request validation failed
-                 fieldErrors.stream()
-                        .map(error - Field %s %s.formatted(
+                ? "Request validation failed"
+                : fieldErrors.stream()
+                        .map(error -> "Field %s: %s".formatted(
                                 error.getField(), error.getDefaultMessage()))
-                        .reduce((a, b) - a + ;  + b)
-                        .orElse(Request validation failed);
+                        .reduce((a, b) -> a + "; " + b)
+                        .orElse("Request validation failed");
 
         return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.validationError(request-body, errorDetails));
+                ApplicationError.validationError("request-body", errorDetails));
     }
 
-    
-      Handles invalid request arguments such as malformed values.
-     
+    /**
+     * Handles invalid request arguments such as malformed values.
+     */
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity handleIllegalArgumentException(IllegalArgumentException ex) {
+    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
         return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.validationError(request-argument,
-                        ex.getMessage() != null  ex.getMessage()  Invalid request argument));
+                ApplicationError.validationError("request-argument",
+                        ex.getMessage() != null ? ex.getMessage() : "Invalid request argument"));
     }
 
-    
-      Handles unexpected runtime exceptions.
-     
+    /**
+     * Handles illegal state exceptions raised by business rule enforcement.
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<?> handleIllegalStateException(IllegalStateException ex) {
+        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
+                ApplicationError.businessRuleViolation("invoice-state",
+                        ex.getMessage() != null ? ex.getMessage() : "Invalid request state"));
+    }
+
+    /**
+     * Handles unexpected runtime exceptions.
+     */
     @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity handleRuntimeException(RuntimeException ex) {
+    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
         return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.unexpected(global-exception-handler,
-                        ex.getMessage() != null  ex.getMessage()  An unexpected error occurred));
+                ApplicationError.unexpected("global-exception-handler",
+                        ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
     }
 
-    
-      Handles all other exceptions not matched by specific handlers.
-     
+    /**
+     * Handles all other exceptions not matched by specific handlers.
+     */
     @ExceptionHandler(Exception.class)
-    public ResponseEntity handleException(Exception ex) {
+    public ResponseEntity<?> handleException(Exception ex) {
         return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.unexpected(global-exception-handler,
-                        ex.getMessage() != null  ex.getMessage()  An unexpected error occurred));
+                ApplicationError.unexpected("global-exception-handler",
+                        ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
     }
 }
 ```
 
 ---
 
-## Registry Bounded Context - Estructura de carpetas
+## Billing Bounded Context - Estructura de carpetas
 
-Crear la siguiente estructura bajo `srcmainjavacomsensiboplatformu202418655registry`
+Crear la siguiente estructura bajo `src/main/java/pe/com/facturease/platform/u202418655/billing`
 
 ```
-registry
+billing
 ├── domain
 │   ├── model
 │   │   ├── aggregates
-│   │   │   └── Device.java
+│   │   │   └── Invoice.java
 │   │   ├── commands
-│   │   │   └── CreateDeviceCommand.java
+│   │   │   └── CreateInvoiceCommand.java
 │   │   ├── queries
-│   │   │   └── GetDeviceById.java
+│   │   │   └── GetInvoiceById.java
 │   │   └── valueobjects
-│   │       ├── DeviceTypes.java
-│   │       ├── MacAddress.java
-│   │       ├── SensiboUserId.java
-│   │       ├── SerialNumber.java
-│   │       └── Version.java
+│   │       ├── InvoiceIdentifier.java
+│   │       └── InvoiceStatus.java
 │   └── repositories
-│       └── DeviceRepository.java
+│       └── InvoiceRepository.java
 ├── application
 │   ├── commandservices
-│   │   └── DeviceCommandService.java
+│   │   └── InvoiceCommandService.java
 │   ├── queryservices
-│   │   └── DeviceQueryService.java
+│   │   └── InvoiceQueryService.java
 │   └── internal
 │       ├── commandservices
-│       │   └── DeviceCommandServiceImpl.java
+│       │   └── InvoiceCommandServiceImpl.java
 │       └── queryservices
-│           └── DeviceQueryServiceImpl.java
+│           └── InvoiceQueryServiceImpl.java
 ├── infrastructure
 │   └── persistence
 │       └── jpa
 │           ├── adapters
-│           │   └── DeviceRepositoryImpl.java
+│           │   └── InvoiceRepositoryImpl.java
 │           ├── assemblers
-│           │   └── DevicePersistenceAssembler.java
+│           │   └── InvoicePersistenceAssembler.java
 │           ├── converters
-│           │   ├── MacAddressPersistenceConverter.java
-│           │   ├── SensiboUserIdPersistenceConverter.java
-│           │   ├── SerialNumberPersistenceConverter.java
-│           │   └── VersionPersistenceConverter.java
+│           │   └── InvoiceIdentifierPersistenceConverter.java
 │           ├── entities
-│           │   └── DevicePersistenceEntity.java
+│           │   └── InvoicePersistenceEntity.java
 │           └── repositories
-│               └── DevicePersistenceRepository.java
+│               └── InvoicePersistenceRepository.java
 └── interfaces
     └── rest
-        ├── DevicesController.java
+        ├── InvoicesController.java
         ├── resources
-        │   ├── CreateDeviceResource.java
-        │   └── DeviceResource.java
+        │   ├── CreateInvoiceResource.java
+        │   └── InvoiceResource.java
         └── transform
-            ├── CreateDeviceCommandFromResourceAssembler.java
-            └── DeviceResourceFromEntityAssembler.java
+            ├── CreateInvoiceCommandFromResourceAssembler.java
+            └── InvoiceResourceFromEntityAssembler.java
 ```
 
 ---
 
-## Registry - Domain Layer (Value Objects)
+## Billing - Domain Layer (Value Objects)
 
-### 13. DeviceTypes.java
+### 14. InvoiceStatus.java
 
-Ruta `registrydomainmodelvalueobjectsDeviceTypes.java`
+Ruta `billing/domain/model/valueobjects/InvoiceStatus.java`
 
-Package `com.sensibo.platform.u202418655.registry.domain.model.valueobjects`
+Package `pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects`
 
 ```java
-package com.sensibo.platform.u202418655.registry.domain.model.valueobjects;
+package pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects;
 
 import java.util.Arrays;
 
+/**
+ * Enumeration representing the status of an electronic Invoice.
+ *
+ * <p>Defines the available statuses:</p>
+ * <ul>
+ *   <li>DRAFT - default status when no status is specified</li>
+ *   <li>ISSUED - the invoice has been formally issued to SUNAT</li>
+ *   <li>PAID - the invoice has been fully paid</li>
+ * </ul>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
+public enum InvoiceStatus {
+    DRAFT,
+    ISSUED,
+    PAID;
 
-  Enumeration representing the types of Sensibo devices.
- 
-  pDefines the available device types with their numeric identifiersp
-  ul
-    li1 - SMART_AC_CONTROLLERli
-    li2 - ROOM_SENSORli
-    li3 - AIR_QUALITY_MONITORli
-    li4 - DOOR_WINDOW_SENSORli
-  ul
- 
-  @author Victor Jhosef Laura Acosta
- 
-public enum DeviceTypes {
-    SMART_AC_CONTROLLER(1),
-    ROOM_SENSOR(2),
-    AIR_QUALITY_MONITOR(3),
-    DOOR_WINDOW_SENSOR(4);
-
-    private final int id;
-
-    DeviceTypes(int id) {
-        this.id = id;
-    }
-
-    
-      Returns the numeric identifier of this device type.
-     
-      @return the numeric id
-     
-    public int getId() {
-        return id;
-    }
-
-    
-      Returns the DeviceTypes from a given numeric id.
-     
-      @param id the numeric id
-      @return the matching DeviceTypes
-      @throws IllegalArgumentException if no type matches
-     
-    public static DeviceTypes fromValue(int id) {
-        return Arrays.stream(DeviceTypes.values())
-                .filter(dt - dt.id == id)
+    /**
+     * Returns the InvoiceStatus from a given name (case-insensitive).
+     *
+     * @param name the name of the status
+     * @return the matching InvoiceStatus
+     * @throws IllegalArgumentException if no status matches
+     */
+    public static InvoiceStatus fromString(String name) {
+        return Arrays.stream(InvoiceStatus.values())
+                .filter(status -> status.name().equalsIgnoreCase(name))
                 .findFirst()
-                .orElseThrow(() -
-                        new IllegalArgumentException([DeviceTypes] Invalid value  + id));
-    }
-
-    
-      Returns the DeviceTypes from a given name (case-insensitive).
-     
-      @param name the name of the device type
-      @return the matching DeviceTypes
-      @throws IllegalArgumentException if no type matches
-     
-    public static DeviceTypes fromString(String name) {
-        return Arrays.stream(DeviceTypes.values())
-                .filter(dt - dt.name().equalsIgnoreCase(name))
-                .findFirst()
-                .orElseThrow(() -
-                        new IllegalArgumentException([DeviceTypes] Invalid string  + name));
+                .orElseThrow(() ->
+                        new IllegalArgumentException("[InvoiceStatus] Invalid string: " + name));
     }
 }
 ```
 
 ---
 
-### 14. MacAddress.java
+### 15. InvoiceIdentifier.java
 
-Ruta `registrydomainmodelvalueobjectsMacAddress.java`
+Ruta `billing/domain/model/valueobjects/InvoiceIdentifier.java`
 
-Package `com.sensibo.platform.u202418655.registry.domain.model.valueobjects`
-
-```java
-package com.sensibo.platform.u202418655.registry.domain.model.valueobjects;
-
-import java.util.Objects;
-
-
-  Value object representing a MAC address.
- 
-  pValidates that the MAC address follows the standard hexadecimal format
-  {@code AABBCCDDEEFF}.p
- 
-  @param value the MAC address string
-  @author Victor Jhosef Laura Acosta
- 
-public record MacAddress(String value) {
-
-    private static final String MAC_REGEX = ^([0-9A-Fa-f]{2}){5}[0-9A-Fa-f]{2}$;
-
-    
-      Creates a MacAddress with validation.
-     
-      @throws IllegalArgumentException if value is null, blank, or invalid format
-     
-    public MacAddress {
-        if (Objects.isNull(value)  value.isBlank())
-            throw new IllegalArgumentException(
-                    [MacAddress] value cannot be null or blank);
-        if (!value.matches(MAC_REGEX))
-            throw new IllegalArgumentException(
-                    [MacAddress] Invalid MAC address format. Expected AABBCCDDEEFF);
-    }
-
-    
-      Default constructor required for JPA.
-     
-    public MacAddress() {
-        this(null);
-    }
-}
-```
-
----
-
-### 15. SensiboUserId.java
-
-Ruta `registrydomainmodelvalueobjectsSensiboUserId.java`
-
-Package `com.sensibo.platform.u202418655.registry.domain.model.valueobjects`
+Package `pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects`
 
 ```java
-package com.sensibo.platform.u202418655.registry.domain.model.valueobjects;
-
-import java.util.Objects;
-
-
-  Value object representing a Sensibo user identifier.
- 
-  pContains a Long identifier that must not be null and must be greater than zero.p
- 
-  @param userId the user identifier value
-  @author Victor Jhosef Laura Acosta
- 
-public record SensiboUserId(Long userId) {
-
-    
-      Creates a SensiboUserId with validation.
-     
-      @throws IllegalArgumentException if value is null or less than or equal to zero
-     
-    public SensiboUserId {
-        if (Objects.isNull(userId))
-            throw new IllegalArgumentException([SensiboUserId] value cannot be null);
-        if (userId = 0)
-            throw new IllegalArgumentException([SensiboUserId] value must be greater than zero);
-    }
-
-    
-      Default constructor required for JPA.
-     
-    public SensiboUserId() {
-        this(null);
-    }
-}
-```
-
----
-
-### 16. SerialNumber.java
-
-Ruta `registrydomainmodelvalueobjectsSerialNumber.java`
-
-Package `com.sensibo.platform.u202418655.registry.domain.model.valueobjects`
-
-```java
-package com.sensibo.platform.u202418655.registry.domain.model.valueobjects;
+package pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects;
 
 import java.util.Objects;
 import java.util.UUID;
 
+/**
+ * Value object representing the unique identifier of an electronic Invoice.
+ *
+ * <p>Wraps a UUID value generated in another bounded context, used to
+ * uniquely identify the electronic fiscal document.</p>
+ *
+ * @param value the UUID value of the invoice identifier
+ * @author Victor Jhosef Laura Acosta
+ */
+public record InvoiceIdentifier(UUID value) {
 
-  Value object representing a device serial number.
- 
-  pEncapsulates a UUID-based serial number. When no value is provided,
-  a random UUID is auto-generated.p
- 
-  @param value the serial number as a UUID string
-  @author Victor Jhosef Laura Acosta
- 
-public record SerialNumber(String value) {
-
-    
-      Creates a SerialNumber with validation.
-     
-      @throws IllegalArgumentException if value is null, blank, not 36 chars, or not a valid UUID
-     
-    public SerialNumber {
-        if (Objects.isNull(value)  value.isBlank())
-            throw new IllegalArgumentException([SerialNumber] value cannot be null or blank);
-        if (value.length() != 36)
-            throw new IllegalArgumentException([SerialNumber] must be 36 characters long);
-        if (!value.matches([a-f0-9]{8}-([a-f0-9]{4}-){3}[a-f0-9]{12}))
-            throw new IllegalArgumentException([SerialNumber] must be a valid UUID);
+    /**
+     * Creates an InvoiceIdentifier with validation.
+     *
+     * @throws IllegalArgumentException if value is null
+     */
+    public InvoiceIdentifier {
+        if (Objects.isNull(value))
+            throw new IllegalArgumentException(
+                    "[InvoiceIdentifier] value cannot be null");
     }
 
-    
-      Auto-generates a random UUID serial number.
-     
-    public SerialNumber() {
-        this(UUID.randomUUID().toString());
-    }
-}
-```
-
----
-
-### 17. Version.java
-
-Ruta `registrydomainmodelvalueobjectsVersion.java`
-
-Package `com.sensibo.platform.u202418655.registry.domain.model.valueobjects`
-
-```java
-package com.sensibo.platform.u202418655.registry.domain.model.valueobjects;
-
-import java.util.Objects;
-
-
-  Value object representing a firmware version.
- 
-  pValidates that the version follows the {@code X.Y.Z} format.p
- 
-  @param value the version string
-  @author Victor Jhosef Laura Acosta
- 
-public record Version(String value) {
-
-    private static final String VERSION_REGEX = ^d+.d+.d+$;
-
-    
-      Creates a Version with validation.
-     
-      @throws IllegalArgumentException if value is null, blank, or not in X.Y.Z format
-     
-    public Version {
-        if (Objects.isNull(value)  value.isBlank())
-            throw new IllegalArgumentException([Version] value cannot be null or blank);
-        if (!value.matches(VERSION_REGEX))
-            throw new IllegalArgumentException([Version] Invalid version format. Expected X.Y.Z);
+    /**
+     * Creates an InvoiceIdentifier from a String representation of a UUID.
+     *
+     * @param value the string representation of the UUID
+     * @return the InvoiceIdentifier instance
+     * @throws IllegalArgumentException if value is null, blank, or not a valid UUID
+     */
+    public static InvoiceIdentifier fromString(String value) {
+        if (Objects.isNull(value) || value.isBlank())
+            throw new IllegalArgumentException(
+                    "[InvoiceIdentifier] value cannot be null or blank");
+        try {
+            return new InvoiceIdentifier(UUID.fromString(value));
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "[InvoiceIdentifier] value must be a valid UUID");
+        }
     }
 
-    
-      Default constructor required for JPA.
-     
-    public Version() {
-        this(null);
+    /**
+     * Default constructor required for JPA.
+     */
+    public InvoiceIdentifier() {
+        this(UUID.randomUUID());
     }
 }
 ```
 
 ---
 
-## Registry - Domain Layer (Aggregate Root)
+## Billing - Domain Layer (Aggregate Root)
 
-### 18. Device.java
+### 16. Invoice.java
 
-Ruta `registrydomainmodelaggregatesDevice.java`
+Ruta `billing/domain/model/aggregates/Invoice.java`
 
-Package `com.sensibo.platform.u202418655.registry.domain.model.aggregates`
+Package `pe.com.facturease.platform.u202418655.billing.domain.model.aggregates`
 
 ```java
-package com.sensibo.platform.u202418655.registry.domain.model.aggregates;
+package pe.com.facturease.platform.u202418655.billing.domain.model.aggregates;
 
-import com.sensibo.platform.u202418655.registry.domain.model.commands.CreateDeviceCommand;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.;
-import com.sensibo.platform.u202418655.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
+import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceStatus;
+import pe.com.facturease.platform.u202418655.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
+import pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects.TaxSummary;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
-
-
-  Aggregate root representing a Sensibo device.
- 
-  pA Device represents a physical Sensibo device registered in the platform,
-  such as an AC controller, room sensor, air quality monitor, or doorwindow sensor.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Aggregate root representing an electronic corporate Invoice.
+ *
+ * <p>An Invoice represents a fiscal document issued by a Facturease Peru
+ * corporate client, holding its identifier, description, status, tax
+ * summary, and item count.</p>
+ *
+ * <p>Business rules enforced:</p>
+ * <ul>
+ *   <li>The {@code calculatedTax} inside {@code taxSummary} must be consistent
+ *   with the 18% national IGV rate applied over {@code netAmount}.</li>
+ *   <li>An Invoice can only be registered with an initial status different
+ *   from DRAFT (i.e., ISSUED or PAID) if {@code itemCount} is strictly
+ *   greater than zero.</li>
+ * </ul>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Getter
 @Setter
-public class Device extends AbstractDomainAggregateRootDevice {
+public class Invoice extends AbstractDomainAggregateRoot<Invoice> {
 
     private Long id;
-    private SensiboUserId userId;
-    private DeviceTypes deviceType;
-    private String modelName;
-    private SerialNumber serialNumber;
-    private MacAddress macAddress;
-    private Version firmwareVersion;
-    private LocalDate installationDate;
-    private String roomLocation;
+    private InvoiceIdentifier invoiceIdentifier;
+    private String description;
+    private InvoiceStatus status;
+    private TaxSummary taxSummary;
+    private Integer itemCount;
 
-    
-      Default constructor required by JPA.
-     
-    public Device() {}
+    /**
+     * Default constructor required by JPA.
+     */
+    public Invoice() {}
 
-    
-      Creates a new Device from the given command.
-     
-      @param command the create device command
-     
-    public Device(CreateDeviceCommand command) {
-        this.userId = new SensiboUserId(command.userId());
-        this.deviceType = DeviceTypes.fromString(command.deviceType());
-        this.modelName = command.modelName();
-        this.serialNumber = new SerialNumber(command.serialNumber());
-        this.macAddress = new MacAddress(command.macAddress());
-        this.firmwareVersion = new Version(command.firmwareVersion());
-        this.installationDate = command.installationDate();
-        this.roomLocation = command.roomLocation();
+    /**
+     * Creates a new Invoice from the given command.
+     *
+     * @param command the create invoice command
+     * @throws IllegalStateException if status is not DRAFT and itemCount is not greater than zero
+     */
+    public Invoice(CreateInvoiceCommand command) {
+        this.invoiceIdentifier = InvoiceIdentifier.fromString(command.invoiceIdentifier());
+        this.description = command.description();
+        this.status = command.status() == null
+                ? InvoiceStatus.DRAFT
+                : InvoiceStatus.fromString(command.status());
+        this.taxSummary = new TaxSummary(command.netAmount(), command.calculatedTax());
+        this.itemCount = command.itemCount();
+
+        // BUSINESS RULE: itemCount must be > 0 for any status other than DRAFT
+        if (this.status != InvoiceStatus.DRAFT && (this.itemCount == null || this.itemCount <= 0)) {
+            throw new IllegalStateException(
+                    "[Invoice] itemCount must be strictly greater than zero when status is ISSUED or PAID");
+        }
     }
 }
 ```
 
 ---
 
-## Registry - Domain Layer (Commands)
+## Billing - Domain Layer (Commands)
 
-### 19. CreateDeviceCommand.java
+### 17. CreateInvoiceCommand.java
 
-Ruta `registrydomainmodelcommandsCreateDeviceCommand.java`
+Ruta `billing/domain/model/commands/CreateInvoiceCommand.java`
 
-Package `com.sensibo.platform.u202418655.registry.domain.model.commands`
+Package `pe.com.facturease.platform.u202418655.billing.domain.model.commands`
 
 ```java
-package com.sensibo.platform.u202418655.registry.domain.model.commands;
+package pe.com.facturease.platform.u202418655.billing.domain.model.commands;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
+/**
+ * Command to create a new Invoice.
+ *
+ * <p>Encapsulates all data required to create an Invoice aggregate.
+ * Validation of mandatory fields is performed in the constructor.</p>
+ *
+ * @param invoiceIdentifier the UUID string identifying the invoice
+ * @param description       the optional invoice description
+ * @param status             the optional initial status name (defaults to DRAFT)
+ * @param netAmount          the net amount before taxes
+ * @param calculatedTax      the accumulated tax amount
+ * @param itemCount          the number of items in the invoice
+ * @author Victor Jhosef Laura Acosta
+ */
+public record CreateInvoiceCommand(
+        String invoiceIdentifier, String description, String status,
+        BigDecimal netAmount, BigDecimal calculatedTax, Integer itemCount) {
 
-  Command to create a new device.
- 
-  pEncapsulates all data required to create a Device aggregate.
-  Validation of mandatory fields is performed in the constructor.p
- 
-  @param userId           the Sensibo user identifier
-  @param deviceType       the device type name
-  @param modelName        the model name
-  @param serialNumber     the serial number (UUID, auto-generated)
-  @param macAddress       the MAC address
-  @param firmwareVersion  the firmware version
-  @param installationDate the installation date
-  @param roomLocation     the room location
-  @author Victor Jhosef Laura Acosta
- 
-public record CreateDeviceCommand(
-        Long userId, String deviceType, String modelName, String serialNumber,
-        String macAddress, String firmwareVersion, LocalDate installationDate,
-        String roomLocation) {
-
-    
-      Validates that all required fields are present.
-     
-      @throws IllegalArgumentException if any required field is null
-     
-    public CreateDeviceCommand {
-        if (userId == null)
-            throw new IllegalArgumentException(userId cannot be null);
-        if (deviceType == null)
-            throw new IllegalArgumentException(deviceType cannot be null);
-        if (modelName == null)
-            throw new IllegalArgumentException(modelName cannot be null);
-        if (serialNumber == null)
-            throw new IllegalArgumentException(serialNumber cannot be null);
-        if (firmwareVersion == null)
-            throw new IllegalArgumentException(firmwareVersion cannot be null);
-        if (installationDate == null)
-            throw new IllegalArgumentException(installationDate cannot be null);
-        if (roomLocation == null)
-            throw new IllegalArgumentException(roomLocation cannot be null);
+    /**
+     * Validates that all required fields are present.
+     *
+     * @throws IllegalArgumentException if any required field is null
+     */
+    public CreateInvoiceCommand {
+        if (invoiceIdentifier == null)
+            throw new IllegalArgumentException("invoiceIdentifier cannot be null");
+        if (netAmount == null)
+            throw new IllegalArgumentException("netAmount cannot be null");
+        if (calculatedTax == null)
+            throw new IllegalArgumentException("calculatedTax cannot be null");
+        if (itemCount == null)
+            throw new IllegalArgumentException("itemCount cannot be null");
     }
 }
 ```
 
 ---
 
-## Registry - Domain Layer (Queries)
+## Billing - Domain Layer (Queries)
 
-### 20. GetDeviceById.java
+### 18. GetInvoiceById.java
 
-Ruta `registrydomainmodelqueriesGetDeviceById.java`
+Ruta `billing/domain/model/queries/GetInvoiceById.java`
 
-Package `com.sensibo.platform.u202418655.registry.domain.model.queries`
+Package `pe.com.facturease.platform.u202418655.billing.domain.model.queries`
 
 ```java
-package com.sensibo.platform.u202418655.registry.domain.model.queries;
+package pe.com.facturease.platform.u202418655.billing.domain.model.queries;
 
+/**
+ * Query to retrieve an Invoice by its identifier.
+ *
+ * @param invoiceId the unique identifier of the invoice
+ * @author Victor Jhosef Laura Acosta
+ */
+public record GetInvoiceById(Long invoiceId) {
 
-  Query to retrieve a device by its identifier.
- 
-  @param deviceId the unique identifier of the device
-  @author Victor Jhosef Laura Acosta
- 
-public record GetDeviceById(Long deviceId) {
-
-    
-      Validates the query parameters.
-     
-      @throws IllegalArgumentException if deviceId is null or negative
-     
-    public GetDeviceById {
-        if (deviceId == null)
-            throw new IllegalArgumentException(deviceId cannot be null);
-        if (deviceId  0)
-            throw new IllegalArgumentException(deviceId cannot be negative);
+    /**
+     * Validates the query parameters.
+     *
+     * @throws IllegalArgumentException if invoiceId is null or negative
+     */
+    public GetInvoiceById {
+        if (invoiceId == null)
+            throw new IllegalArgumentException("invoiceId cannot be null");
+        if (invoiceId < 0)
+            throw new IllegalArgumentException("invoiceId cannot be negative");
     }
 }
 ```
 
 ---
 
-## Registry - Domain Layer (Repository)
+## Billing - Domain Layer (Repository)
 
-### 21. DeviceRepository.java
+### 19. InvoiceRepository.java
 
-Ruta `registrydomainrepositoriesDeviceRepository.java`
+Ruta `billing/domain/repositories/InvoiceRepository.java`
 
-Package `com.sensibo.platform.u202418655.registry.domain.repositories`
+Package `pe.com.facturease.platform.u202418655.billing.domain.repositories`
 
 ```java
-package com.sensibo.platform.u202418655.registry.domain.repositories;
+package pe.com.facturease.platform.u202418655.billing.domain.repositories;
 
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.MacAddress;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.SerialNumber;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
 
 import java.util.Optional;
 
+/**
+ * Repository interface for Invoice aggregate root.
+ *
+ * <p>Defines the contract for persisting and retrieving invoices.
+ * Implementations are provided in the infrastructure layer.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
+public interface InvoiceRepository {
 
-  Repository interface for Device aggregate root.
- 
-  pDefines the contract for persisting and retrieving devices.
-  Implementations are provided in the infrastructure layer.p
- 
-  @author Victor Jhosef Laura Acosta
- 
-public interface DeviceRepository {
+    /**
+     * Saves an invoice.
+     *
+     * @param invoice the invoice to save
+     * @return the saved invoice
+     */
+    Invoice save(Invoice invoice);
 
-    
-      Saves a device.
-     
-      @param device the device to save
-      @return the saved device
-     
-    Device save(Device device);
+    /**
+     * Finds an invoice by its identifier.
+     *
+     * @param invoiceId the invoice identifier
+     * @return an Optional containing the invoice if found
+     */
+    Optional<Invoice> findById(Long invoiceId);
 
-    
-      Finds a device by its identifier.
-     
-      @param deviceId the device identifier
-      @return an Optional containing the device if found
-     
-    OptionalDevice findById(Long deviceId);
-
-    
-      Checks if a device already exists with the given serial number and MAC address.
-     
-      @param serialNumber the serial number
-      @param macAddress   the MAC address
-      @return true if a device with that combination exists
-     
-    boolean existsBySerialNumberAndMacAddress(SerialNumber serialNumber, MacAddress macAddress);
+    /**
+     * Checks if an invoice already exists with the given invoiceIdentifier.
+     *
+     * @param invoiceIdentifier the invoice identifier value object
+     * @return true if an invoice with that identifier exists
+     */
+    boolean existsByInvoiceIdentifier(InvoiceIdentifier invoiceIdentifier);
 }
 ```
 
 ---
 
-## Registry - Application Layer (Service Interfaces)
+## Billing - Application Layer (Service Interfaces)
 
-### 22. DeviceCommandService.java
+### 20. InvoiceCommandService.java
 
-Ruta `registryapplicationcommandservicesDeviceCommandService.java`
+Ruta `billing/application/commandservices/InvoiceCommandService.java`
 
-Package `com.sensibo.platform.u202418655.registry.application.commandservices`
+Package `pe.com.facturease.platform.u202418655.billing.application.commandservices`
 
 ```java
-package com.sensibo.platform.u202418655.registry.application.commandservices;
+package pe.com.facturease.platform.u202418655.billing.application.commandservices;
 
-import com.sensibo.platform.u202418655.registry.domain.model.commands.CreateDeviceCommand;
-import com.sensibo.platform.u202418655.shared.application.result.ApplicationError;
-import com.sensibo.platform.u202418655.shared.application.result.Result;
+import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
+import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
+import pe.com.facturease.platform.u202418655.shared.application.result.Result;
 
+/**
+ * Service interface for handling invoice commands.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
+public interface InvoiceCommandService {
 
-  Service interface for handling device commands.
- 
-  @author Victor Jhosef Laura Acosta
- 
-public interface DeviceCommandService {
-
-    
-      Handles the creation of a new device.
-     
-      @param command the create device command
-      @return a Result containing the ID of the created device on success, or an error on failure
-     
-    ResultLong, ApplicationError handle(CreateDeviceCommand command);
+    /**
+     * Handles the creation of a new invoice.
+     *
+     * @param command the create invoice command
+     * @return a Result containing the ID of the created invoice on success, or an error on failure
+     */
+    Result<Long, ApplicationError> handle(CreateInvoiceCommand command);
 }
 ```
 
 ---
 
-### 23. DeviceQueryService.java
+### 21. InvoiceQueryService.java
 
-Ruta `registryapplicationqueryservicesDeviceQueryService.java`
+Ruta `billing/application/queryservices/InvoiceQueryService.java`
 
-Package `com.sensibo.platform.u202418655.registry.application.queryservices`
+Package `pe.com.facturease.platform.u202418655.billing.application.queryservices`
 
 ```java
-package com.sensibo.platform.u202418655.registry.application.queryservices;
+package pe.com.facturease.platform.u202418655.billing.application.queryservices;
 
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.domain.model.queries.GetDeviceById;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.domain.model.queries.GetInvoiceById;
 
 import java.util.Optional;
 
+/**
+ * Service interface for handling invoice queries.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
+public interface InvoiceQueryService {
 
-  Service interface for handling device queries.
- 
-  @author Victor Jhosef Laura Acosta
- 
-public interface DeviceQueryService {
-
-    
-      Handles the retrieval of a device by its identifier.
-     
-      @param query the get device by id query
-      @return an Optional containing the device if found
-     
-    OptionalDevice handle(GetDeviceById query);
+    /**
+     * Handles the retrieval of an invoice by its identifier.
+     *
+     * @param query the get invoice by id query
+     * @return an Optional containing the invoice if found
+     */
+    Optional<Invoice> handle(GetInvoiceById query);
 }
 ```
 
 ---
 
-## Registry - Application Layer (Service Implementations)
+## Billing - Application Layer (Service Implementations)
 
-### 24. DeviceCommandServiceImpl.java
+### 22. InvoiceCommandServiceImpl.java
 
-Ruta `registryapplicationinternalcommandservicesDeviceCommandServiceImpl.java`
+Ruta `billing/application/internal/commandservices/InvoiceCommandServiceImpl.java`
 
-Package `com.sensibo.platform.u202418655.registry.application.internal.commandservices`
+Package `pe.com.facturease.platform.u202418655.billing.application.internal.commandservices`
 
 ```java
-package com.sensibo.platform.u202418655.registry.application.internal.commandservices;
+package pe.com.facturease.platform.u202418655.billing.application.internal.commandservices;
 
-import com.sensibo.platform.u202418655.registry.application.commandservices.DeviceCommandService;
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.domain.model.commands.CreateDeviceCommand;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.MacAddress;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.SerialNumber;
-import com.sensibo.platform.u202418655.registry.domain.repositories.DeviceRepository;
-import com.sensibo.platform.u202418655.shared.application.result.ApplicationError;
-import com.sensibo.platform.u202418655.shared.application.result.Result;
+import pe.com.facturease.platform.u202418655.billing.application.commandservices.InvoiceCommandService;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
+import pe.com.facturease.platform.u202418655.billing.domain.repositories.InvoiceRepository;
+import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
+import pe.com.facturease.platform.u202418655.shared.application.result.Result;
 import org.springframework.stereotype.Service;
 
-
-  Implementation of {@link DeviceCommandService}.
- 
-  pBusiness rules enforcedp
-  ul
-    liNo duplicate serialNumber + macAddress is allowed.li
-  ul
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Implementation of {@link InvoiceCommandService}.
+ *
+ * <p>Business rules enforced:</p>
+ * <ul>
+ *   <li>No duplicate invoiceIdentifier is allowed.</li>
+ * </ul>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Service
-public class DeviceCommandServiceImpl implements DeviceCommandService {
+public class InvoiceCommandServiceImpl implements InvoiceCommandService {
 
-    private final DeviceRepository deviceRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    
-      Constructor for dependency injection.
-     
-      @param deviceRepository the device repository
-     
-    public DeviceCommandServiceImpl(DeviceRepository deviceRepository) {
-        this.deviceRepository = deviceRepository;
+    /**
+     * Constructor for dependency injection.
+     *
+     * @param invoiceRepository the invoice repository
+     */
+    public InvoiceCommandServiceImpl(InvoiceRepository invoiceRepository) {
+        this.invoiceRepository = invoiceRepository;
     }
 
-    
-      Creates a new device after validating all business rules.
-     
-      @param command the create device command
-      @return a Result containing the device ID on success, or an error on failure
-     
+    /**
+     * Creates a new invoice after validating all business rules.
+     *
+     * @param command the create invoice command
+     * @return a Result containing the invoice ID on success, or an error on failure
+     */
     @Override
-    public ResultLong, ApplicationError handle(CreateDeviceCommand command) {
+    public Result<Long, ApplicationError> handle(CreateInvoiceCommand command) {
 
-         BUSINESS RULE No duplicate serialNumber + macAddress
-        if (this.deviceRepository.existsBySerialNumberAndMacAddress(
-                new SerialNumber(command.serialNumber()),
-                new MacAddress(command.macAddress()))) {
-            return Result.failure(ApplicationError.conflict(Device,
-                    A device with the same serialNumber and macAddress already exists));
+        // BUSINESS RULE: No duplicate invoiceIdentifier
+        if (this.invoiceRepository.existsByInvoiceIdentifier(
+                InvoiceIdentifier.fromString(command.invoiceIdentifier()))) {
+            return Result.failure(ApplicationError.conflict("Invoice",
+                    "An invoice with the same invoiceIdentifier already exists"));
         }
 
-        var device = new Device(command);
+        Invoice invoice;
         try {
-            device = deviceRepository.save(device);
+            invoice = new Invoice(command);
+            invoice = invoiceRepository.save(invoice);
+        } catch (IllegalArgumentException e) {
+            return Result.failure(
+                    ApplicationError.validationError("create-invoice", e.getMessage()));
+        } catch (IllegalStateException e) {
+            return Result.failure(
+                    ApplicationError.businessRuleViolation("invoice-status-item-count", e.getMessage()));
         } catch (Exception e) {
             return Result.failure(
-                    ApplicationError.unexpected(create-device, e.getMessage()));
+                    ApplicationError.unexpected("create-invoice", e.getMessage()));
         }
-        return Result.success(device.getId());
+        return Result.success(invoice.getId());
     }
 }
 ```
 
 ---
 
-### 25. DeviceQueryServiceImpl.java
+### 23. InvoiceQueryServiceImpl.java
 
-Ruta `registryapplicationinternalqueryservicesDeviceQueryServiceImpl.java`
+Ruta `billing/application/internal/queryservices/InvoiceQueryServiceImpl.java`
 
-Package `com.sensibo.platform.u202418655.registry.application.internal.queryservices`
+Package `pe.com.facturease.platform.u202418655.billing.application.internal.queryservices`
 
 ```java
-package com.sensibo.platform.u202418655.registry.application.internal.queryservices;
+package pe.com.facturease.platform.u202418655.billing.application.internal.queryservices;
 
-import com.sensibo.platform.u202418655.registry.application.queryservices.DeviceQueryService;
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.domain.model.queries.GetDeviceById;
-import com.sensibo.platform.u202418655.registry.domain.repositories.DeviceRepository;
+import pe.com.facturease.platform.u202418655.billing.application.queryservices.InvoiceQueryService;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.domain.model.queries.GetInvoiceById;
+import pe.com.facturease.platform.u202418655.billing.domain.repositories.InvoiceRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-
-  Implementation of {@link DeviceQueryService}.
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Implementation of {@link InvoiceQueryService}.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Service
-public class DeviceQueryServiceImpl implements DeviceQueryService {
+public class InvoiceQueryServiceImpl implements InvoiceQueryService {
 
-    private final DeviceRepository deviceRepository;
+    private final InvoiceRepository invoiceRepository;
 
-    
-      Constructor for dependency injection.
-     
-      @param deviceRepository the device repository
-     
-    public DeviceQueryServiceImpl(DeviceRepository deviceRepository) {
-        this.deviceRepository = deviceRepository;
+    /**
+     * Constructor for dependency injection.
+     *
+     * @param invoiceRepository the invoice repository
+     */
+    public InvoiceQueryServiceImpl(InvoiceRepository invoiceRepository) {
+        this.invoiceRepository = invoiceRepository;
     }
 
-    
-      Retrieves a device by its identifier.
-     
-      @param query the get device by id query
-      @return an Optional containing the device if found
-     
+    /**
+     * Retrieves an invoice by its identifier.
+     *
+     * @param query the get invoice by id query
+     * @return an Optional containing the invoice if found
+     */
     @Override
-    public OptionalDevice handle(GetDeviceById query) {
-        return this.deviceRepository.findById(query.deviceId());
+    public Optional<Invoice> handle(GetInvoiceById query) {
+        return this.invoiceRepository.findById(query.invoiceId());
     }
 }
 ```
 
 ---
 
-## Registry - Infrastructure Layer (JPA Converters)
+## Billing - Infrastructure Layer (JPA Converter)
 
-### 26. MacAddressPersistenceConverter.java
+### 24. InvoiceIdentifierPersistenceConverter.java
 
-Ruta `registryinfrastructurepersistencejpaconvertersMacAddressPersistenceConverter.java`
+Ruta `billing/infrastructure/persistence/jpa/converters/InvoiceIdentifierPersistenceConverter.java`
 
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters`
+Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.converters`
 
 ```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters;
+package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.converters;
 
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.MacAddress;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
+import java.util.UUID;
 
-  JPA attribute converter for {@link MacAddress}.
- 
-  pConverts between MacAddress (domain) and String (database column).p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * JPA attribute converter for {@link InvoiceIdentifier}.
+ *
+ * <p>Converts between InvoiceIdentifier (domain) and UUID (database column).</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Converter(autoApply = true)
-public class MacAddressPersistenceConverter implements AttributeConverterMacAddress, String {
+public class InvoiceIdentifierPersistenceConverter implements AttributeConverter<InvoiceIdentifier, UUID> {
 
     @Override
-    public String convertToDatabaseColumn(MacAddress attribute) {
-        return attribute == null  null  attribute.value();
+    public UUID convertToDatabaseColumn(InvoiceIdentifier attribute) {
+        return attribute == null ? null : attribute.value();
     }
 
     @Override
-    public MacAddress convertToEntityAttribute(String dbData) {
-        return dbData == null  null  new MacAddress(dbData);
+    public InvoiceIdentifier convertToEntityAttribute(UUID dbData) {
+        return dbData == null ? null : new InvoiceIdentifier(dbData);
     }
 }
 ```
 
 ---
 
-### 27. SensiboUserIdPersistenceConverter.java
+## Billing - Infrastructure Layer (JPA Entity)
 
-Ruta `registryinfrastructurepersistencejpaconvertersSensiboUserIdPersistenceConverter.java`
+### 25. InvoicePersistenceEntity.java
 
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters`
+Ruta `billing/infrastructure/persistence/jpa/entities/InvoicePersistenceEntity.java`
 
-```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters;
-
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.SensiboUserId;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
-
-  JPA attribute converter for {@link SensiboUserId}.
- 
-  pConverts between SensiboUserId (domain) and Long (database column).p
- 
-  @author Victor Jhosef Laura Acosta
- 
-@Converter(autoApply = true)
-public class SensiboUserIdPersistenceConverter implements AttributeConverterSensiboUserId, Long {
-
-    @Override
-    public Long convertToDatabaseColumn(SensiboUserId attribute) {
-        return attribute == null  null  attribute.userId();
-    }
-
-    @Override
-    public SensiboUserId convertToEntityAttribute(Long dbData) {
-        return dbData == null  null  new SensiboUserId(dbData);
-    }
-}
-```
-
----
-
-### 28. SerialNumberPersistenceConverter.java
-
-Ruta `registryinfrastructurepersistencejpaconvertersSerialNumberPersistenceConverter.java`
-
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters`
+Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities`
 
 ```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters;
+package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities;
 
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.SerialNumber;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
-
-  JPA attribute converter for {@link SerialNumber}.
- 
-  pConverts between SerialNumber (domain) and String (database column).p
- 
-  @author Victor Jhosef Laura Acosta
- 
-@Converter(autoApply = true)
-public class SerialNumberPersistenceConverter implements AttributeConverterSerialNumber, String {
-
-    @Override
-    public String convertToDatabaseColumn(SerialNumber attribute) {
-        return attribute == null  null  attribute.value();
-    }
-
-    @Override
-    public SerialNumber convertToEntityAttribute(String dbData) {
-        return dbData == null  null  new SerialNumber(dbData);
-    }
-}
-```
-
----
-
-### 29. VersionPersistenceConverter.java
-
-Ruta `registryinfrastructurepersistencejpaconvertersVersionPersistenceConverter.java`
-
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters`
-
-```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters;
-
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.Version;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-
-
-  JPA attribute converter for {@link Version}.
- 
-  pConverts between Version (domain) and String (database column).p
- 
-  @author Victor Jhosef Laura Acosta
- 
-@Converter(autoApply = true)
-public class VersionPersistenceConverter implements AttributeConverterVersion, String {
-
-    @Override
-    public String convertToDatabaseColumn(Version attribute) {
-        return attribute == null  null  attribute.value();
-    }
-
-    @Override
-    public Version convertToEntityAttribute(String dbData) {
-        return dbData == null  null  new Version(dbData);
-    }
-}
-```
-
----
-
-## Registry - Infrastructure Layer (JPA Entity)
-
-### 30. DevicePersistenceEntity.java
-
-Ruta `registryinfrastructurepersistencejpaentitiesDevicePersistenceEntity.java`
-
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.entities`
-
-```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.entities;
-
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.;
-import com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.converters.;
-import com.sensibo.platform.u202418655.shared.infrastructure.persistence.jpa.entities.AuditableAbstractPersistenceEntity;
-import jakarta.persistence.;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceStatus;
+import pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.entities.AuditableAbstractPersistenceEntity;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
-
-  JPA persistence entity for Device.
- 
-  pMaps the Device aggregate root to the database table.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * JPA persistence entity for Invoice.
+ *
+ * <p>Maps the Invoice aggregate root to the database table. The TaxSummary
+ * value object is flattened into two columns: {@code net_amount} and
+ * {@code calculated_tax}.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Entity
-@Table(name = devices, schema = sensibo)
+@Table(name = "invoices", schema = "facturease_db")
 @Getter
 @Setter
-public class DevicePersistenceEntity extends AuditableAbstractPersistenceEntity {
+public class InvoicePersistenceEntity extends AuditableAbstractPersistenceEntity {
 
-    @Convert(converter = SensiboUserIdPersistenceConverter.class)
-    @Column(name = user_id, nullable = false)
-    private SensiboUserId userId;
+    @Convert(converter = pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.converters.InvoiceIdentifierPersistenceConverter.class)
+    @Column(name = "invoice_identifier", nullable = false, unique = true)
+    private InvoiceIdentifier invoiceIdentifier;
 
-    @Enumerated(EnumType.ORDINAL)
-    @Column(name = device_type, nullable = false)
-    private DeviceTypes deviceType;
+    @Column(name = "description")
+    private String description;
 
-    @Column(name = model_name, length = 50, nullable = false)
-    private String modelName;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private InvoiceStatus status;
 
-    @Convert(converter = SerialNumberPersistenceConverter.class)
-    @Column(name = serial_number, nullable = false, unique = true)
-    private SerialNumber serialNumber;
+    @Column(name = "net_amount", nullable = false)
+    private BigDecimal netAmount;
 
-    @Convert(converter = MacAddressPersistenceConverter.class)
-    @Column(name = mac_address, nullable = false)
-    private MacAddress macAddress;
+    @Column(name = "calculated_tax", nullable = false)
+    private BigDecimal calculatedTax;
 
-    @Convert(converter = VersionPersistenceConverter.class)
-    @Column(name = firmware_version, nullable = false)
-    private Version firmwareVersion;
-
-    @Temporal(TemporalType.DATE)
-    @Column(name = installation_date, nullable = false)
-    private LocalDate installationDate;
-
-    @Column(name = room_location, nullable = false)
-    private String roomLocation;
+    @Column(name = "item_count", nullable = false)
+    private Integer itemCount;
 }
 ```
 
 ---
 
-## Registry - Infrastructure Layer (JPA Repository)
+## Billing - Infrastructure Layer (JPA Repository)
 
-### 31. DevicePersistenceRepository.java
+### 26. InvoicePersistenceRepository.java
 
-Ruta `registryinfrastructurepersistencejparepositoriesDevicePersistenceRepository.java`
+Ruta `billing/infrastructure/persistence/jpa/repositories/InvoicePersistenceRepository.java`
 
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.repositories`
+Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.repositories`
 
 ```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.repositories;
+package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.repositories;
 
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.MacAddress;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.SerialNumber;
-import com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.entities.DevicePersistenceEntity;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
+import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities.InvoicePersistenceEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-
-  Spring Data JPA repository for DevicePersistenceEntity.
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Spring Data JPA repository for InvoicePersistenceEntity.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Repository
-public interface DevicePersistenceRepository extends JpaRepositoryDevicePersistenceEntity, Long {
+public interface InvoicePersistenceRepository extends JpaRepository<InvoicePersistenceEntity, Long> {
 
-    
-      Checks if a device exists with the given serial number and MAC address.
-     
-      @param serialNumber the serial number
-      @param macAddress   the MAC address
-      @return true if a matching device exists
-     
-    boolean existsBySerialNumberAndMacAddress(SerialNumber serialNumber, MacAddress macAddress);
+    /**
+     * Checks if an invoice exists with the given invoiceIdentifier.
+     *
+     * @param invoiceIdentifier the invoice identifier value object
+     * @return true if a matching invoice exists
+     */
+    boolean existsByInvoiceIdentifier(InvoiceIdentifier invoiceIdentifier);
 }
 ```
 
 ---
 
-## Registry - Infrastructure Layer (Assembler)
+## Billing - Infrastructure Layer (Assembler)
 
-### 32. DevicePersistenceAssembler.java
+### 27. InvoicePersistenceAssembler.java
 
-Ruta `registryinfrastructurepersistencejpaassemblersDevicePersistenceAssembler.java`
+Ruta `billing/infrastructure/persistence/jpa/assemblers/InvoicePersistenceAssembler.java`
 
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.assemblers`
+Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.assemblers`
 
 ```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.assemblers;
+package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.assemblers;
 
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.entities.DevicePersistenceEntity;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities.InvoicePersistenceEntity;
+import pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects.TaxSummary;
 
+/**
+ * Assembler for converting between Invoice (domain) and InvoicePersistenceEntity (JPA).
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
+public final class InvoicePersistenceAssembler {
 
-  Assembler for converting between Device (domain) and DevicePersistenceEntity (JPA).
- 
-  @author Victor Jhosef Laura Acosta
- 
-public final class DevicePersistenceAssembler {
+    private InvoicePersistenceAssembler() {}
 
-    private DevicePersistenceAssembler() {}
-
-    
-      Converts a domain Device to a JPA persistence entity.
-     
-      @param device the domain aggregate
-      @return the JPA persistence entity
-     
-    public static DevicePersistenceEntity toPersistenceFromDomain(Device device) {
-        DevicePersistenceEntity entity = new DevicePersistenceEntity();
-        entity.setId(device.getId());
-        entity.setUserId(device.getUserId());
-        entity.setDeviceType(device.getDeviceType());
-        entity.setModelName(device.getModelName());
-        entity.setSerialNumber(device.getSerialNumber());
-        entity.setMacAddress(device.getMacAddress());
-        entity.setFirmwareVersion(device.getFirmwareVersion());
-        entity.setInstallationDate(device.getInstallationDate());
-        entity.setRoomLocation(device.getRoomLocation());
+    /**
+     * Converts a domain Invoice to a JPA persistence entity.
+     *
+     * @param invoice the domain aggregate
+     * @return the JPA persistence entity
+     */
+    public static InvoicePersistenceEntity toPersistenceFromDomain(Invoice invoice) {
+        InvoicePersistenceEntity entity = new InvoicePersistenceEntity();
+        entity.setId(invoice.getId());
+        entity.setInvoiceIdentifier(invoice.getInvoiceIdentifier());
+        entity.setDescription(invoice.getDescription());
+        entity.setStatus(invoice.getStatus());
+        entity.setNetAmount(invoice.getTaxSummary().netAmount());
+        entity.setCalculatedTax(invoice.getTaxSummary().calculatedTax());
+        entity.setItemCount(invoice.getItemCount());
         return entity;
     }
 
-    
-      Converts a JPA persistence entity to a domain Device.
-     
-      @param entity the JPA persistence entity
-      @return the domain aggregate
-     
-    public static Device toDomainFromPersistence(DevicePersistenceEntity entity) {
-        Device device = new Device();
-        device.setId(entity.getId());
-        device.setUserId(entity.getUserId());
-        device.setDeviceType(entity.getDeviceType());
-        device.setModelName(entity.getModelName());
-        device.setSerialNumber(entity.getSerialNumber());
-        device.setMacAddress(entity.getMacAddress());
-        device.setFirmwareVersion(entity.getFirmwareVersion());
-        device.setInstallationDate(entity.getInstallationDate());
-        device.setRoomLocation(entity.getRoomLocation());
-        return device;
+    /**
+     * Converts a JPA persistence entity to a domain Invoice.
+     *
+     * @param entity the JPA persistence entity
+     * @return the domain aggregate
+     */
+    public static Invoice toDomainFromPersistence(InvoicePersistenceEntity entity) {
+        Invoice invoice = new Invoice();
+        invoice.setId(entity.getId());
+        invoice.setInvoiceIdentifier(entity.getInvoiceIdentifier());
+        invoice.setDescription(entity.getDescription());
+        invoice.setStatus(entity.getStatus());
+        invoice.setTaxSummary(new TaxSummary(entity.getNetAmount(), entity.getCalculatedTax()));
+        invoice.setItemCount(entity.getItemCount());
+        return invoice;
     }
 }
 ```
 
 ---
 
-## Registry - Infrastructure Layer (Adapter)
+## Billing - Infrastructure Layer (Adapter)
 
-### 33. DeviceRepositoryImpl.java
+### 28. InvoiceRepositoryImpl.java
 
-Ruta `registryinfrastructurepersistencejpaadaptersDeviceRepositoryImpl.java`
+Ruta `billing/infrastructure/persistence/jpa/adapters/InvoiceRepositoryImpl.java`
 
-Package `com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.adapters`
+Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.adapters`
 
 ```java
-package com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.adapters;
+package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.adapters;
 
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.MacAddress;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.SerialNumber;
-import com.sensibo.platform.u202418655.registry.domain.repositories.DeviceRepository;
-import com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.assemblers.DevicePersistenceAssembler;
-import com.sensibo.platform.u202418655.registry.infrastructure.persistence.jpa.repositories.DevicePersistenceRepository;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
+import pe.com.facturease.platform.u202418655.billing.domain.repositories.InvoiceRepository;
+import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.assemblers.InvoicePersistenceAssembler;
+import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.repositories.InvoicePersistenceRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-
-  Implementation of {@link DeviceRepository} using JPA.
- 
-  pActs as an adapter between the domain repository interface and
-  Spring Data JPA persistence.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * Implementation of {@link InvoiceRepository} using JPA.
+ *
+ * <p>Acts as an adapter between the domain repository interface and
+ * Spring Data JPA persistence.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @Repository
-public class DeviceRepositoryImpl implements DeviceRepository {
+public class InvoiceRepositoryImpl implements InvoiceRepository {
 
-    private final DevicePersistenceRepository devicePersistenceRepository;
+    private final InvoicePersistenceRepository invoicePersistenceRepository;
 
-    
-      Constructor for dependency injection.
-     
-      @param devicePersistenceRepository the JPA persistence repository
-     
-    public DeviceRepositoryImpl(DevicePersistenceRepository devicePersistenceRepository) {
-        this.devicePersistenceRepository = devicePersistenceRepository;
+    /**
+     * Constructor for dependency injection.
+     *
+     * @param invoicePersistenceRepository the JPA persistence repository
+     */
+    public InvoiceRepositoryImpl(InvoicePersistenceRepository invoicePersistenceRepository) {
+        this.invoicePersistenceRepository = invoicePersistenceRepository;
     }
 
-    
-      Saves a device by converting to persistence entity, saving, and converting back.
-     
+    /**
+     * Saves an invoice by converting to persistence entity, saving, and converting back.
+     */
     @Override
-    public Device save(Device device) {
-        var saved = this.devicePersistenceRepository
-                .save(DevicePersistenceAssembler.toPersistenceFromDomain(device));
-        return DevicePersistenceAssembler.toDomainFromPersistence(saved);
+    public Invoice save(Invoice invoice) {
+        var saved = this.invoicePersistenceRepository
+                .save(InvoicePersistenceAssembler.toPersistenceFromDomain(invoice));
+        return InvoicePersistenceAssembler.toDomainFromPersistence(saved);
     }
 
-    
-      Finds a device by its identifier.
-     
+    /**
+     * Finds an invoice by its identifier.
+     */
     @Override
-    public OptionalDevice findById(Long deviceId) {
-        return this.devicePersistenceRepository.findById(deviceId)
-                .map(DevicePersistenceAssemblertoDomainFromPersistence);
+    public Optional<Invoice> findById(Long invoiceId) {
+        return this.invoicePersistenceRepository.findById(invoiceId)
+                .map(InvoicePersistenceAssembler::toDomainFromPersistence);
     }
 
-    
-      Checks if a device exists with the given serial number and MAC address.
-     
+    /**
+     * Checks if an invoice exists with the given invoiceIdentifier.
+     */
     @Override
-    public boolean existsBySerialNumberAndMacAddress(SerialNumber serialNumber, MacAddress macAddress) {
-        return this.devicePersistenceRepository
-                .existsBySerialNumberAndMacAddress(serialNumber, macAddress);
+    public boolean existsByInvoiceIdentifier(InvoiceIdentifier invoiceIdentifier) {
+        return this.invoicePersistenceRepository
+                .existsByInvoiceIdentifier(invoiceIdentifier);
     }
 }
 ```
 
 ---
 
-## Registry - Interfaces Layer (Resources)
+## Billing - Interfaces Layer (Resources)
 
-### 34. CreateDeviceResource.java
+### 29. CreateInvoiceResource.java
 
-Ruta `registryinterfacesrestresourcesCreateDeviceResource.java`
+Ruta `billing/interfaces/rest/resources/CreateInvoiceResource.java`
 
-Package `com.sensibo.platform.u202418655.registry.interfaces.rest.resources`
+Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources`
 
 ```java
-package com.sensibo.platform.u202418655.registry.interfaces.rest.resources;
+package pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
+/**
+ * REST resource for creating a new Invoice.
+ *
+ * <p>Value object attributes ({@code invoiceIdentifier}, {@code taxSummary})
+ * are flattened into primitive-typed attributes in the request body, as
+ * required by the API contract. Note that {@code id} is not included here,
+ * since it is auto-generated when storing the information.</p>
+ *
+ * @param invoiceIdentifier the UUID string identifying the invoice
+ * @param description       the optional description of the invoice
+ * @param status             the optional initial status (DRAFT, ISSUED, PAID)
+ * @param netAmount          the net amount before taxes
+ * @param calculatedTax      the accumulated tax amount (must equal 18% of netAmount)
+ * @param itemCount          the number of items in the invoice
+ * @author Victor Jhosef Laura Acosta
+ */
+public record CreateInvoiceResource(
+        String invoiceIdentifier, String description, String status,
+        BigDecimal netAmount, BigDecimal calculatedTax, Integer itemCount) {
 
-  REST resource for creating a new device.
- 
-  pNote that id and serialNumber are not included here,
-  as they are auto-generated when storing the information.p
- 
-  @param userId           the Sensibo user identifier
-  @param deviceType       the device type name
-  @param modelName        the model name
-  @param macAddress       the MAC address (format AABBCCDDEEFF)
-  @param firmwareVersion  the firmware version (format X.Y.Z)
-  @param installationDate the installation date
-  @param roomLocation     the room location
-  @author Victor Jhosef Laura Acosta
- 
-public record CreateDeviceResource(
-        Long userId, String deviceType, String modelName,
-        String macAddress, String firmwareVersion, LocalDate installationDate,
-        String roomLocation) {
-
-    
-      Validates the resource fields at the boundary.
-     
-      @throws IllegalArgumentException if any field violates constraints
-     
-    public CreateDeviceResource {
-        if (userId == null  userId  0)
-            throw new IllegalArgumentException(userId cannot be null or negative);
-        if (deviceType == null  deviceType.isBlank())
-            throw new IllegalArgumentException(deviceType cannot be null or blank);
-        if (modelName == null  modelName.isBlank())
-            throw new IllegalArgumentException(modelName cannot be null or blank);
-        if (macAddress == null  macAddress.isBlank())
-            throw new IllegalArgumentException(macAddress cannot be null or blank);
-        if (firmwareVersion == null  firmwareVersion.isBlank())
-            throw new IllegalArgumentException(firmwareVersion cannot be null or blank);
-        if (installationDate == null)
-            throw new IllegalArgumentException(installationDate cannot be null);
-        if (roomLocation == null  roomLocation.isBlank())
-            throw new IllegalArgumentException(roomLocation cannot be null or blank);
+    /**
+     * Validates the resource fields at the boundary.
+     *
+     * @throws IllegalArgumentException if any required field violates constraints
+     */
+    public CreateInvoiceResource {
+        if (invoiceIdentifier == null || invoiceIdentifier.isBlank())
+            throw new IllegalArgumentException("invoiceIdentifier cannot be null or blank");
+        if (netAmount == null)
+            throw new IllegalArgumentException("netAmount cannot be null");
+        if (calculatedTax == null)
+            throw new IllegalArgumentException("calculatedTax cannot be null");
+        if (itemCount == null)
+            throw new IllegalArgumentException("itemCount cannot be null");
     }
 }
 ```
 
 ---
 
-### 35. DeviceResource.java
+### 30. InvoiceResource.java
 
-Ruta `registryinterfacesrestresourcesDeviceResource.java`
+Ruta `billing/interfaces/rest/resources/InvoiceResource.java`
 
-Package `com.sensibo.platform.u202418655.registry.interfaces.rest.resources`
+Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources`
 
 ```java
-package com.sensibo.platform.u202418655.registry.interfaces.rest.resources;
+package pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources;
 
-import java.time.LocalDate;
+import java.math.BigDecimal;
 
-
-  REST resource representing a device response.
- 
-  pIncludes id, serialNumber (as String), deviceType (as String),
-  modelName, macAddress (as String), firmwareVersion (as String),
-  installationDate, roomLocation.p
- 
-  @param id              the device identifier
-  @param serialNumber    the serial number (UUID string)
-  @param deviceType      the device type name
-  @param modelName       the model name
-  @param macAddress      the MAC address
-  @param firmwareVersion the firmware version
-  @param installationDate the installation date
-  @param roomLocation    the room location
-  @author Victor Jhosef Laura Acosta
- 
-public record DeviceResource(
-        Long id, String serialNumber, String deviceType, String modelName,
-        String macAddress, String firmwareVersion, LocalDate installationDate,
-        String roomLocation) {
+/**
+ * REST resource representing an Invoice response.
+ *
+ * <p>Includes id, invoiceId (as String), description (as String),
+ * status (as String), netAmountValue (as BigDecimal), calculatedTaxValue
+ * (as BigDecimal), and itemCount (as Integer).</p>
+ *
+ * @param id                 the invoice identifier (database primary key)
+ * @param invoiceId          the invoiceIdentifier as a String (UUID)
+ * @param description        the invoice description
+ * @param status              the invoice status name
+ * @param netAmountValue      the net amount before taxes
+ * @param calculatedTaxValue  the accumulated tax amount
+ * @param itemCount           the number of items in the invoice
+ * @author Victor Jhosef Laura Acosta
+ */
+public record InvoiceResource(
+        Long id, String invoiceId, String description, String status,
+        BigDecimal netAmountValue, BigDecimal calculatedTaxValue, Integer itemCount) {
 }
 ```
 
 ---
 
-## Registry - Interfaces Layer (Assemblers)
+## Billing - Interfaces Layer (Assemblers)
 
-### 36. CreateDeviceCommandFromResourceAssembler.java
+### 31. CreateInvoiceCommandFromResourceAssembler.java
 
-Ruta `registryinterfacesresttransformCreateDeviceCommandFromResourceAssembler.java`
+Ruta `billing/interfaces/rest/transform/CreateInvoiceCommandFromResourceAssembler.java`
 
-Package `com.sensibo.platform.u202418655.registry.interfaces.rest.transform`
+Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform`
 
 ```java
-package com.sensibo.platform.u202418655.registry.interfaces.rest.transform;
+package pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform;
 
-import com.sensibo.platform.u202418655.registry.domain.model.commands.CreateDeviceCommand;
-import com.sensibo.platform.u202418655.registry.domain.model.valueobjects.SerialNumber;
-import com.sensibo.platform.u202418655.registry.interfaces.rest.resources.CreateDeviceResource;
+import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
+import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.CreateInvoiceResource;
 
+/**
+ * Assembler for converting a {@link CreateInvoiceResource} to a
+ * {@link CreateInvoiceCommand}.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
+public final class CreateInvoiceCommandFromResourceAssembler {
 
-  Assembler for converting a {@link CreateDeviceResource} to a
-  {@link CreateDeviceCommand}.
- 
-  pThe serialNumber is auto-generated during assembly.p
- 
-  @author Victor Jhosef Laura Acosta
- 
-public final class CreateDeviceCommandFromResourceAssembler {
+    private CreateInvoiceCommandFromResourceAssembler() {}
 
-    private CreateDeviceCommandFromResourceAssembler() {}
-
-    
-      Converts a REST resource to a domain command, auto-generating the serialNumber.
-     
-      @param resource the REST resource from the request body
-      @return the create device command
-     
-    public static CreateDeviceCommand toCommandFromResource(CreateDeviceResource resource) {
-        return new CreateDeviceCommand(
-                resource.userId(), resource.deviceType(), resource.modelName(),
-                new SerialNumber().value(),  auto-generated UUID
-                resource.macAddress(), resource.firmwareVersion(),
-                resource.installationDate(), resource.roomLocation());
+    /**
+     * Converts a REST resource to a domain command.
+     *
+     * @param resource the REST resource from the request body
+     * @return the create invoice command
+     */
+    public static CreateInvoiceCommand toCommandFromResource(CreateInvoiceResource resource) {
+        return new CreateInvoiceCommand(
+                resource.invoiceIdentifier(), resource.description(), resource.status(),
+                resource.netAmount(), resource.calculatedTax(), resource.itemCount());
     }
 }
 ```
 
 ---
 
-### 37. DeviceResourceFromEntityAssembler.java
+### 32. InvoiceResourceFromEntityAssembler.java
 
-Ruta `registryinterfacesresttransformDeviceResourceFromEntityAssembler.java`
+Ruta `billing/interfaces/rest/transform/InvoiceResourceFromEntityAssembler.java`
 
-Package `com.sensibo.platform.u202418655.registry.interfaces.rest.transform`
+Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform`
 
 ```java
-package com.sensibo.platform.u202418655.registry.interfaces.rest.transform;
+package pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform;
 
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.interfaces.rest.resources.DeviceResource;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.InvoiceResource;
 
+/**
+ * Assembler for converting an {@link Invoice} domain entity to an
+ * {@link InvoiceResource}.
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
+public final class InvoiceResourceFromEntityAssembler {
 
-  Assembler for converting a {@link Device} domain entity to a
-  {@link DeviceResource}.
- 
-  @author Victor Jhosef Laura Acosta
- 
-public final class DeviceResourceFromEntityAssembler {
+    private InvoiceResourceFromEntityAssembler() {}
 
-    private DeviceResourceFromEntityAssembler() {}
-
-    
-      Converts a domain Device to a REST resource.
-     
-      @param entity the domain aggregate
-      @return the REST resource
-     
-    public static DeviceResource toResourceFromEntity(Device entity) {
-        return new DeviceResource(
+    /**
+     * Converts a domain Invoice to a REST resource.
+     *
+     * @param entity the domain aggregate
+     * @return the REST resource
+     */
+    public static InvoiceResource toResourceFromEntity(Invoice entity) {
+        return new InvoiceResource(
                 entity.getId(),
-                entity.getSerialNumber().value(),
-                entity.getDeviceType().name(),
-                entity.getModelName(),
-                entity.getMacAddress().value(),
-                entity.getFirmwareVersion().value(),
-                entity.getInstallationDate(),
-                entity.getRoomLocation());
+                entity.getInvoiceIdentifier().value().toString(),
+                entity.getDescription(),
+                entity.getStatus().name(),
+                entity.getTaxSummary().netAmount(),
+                entity.getTaxSummary().calculatedTax(),
+                entity.getItemCount());
     }
 }
 ```
 
 ---
 
-## Registry - Interfaces Layer (Controller con OpenAPI - Punto 12 de la rúbrica)
+## Billing - Interfaces Layer (Controller con OpenAPI - Punto 14 de la rúbrica)
 
-### 38. DevicesController.java
+### 33. InvoicesController.java
 
-Ruta `registryinterfacesrestDevicesController.java`
+Ruta `billing/interfaces/rest/InvoicesController.java`
 
-Package `com.sensibo.platform.u202418655.registry.interfaces.rest`
+Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest`
 
 ```java
-package com.sensibo.platform.u202418655.registry.interfaces.rest;
+package pe.com.facturease.platform.u202418655.billing.interfaces.rest;
 
-import com.sensibo.platform.u202418655.registry.application.commandservices.DeviceCommandService;
-import com.sensibo.platform.u202418655.registry.application.queryservices.DeviceQueryService;
-import com.sensibo.platform.u202418655.registry.domain.model.aggregates.Device;
-import com.sensibo.platform.u202418655.registry.domain.model.queries.GetDeviceById;
-import com.sensibo.platform.u202418655.registry.interfaces.rest.resources.CreateDeviceResource;
-import com.sensibo.platform.u202418655.registry.interfaces.rest.resources.DeviceResource;
-import com.sensibo.platform.u202418655.registry.interfaces.rest.transform.CreateDeviceCommandFromResourceAssembler;
-import com.sensibo.platform.u202418655.registry.interfaces.rest.transform.DeviceResourceFromEntityAssembler;
-import com.sensibo.platform.u202418655.shared.application.result.ApplicationError;
-import com.sensibo.platform.u202418655.shared.application.result.Result;
-import com.sensibo.platform.u202418655.shared.interfaces.rest.transform.ResponseEntityAssembler;
+import pe.com.facturease.platform.u202418655.billing.application.commandservices.InvoiceCommandService;
+import pe.com.facturease.platform.u202418655.billing.application.queryservices.InvoiceQueryService;
+import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
+import pe.com.facturease.platform.u202418655.billing.domain.model.queries.GetInvoiceById;
+import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.CreateInvoiceResource;
+import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.InvoiceResource;
+import pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform.CreateInvoiceCommandFromResourceAssembler;
+import pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform.InvoiceResourceFromEntityAssembler;
+import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
+import pe.com.facturease.platform.u202418655.shared.application.result.Result;
+import pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform.ResponseEntityAssembler;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -2495,88 +2274,88 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.;
+import org.springframework.web.bind.annotation.*;
 
-
-  REST controller for device operations.
- 
-  pExposes endpoints for managing devices under the
-  {@code apiv1devices} base path.p
- 
-  @author Victor Jhosef Laura Acosta
- 
+/**
+ * REST controller for invoice operations.
+ *
+ * <p>Exposes endpoints for managing invoices under the
+ * {@code /api/v1/invoices} base path.</p>
+ *
+ * @author Victor Jhosef Laura Acosta
+ */
 @RestController
-@RequestMapping(value = apiv1devices)
-@Tag(name = Devices, description = Operations related to device management in the Sensibo platform)
-public class DevicesController {
+@RequestMapping(value = "/api/v1/invoices")
+@Tag(name = "Invoices", description = "Operations related to invoice management in the Facturease Peru platform")
+public class InvoicesController {
 
-    private final DeviceCommandService deviceCommandService;
-    private final DeviceQueryService deviceQueryService;
+    private final InvoiceCommandService invoiceCommandService;
+    private final InvoiceQueryService invoiceQueryService;
 
-    
-      Constructor for dependency injection.
-     
-      @param deviceCommandService the command service
-      @param deviceQueryService   the query service
-     
-    public DevicesController(
-            DeviceCommandService deviceCommandService,
-            DeviceQueryService deviceQueryService) {
-        this.deviceCommandService = deviceCommandService;
-        this.deviceQueryService = deviceQueryService;
+    /**
+     * Constructor for dependency injection.
+     *
+     * @param invoiceCommandService the command service
+     * @param invoiceQueryService   the query service
+     */
+    public InvoicesController(
+            InvoiceCommandService invoiceCommandService,
+            InvoiceQueryService invoiceQueryService) {
+        this.invoiceCommandService = invoiceCommandService;
+        this.invoiceQueryService = invoiceQueryService;
     }
 
-    
-      Creates a new device.
-     
-      pThe id and serialNumber are auto-generated. The deviceType is provided
-      as a String and must match a valid DeviceTypes name.p
-     
-      @param resource the request body containing device details
-      @return HTTP 201 with the created device resource on success,
-              or appropriate error status on failure
-     
+    /**
+     * Creates a new invoice.
+     *
+     * <p>The id is auto-generated by the database. The status defaults to
+     * DRAFT when not specified. The netAmount and calculatedTax values are
+     * validated to be consistent with the 18% national IGV rate.</p>
+     *
+     * @param resource the request body containing invoice details
+     * @return HTTP 201 with the created invoice resource on success,
+     *         or appropriate error status on failure
+     */
     @PostMapping
     @Operation(
-            summary = Create a new device,
-            description = Registers a new Sensibo device in the platform. 
-                    + The deviceType must be a valid DeviceTypes name (SMART_AC_CONTROLLER, 
-                    + ROOM_SENSOR, AIR_QUALITY_MONITOR, DOOR_WINDOW_SENSOR). 
-                    + The serialNumber is auto-generated and the id is auto-generated 
-                    + by the database.
+            summary = "Create a new invoice",
+            description = "Registers a new electronic Invoice in the Facturease Peru platform. "
+                    + "The status defaults to DRAFT when not specified. The calculatedTax value "
+                    + "must be consistent with the 18% national IGV rate applied over netAmount. "
+                    + "When status is ISSUED or PAID, itemCount must be strictly greater than zero. "
+                    + "The id is auto-generated by the database."
     )
     @ApiResponses(value = {
             @ApiResponse(
-                    responseCode = 201,
-                    description = Device created successfully,
+                    responseCode = "201",
+                    description = "Invoice created successfully",
                     content = @Content(
-                            schema = @Schema(implementation = DeviceResource.class))
+                            schema = @Schema(implementation = InvoiceResource.class))
             ),
             @ApiResponse(
-                    responseCode = 400,
-                    description = Invalid input data - validation error),
+                    responseCode = "400",
+                    description = "Invalid input data - validation error"),
             @ApiResponse(
-                    responseCode = 409,
-                    description = Conflict - Device with same serialNumber 
-                            + and macAddress already exists),
+                    responseCode = "409",
+                    description = "Conflict - Invoice with same invoiceIdentifier already exists"),
             @ApiResponse(
-                    responseCode = 422,
-                    description = Business rule violation)
+                    responseCode = "422",
+                    description = "Business rule violation")
     })
-    public ResponseEntity createDevice(@RequestBody CreateDeviceResource resource) {
-        var command = CreateDeviceCommandFromResourceAssembler
+    public ResponseEntity<?> createInvoice(@RequestBody CreateInvoiceResource resource) {
+        var command = CreateInvoiceCommandFromResourceAssembler
                 .toCommandFromResource(resource);
-        var result = this.deviceCommandService.handle(command)
-                .flatMap(deviceId - this.deviceQueryService
-                        .handle(new GetDeviceById(deviceId))
-                        .ResultDevice, ApplicationErrormap(Resultsuccess)
-                        .orElseGet(() - Result.failure(
-                                ApplicationError.notFound(Device,
-                                        deviceId.toString()))));
+        var result = this.invoiceCommandService.handle(command)
+                .flatMap(invoiceId -> this.invoiceQueryService
+                        .handle(new GetInvoiceById(invoiceId))
+                        .<Result<Invoice, ApplicationError>>map(Result::success)
+                        .orElseGet(() -> Result.failure(
+                                ApplicationError.notFound("Invoice",
+                                        invoiceId.toString()))));
 
         return ResponseEntityAssembler.toResponseEntityFromResult(
                 result,
-                DeviceResourceFromEntityAssemblertoResourceFromEntity,
+                InvoiceResourceFromEntityAssembler::toResourceFromEntity,
                 HttpStatus.CREATED);
     }
 }
@@ -2586,74 +2365,75 @@ public class DevicesController {
 
 ## Resumen de Cumplimiento de la Rúbrica
 
- Punto  Requisito  Estado  Dónde 
----------------------------------
- 1  Java 25, Spring Boot 3.5.6  4.0.6  ✅  pom.xml 
- 2  Nombre `pc2NRCucodigo`  ✅  `pc211990u202418655` 
- 3  PostgreSQL, esquema `sensibo`  ✅  `application.properties` + `@Table(schema = sensibo)` 
- 4  Package raíz `com.sensibo.platform.ucodigo`  ✅  `com.sensibo.platform.u202418655` 
- 5  Bounded context `registry`  ✅  Package `registry` 
- 6  Jakarta Validation  @Pattern  ✅  Value Objects con validación propia 
- 7  i18n ENES via Accept-Language  ✅  `LocaleConfiguration.java` + `messages.properties` 
- 8  DDD, CQRS, layered architecture  ✅  domainapplicationinterfacesinfrastructure 
- 9  SnakeCase + plural naming strategy  ✅  `SnakeCaseWithPluralizedTablePhysicalNamingStrategy` 
- 10  Shared bounded context  ✅  `shared` package 
- 11  JavaDoc en inglés con @author  ✅  Todos los archivos 
- 12  OpenAPI con Swagger UI  ✅  `@Operation` + `@ApiResponses` en `DevicesController.java` 
- 13  Puerto 8096  ✅  `application.properties` 
- 14  URLs minúsculas y plural  ✅  `apiv1devices` 
- 15  Lombok  ✅  `@Getter`, `@Setter` 
- 16  Mensajes en inglés  ✅  `messages.properties` 
- 17  Gestión de excepciones  ✅  `GlobalExceptionHandler.java` 
- 18  README.md  ✅  `README.md` 
- 19  ZIP `pc2NRCucodigo.zip`  ✅  `pc211990u202418655.zip` 
- 20  Subir a actividad PC2  ✅  — 
+| Punto | Requisito | Estado | Dónde |
+|---|---|---|---|
+| 1 | Java 26, Spring Boot 4.1.0 | ✅ | `pom.xml` |
+| 2 | Nombre `pc2<NRC>u<código>` | ✅ | `pc211990u202418655` |
+| 3 | PostgreSQL, esquema `facturease_db` | ✅ | `application.properties` + `@Table(schema = "facturease_db")` |
+| 4 | Package raíz `pe.com.facturease.platform.u<código>` | ✅ | `pe.com.facturease.platform.u202418655` |
+| 5 | Bounded context `billing` para Invoice | ✅ | Package `billing` |
+| 6 | Bounded context `shared` para TaxSummary | ✅ | Package `shared.domain.model.valueobjects` |
+| 7 | Jakarta Validation / @Pattern | ✅ | Value Objects con validación propia |
+| 8 | i18n EN/ES via Accept-Language | ✅ | `LocaleConfiguration.java` + `messages.properties` |
+| 9 | DDD, CQRS, layered architecture | ✅ | domain/application/interfaces/infrastructure |
+| 10 | Separación de domain vs persistence concepts | ✅ | `Invoice` vs `InvoicePersistenceEntity` |
+| 11 | SnakeCase + plural naming strategy | ✅ | `SnakeCaseWithPluralizedTablePhysicalNamingStrategy` |
+| 12 | Shared bounded context (estilo learning center) | ✅ | `shared` package |
+| 13 | JavaDoc en inglés con @author | ✅ | Todos los archivos |
+| 14 | OpenAPI con Swagger UI | ✅ | `@Operation` + `@ApiResponses` en `InvoicesController.java` |
+| 15 | Puerto 8097 | ✅ | `application.properties` |
+| 16 | URLs minúsculas y plural | ✅ | `/api/v1/invoices` |
+| 17 | Lombok | ✅ | `@Getter`, `@Setter` |
+| 18 | Mensajes en inglés | ✅ | `messages.properties` |
+| 19 | Gestión de excepciones | ✅ | `GlobalExceptionHandler.java` |
+| 20 | README.md | ✅ | `README.md` |
+| 21 | ZIP `pc2<NRC>u<código>.zip` | ✅ | `pc211990u202418655.zip` |
+| 22 | Subir a actividad PC2 | ✅ | — |
 
 ---
 
 ## Reglas de Negocio Implementadas
 
- #  Regla  Implementación  Archivo 
-----------------------------------
- 1  No duplicado serialNumber + macAddress  `existsBySerialNumberAndMacAddress()`  `DeviceCommandServiceImpl.java30-34` 
- 2  MAC Address formato `AABBCCDDEEFF`  Regex `^([0-9A-Fa-f]{2}){5}[0-9A-Fa-f]{2}$`  `MacAddress.java11` 
- 3  Version formato `X.Y.Z`  Regex `^d+.d+.d+$`  `Version.java10` 
- 4  SensiboUserId Long  0, no null  Validación en compact constructor  `SensiboUserId.java11-14` 
- 5  DeviceTypes como Enum numérico  `@Enumerated(EnumType.ORDINAL)`  `DeviceTypes.java` + `DevicePersistenceEntity.java40` 
- 6  SerialNumber UUID autogenerado  `UUID.randomUUID()`  `SerialNumber.java24` 
- 7  Device auditable  `@EnableJpaAuditing` + `AuditableAbstractPersistenceEntity`  `Application.java` + shared 
- 8  i18n ENES  `AcceptHeaderLocaleResolver` + ResourceBundle  `LocaleConfiguration.java` 
- 9  modelName máx 50 caracteres  `@Column(length = 50)`  `DevicePersistenceEntity.java42` 
- 10  Response incluye todos los campos  `DeviceResource` con 8 campos  `DeviceResource.java` 
- 11  id autogenerado  `@GeneratedValue(IDENTITY)`  `AuditableAbstractPersistenceEntity.java25` 
- 12  serialNumber no se ingresa  Se genera en el assembler  `CreateDeviceCommandFromResourceAssembler.java21` 
- 13  deviceType como String (input)  `fromString()` en el Device constructor  `Device.java35` 
- 14  HTTP 201 en éxito  `HttpStatus.CREATED`  `DevicesController.java91` 
- 15  HTTP Status correcto en errores  Switch en `ErrorResponseAssembler`  `ErrorResponseAssembler.java32-40` 
+| # | Regla | Implementación | Archivo |
+|---|---|---|---|
+| 1 | No duplicado de `invoiceIdentifier` | `existsByInvoiceIdentifier()` | `InvoiceCommandServiceImpl.java` |
+| 2 | `calculatedTax` debe ser 18% IGV de `netAmount`, sino `IllegalArgumentException` | Validación en compact constructor | `TaxSummary.java` |
+| 3 | Si `status` ≠ DRAFT (ISSUED o PAID), `itemCount` debe ser > 0, sino `IllegalStateException` | Validación en constructor del aggregate | `Invoice.java` |
+| 4 | `InvoiceIdentifier` es un value object UUID generado en otro bounded context | `InvoiceIdentifier.fromString()` | `InvoiceIdentifier.java` |
+| 5 | `InvoiceStatus` enum con DRAFT por defecto | `InvoiceStatus.fromString()` + default en `Invoice` | `InvoiceStatus.java` + `Invoice.java` |
+| 6 | `TaxSummary` value object compuesto en bounded context `shared` | `record TaxSummary(netAmount, calculatedTax)` | `TaxSummary.java` |
+| 7 | Invoice auditable | `@EnableJpaAuditing` + `AuditableAbstractPersistenceEntity` | `Application.java` + shared |
+| 8 | i18n EN/ES | `AcceptHeaderLocaleResolver` + ResourceBundle | `LocaleConfiguration.java` |
+| 9 | `description` opcional | Sin `@Column(nullable = false)` en persistencia | `InvoicePersistenceEntity.java` |
+| 10 | Response incluye id, invoiceId, description, status, netAmountValue, calculatedTaxValue, itemCount | `InvoiceResource` con 7 campos | `InvoiceResource.java` |
+| 11 | `id` autogenerado | `@GeneratedValue(IDENTITY)` | `AuditableAbstractPersistenceEntity.java` |
+| 12 | `id` no se ingresa al crear | No incluido en `CreateInvoiceResource` | `CreateInvoiceResource.java` |
+| 13 | Status como String (input), con default DRAFT | `InvoiceStatus.fromString()` en `Invoice` | `Invoice.java` |
+| 14 | HTTP 201 en éxito | `HttpStatus.CREATED` | `InvoicesController.java` |
+| 15 | HTTP Status correcto en errores | Switch en `ErrorResponseAssembler` | `ErrorResponseAssembler.java` |
 
 ---
 
 ## Verificación Final (Checklist)
 
-- [ ] Puerto `http://localhost:8096`
-- [ ] Swagger UI `http://localhost:8096/swagger-ui/index.html`
-- [ ] OpenAPI JSON `http://localhost:8096/v3/api-docs`
-- [ ] BD PostgreSQL `sensibo` con esquema `sensibo`
-- [ ] Endpoint `POST apiv1devices` → 201 Created
-- [ ] Regla 1 mismo serialNumber + macAddress → 409 Conflict
-- [ ] Regla 2 MAC inválida (`ZZYY...`) → 400 Bad Request
-- [ ] Regla 3 Version inválida (`abc`) → 400 Bad Request
-- [ ] Regla 4 userId = 0 → 400 Bad Request
-- [ ] DeviceTypes válidos `SMART_AC_CONTROLLER`, `ROOM_SENSOR`, `AIR_QUALITY_MONITOR`, `DOOR_WINDOW_SENSOR`
-- [ ] Convenciones snake_case, tablas plural, inglés, UpperCamelCase clases, lowerCamelCase métodosvariables
+- [ ] Puerto `http://localhost:8097`
+- [ ] Swagger UI `http://localhost:8097/swagger-ui/index.html`
+- [ ] OpenAPI JSON `http://localhost:8097/v3/api-docs`
+- [ ] BD PostgreSQL `facturease_db` con esquema `facturease_db`
+- [ ] Endpoint `POST /api/v1/invoices` → 201 Created
+- [ ] Regla 1: mismo `invoiceIdentifier` → 409 Conflict
+- [ ] Regla 2: `calculatedTax` inconsistente con 18% IGV → 400 Bad Request
+- [ ] Regla 3: `status` ISSUED/PAID con `itemCount` ≤ 0 → 422 Unprocessable Entity
+- [ ] Status DRAFT por defecto cuando no se envía `status`
+- [ ] Convenciones snake_case, tablas en plural, inglés, UpperCamelCase clases, lowerCamelCase métodos/variables
 - [ ] JavaDoc `@author Victor Jhosef Laura Acosta` en todos los archivos
 - [ ] OpenAPI `@Operation` + `@ApiResponses` visibles en Swagger UI
-- [ ] i18n con header `Accept-Language es` → mensajes en español
+- [ ] i18n con header `Accept-Language: es` → mensajes en español
 - [ ] Nombre del ZIP `pc211990u202418655.zip`
 
 ---
 
-## Estructura Final del Proyecto (38 archivos .java + 5 archivos de configuración)
+## Estructura Final del Proyecto (33 archivos .java + 5 archivos de configuración)
 
 ```
 pc211990u202418655
@@ -2664,25 +2444,28 @@ pc211990u202418655
 ├── HELP.md
 ├── src
 │   ├── main
-│   │   ├── javacomsensiboplatformu202418655
+│   │   ├── java/pe/com/facturease/platform/u202418655
 │   │   │   ├── Pc211990u202418655Application.java
 │   │   │   ├── shared
-│   │   │   │   ├── applicationresult
+│   │   │   │   ├── application/result
 │   │   │   │   │   ├── Result.java
 │   │   │   │   │   └── ApplicationError.java
-│   │   │   │   ├── domainmodelaggregates
-│   │   │   │   │   └── AbstractDomainAggregateRoot.java
+│   │   │   │   ├── domain/model
+│   │   │   │   │   ├── aggregates
+│   │   │   │   │   │   └── AbstractDomainAggregateRoot.java
+│   │   │   │   │   └── valueobjects
+│   │   │   │   │       └── TaxSummary.java
 │   │   │   │   ├── infrastructure
-│   │   │   │   │   ├── documentationopenapiconfiguration
+│   │   │   │   │   ├── documentation/openapi/configuration
 │   │   │   │   │   │   └── OpenApiConfiguration.java
-│   │   │   │   │   ├── i18nconfiguration
+│   │   │   │   │   ├── i18n/configuration
 │   │   │   │   │   │   └── LocaleConfiguration.java
-│   │   │   │   │   └── persistencejpa
-│   │   │   │   │       ├── configurationstrategy
+│   │   │   │   │   └── persistence/jpa
+│   │   │   │   │       ├── configuration/strategy
 │   │   │   │   │       │   └── SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
 │   │   │   │   │       └── entities
 │   │   │   │   │           └── AuditableAbstractPersistenceEntity.java
-│   │   │   │   └── interfacesrest
+│   │   │   │   └── interfaces/rest
 │   │   │   │       ├── GlobalExceptionHandler.java
 │   │   │   │       ├── resources
 │   │   │   │       │   ├── ErrorResource.java
@@ -2690,61 +2473,55 @@ pc211990u202418655
 │   │   │   │       └── transform
 │   │   │   │           ├── ErrorResponseAssembler.java
 │   │   │   │           └── ResponseEntityAssembler.java
-│   │   │   └── registry
+│   │   │   └── billing
 │   │   │       ├── domain
 │   │   │       │   ├── model
 │   │   │       │   │   ├── aggregates
-│   │   │       │   │   │   └── Device.java
+│   │   │       │   │   │   └── Invoice.java
 │   │   │       │   │   ├── commands
-│   │   │       │   │   │   └── CreateDeviceCommand.java
+│   │   │       │   │   │   └── CreateInvoiceCommand.java
 │   │   │       │   │   ├── queries
-│   │   │       │   │   │   └── GetDeviceById.java
+│   │   │       │   │   │   └── GetInvoiceById.java
 │   │   │       │   │   └── valueobjects
-│   │   │       │   │       ├── DeviceTypes.java
-│   │   │       │   │       ├── MacAddress.java
-│   │   │       │   │       ├── SensiboUserId.java
-│   │   │       │   │       ├── SerialNumber.java
-│   │   │       │   │       └── Version.java
+│   │   │       │   │       ├── InvoiceIdentifier.java
+│   │   │       │   │       └── InvoiceStatus.java
 │   │   │       │   └── repositories
-│   │   │       │       └── DeviceRepository.java
+│   │   │       │       └── InvoiceRepository.java
 │   │   │       ├── application
 │   │   │       │   ├── commandservices
-│   │   │       │   │   └── DeviceCommandService.java
+│   │   │       │   │   └── InvoiceCommandService.java
 │   │   │       │   ├── queryservices
-│   │   │       │   │   └── DeviceQueryService.java
+│   │   │       │   │   └── InvoiceQueryService.java
 │   │   │       │   └── internal
 │   │   │       │       ├── commandservices
-│   │   │       │       │   └── DeviceCommandServiceImpl.java
+│   │   │       │       │   └── InvoiceCommandServiceImpl.java
 │   │   │       │       └── queryservices
-│   │   │       │           └── DeviceQueryServiceImpl.java
-│   │   │       ├── infrastructurepersistencejpa
+│   │   │       │           └── InvoiceQueryServiceImpl.java
+│   │   │       ├── infrastructure/persistence/jpa
 │   │   │       │   ├── adapters
-│   │   │       │   │   └── DeviceRepositoryImpl.java
+│   │   │       │   │   └── InvoiceRepositoryImpl.java
 │   │   │       │   ├── assemblers
-│   │   │       │   │   └── DevicePersistenceAssembler.java
+│   │   │       │   │   └── InvoicePersistenceAssembler.java
 │   │   │       │   ├── converters
-│   │   │       │   │   ├── MacAddressPersistenceConverter.java
-│   │   │       │   │   ├── SensiboUserIdPersistenceConverter.java
-│   │   │       │   │   ├── SerialNumberPersistenceConverter.java
-│   │   │       │   │   └── VersionPersistenceConverter.java
+│   │   │       │   │   └── InvoiceIdentifierPersistenceConverter.java
 │   │   │       │   ├── entities
-│   │   │       │   │   └── DevicePersistenceEntity.java
+│   │   │       │   │   └── InvoicePersistenceEntity.java
 │   │   │       │   └── repositories
-│   │   │       │       └── DevicePersistenceRepository.java
-│   │   │       └── interfacesrest
-│   │   │           ├── DevicesController.java
+│   │   │       │       └── InvoicePersistenceRepository.java
+│   │   │       └── interfaces/rest
+│   │   │           ├── InvoicesController.java
 │   │   │           ├── resources
-│   │   │           │   ├── CreateDeviceResource.java
-│   │   │           │   └── DeviceResource.java
+│   │   │           │   ├── CreateInvoiceResource.java
+│   │   │           │   └── InvoiceResource.java
 │   │   │           └── transform
-│   │   │               ├── CreateDeviceCommandFromResourceAssembler.java
-│   │   │               └── DeviceResourceFromEntityAssembler.java
+│   │   │               ├── CreateInvoiceCommandFromResourceAssembler.java
+│   │   │               └── InvoiceResourceFromEntityAssembler.java
 │   │   └── resources
 │   │       ├── application.properties
 │   │       ├── messages.properties
 │   │       ├── messages_es.properties
 │   │       ├── static
 │   │       └── templates
-│   └── testjavacomsensiboplatformu202418655
+│   └── test/java/pe/com/facturease/platform/u202418655
 │       └── Pc211990u202418655ApplicationTests.java
 ```
