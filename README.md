@@ -1,2365 +1,3352 @@
-# Project Facturease Perú - Invoice Management v1.0
+# Project Capbase Platform - Covenant Management API v1.0
 
-Datos del alumno
-- Nombre Victor Jhosef Laura Acosta
-- Código u202418655
-- NRC 11990
-- Profesor Juan Anthonio Flores Moroco
-- Proyecto `pc211990u202418655`
-- Package raíz `pe.com.facturease.platform.u202418655`
-- Puerto 8097
-- Esquema BD `facturease_db`
+## Datos del alumno
+
+- **Nombre:** Victor Jhosef Laura Acosta
+- **Código:** u202418655
+- **NRC:** 12190
+- **Curso:** Aplicaciones Web
+- **Profesor:** Hugo Allan Mori Paiva
+- **Proyecto:** `pc212190u202418655`
+- **Solution:** `pc212190u202418655.sln`
+- **Project:** `PC212190.U202418655.Capbase.Platform`
+- **Package raíz:** `PC212190.U202418655.Capbase.Platform`
+- **Puerto:** 8097
+- **Base de datos:** `clerky_wa` (MySQL / PostgreSQL)
 
 ---
 
-## Configuración inicial
+## Descripción del Proyecto
 
-### Base de datos
+API RESTful para el caso de estudio **Capbase**, implementando el **bounded context Paperwork** (Trámites Documentarios). Expone un endpoint para crear documentos **Covenant** (Convenios Legales), persistidos en una base de datos relacional MySQL (o PostgreSQL como alternativa).
 
-Abrir el `pgAdmin`, ingrese la contraseña `12345678` y crear la base de datos `facturease_db`.
+### Stack Tecnológico
 
-Ejecutar el siguiente SQL para crear el esquema
+| Tecnología | Versión |
+|---|---|
+| .NET SDK | 10.0 |
+| C# | 14 |
+| ASP.NET Core | 10.0 |
+| Entity Framework Core | 10.0.8 |
+| MySQL (MySql.EntityFrameworkCore) | 10.0.7 |
+| PostgreSQL (alternativa) | Npgsql 10.0.x |
+| Humanizer | 3.0.10 |
+| Swashbuckle (Swagger) | 10.2.0 |
+| Swashbuckle.Annotations | 10.2.0 |
+
+### Arquitectura
+
+El proyecto sigue una arquitectura **Domain-Driven Design (DDD)** combinada con **CQRS** y **capas arquitectónicas**:
+
+```
+┌──────────────────────────────────────────────────────┐
+│                    Interfaces                         │
+│              (REST Controllers / Resources)           │
+├──────────────────────────────────────────────────────┤
+│                   Application                         │
+│            (CommandServices / QueryServices)           │
+├──────────────────────────────────────────────────────┤
+│                     Domain                            │
+│       (Aggregates / ValueObjects / Commands /         │
+│        Queries / Repositories / Errors / Events)      │
+├──────────────────────────────────────────────────────┤
+│                  Infrastructure                       │
+│  (Persistence EF Core / Repositories / Configurations)│
+└──────────────────────────────────────────────────────┘
+```
+
+---
+
+## Configuración Inicial
+
+### 1. Instalación de .NET 10 SDK
+
+Descargar e instalar el .NET 10 SDK desde:
+
+```
+https://dotnet.microsoft.com/download/dotnet/10.0
+```
+
+Verificar la instalación:
+
+```bash
+dotnet --version
+# Debería mostrar: 10.0.x
+```
+
+Verificar que C# 14 está disponible:
+
+```bash
+dotnet --list-sdks
+# Debería mostrar 10.0.x
+```
+
+### 2. Instalación de MySQL
+
+#### Opción A: MySQL (Recomendada)
+
+Descargar e instalar MySQL Community Server desde:
+
+```
+https://dev.mysql.com/downloads/mysql/
+```
+
+Durante la instalación:
+- Puerto: `3306`
+- Usuario root: `root`
+- Contraseña: `12345678` (o la que prefieras)
+
+Alternativamente, usar **XAMPP** o **WAMP** que incluyen MySQL integrado.
+
+> **Nota para XAMPP:** Asegúrate de iniciar el módulo MySQL desde el Panel de Control de XAMPP.
+
+#### Opción B: PostgreSQL (Alternativa)
+
+Descargar e instalar PostgreSQL desde:
+
+```
+https://www.postgresql.org/download/
+```
+
+Durante la instalación:
+- Puerto: `5432`
+- Usuario postgres: `postgres`
+- Contraseña: `12345678`
+
+### 3. Creación de la Base de Datos
+
+#### Para MySQL:
+
+Abrir la consola de MySQL (MySQL Command Line Client o desde XAMPP Shell) y ejecutar:
 
 ```sql
-CREATE SCHEMA facturease_db;
+CREATE SCHEMA IF NOT EXISTS clerky_wa
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+USE clerky_wa;
+```
+
+O desde phpMyAdmin (si usas XAMPP):
+1. Abrir `http://localhost/phpmyadmin`
+2. Click en "Nueva"
+3. Nombre: `clerky_wa`
+4. Cotejamiento: `utf8mb4_unicode_ci`
+5. Click en "Crear"
+
+#### Para PostgreSQL:
+
+Abrir pgAdmin, ingresar la contraseña `12345678` y crear la base de datos `clerky_wa`:
+
+```sql
+CREATE DATABASE clerky_wa;
 ```
 
 ---
 
-## Creación del proyecto (Spring Initializr)
+## Creación del Proyecto (Visual Studio 2022 / dotnet CLI)
 
-Cargar el navegador y pegar el siguiente enlace
+### Método 1: Visual Studio 2022 (Recomendado)
 
+1. Abrir **Visual Studio 2022**
+2. Click en **Create a new project**
+3. Seleccionar **ASP.NET Core Web API** (C#)
+4. Configurar:
+   - **Project name:** `PC212190.U202418655.Capbase.Platform`
+   - **Solution name:** `pc212190u202418655`
+   - **Location:** `C:\Users\vcris\Downloads\Examen\pc212190u202418655`
+   - **Framework:** .NET 10.0
+   - **Authentication type:** None
+   - **Configure for HTTPS:** ✅
+   - **Use controllers:** ✅ (uncheck "Use minimal APIs")
+   - **Enable OpenAPI support:** ✅
+5. Click en **Create**
+
+### Método 2: dotnet CLI
+
+```bash
+# Crear la carpeta del proyecto
+mkdir pc212190u202418655
+cd pc212190u202418655
+
+# Crear la solución
+dotnet new sln -n pc212190u202418655
+
+# Crear el proyecto Web API
+dotnet new webapi -n PC212190.U202418655.Capbase.Platform --use-controllers
+
+# Agregar el proyecto a la solución
+dotnet sln add PC212190.U202418655.Capbase.Platform/PC212190.U202418655.Capbase.Platform.csproj
 ```
-https://start.spring.io#!type=maven-project&language=java&platformVersion=4.1.0&packaging=jar&configurationFileFormat=properties&jvmVersion=26&groupId=pe.com.facturease.platform&artifactId=pc211990u202418655&packageName=pe.com.facturease.platform.u202418655&dependencies=data-jpa,validation,web,devtools,postgresql,lombok,springdoc-openapi
-```
 
-Generar el proyecto Spring. Guardarlo en la carpeta `IdeaProjects1ASI0729` y luego abrirlo en `IntelliJ IDEA`.
+### Método 3: Spring Initializr analógico (No aplica aquí)
+
+> **Importante:** A diferencia del proyecto de ejemplo Facturease (que usaba Spring Initializr), en ASP.NET Core no existe un asistente web equivalente. La creación se hace mediante Visual Studio o CLI como se describe arriba. Sin embargo, sí existen "project templates" que puedes instalar:
+>
+> ```bash
+> dotnet new install Microsoft.AspNetCore.WebApi.Templates
+> ```
 
 ---
 
-### Configuración del SDK
+## Limpieza de Carpetas Generadas por Defecto
 
-Hacer click en `File` → `Project Structure`. Seleccionar `Project` de `Project Settings` y seleccionar la versión `26` de Java para el `SDK`. Si no está instalado, descárguelo. Luego Seleccionar `SDKs` de `Platform Settings` y seleccionar la versión antes seleccionada. Hacer click en `OK`.
+Al crear el proyecto con Visual Studio o `dotnet new`, se generan automáticamente carpetas y archivos que **NO** deben formar parte del repositorio ni de la entrega porque son generados por el compilador o el IDE.
+
+### Carpetas que DEBES ELIMINAR o IGNORAR:
+
+| Carpeta/Archivo | Origen | ¿Se sube? |
+|---|---|---|
+| `bin/` | Compilación (binarios) | ❌ NO |
+| `obj/` | Compilación (objetos intermedios) | ❌ NO |
+| `.vs/` | Configuración local de Visual Studio | ❌ NO |
+| `.idea/` | Configuración local de JetBrains Rider | ❌ NO |
+| `.DS_Store` | Archivo oculto de macOS | ❌ NO |
+| `*.user` | Configuración de usuario del IDE | ❌ NO |
+| `*.suo` | Solution User Options | ❌ NO |
+| `*.cache` | Archivos de caché | ❌ NO |
+| `Debug/`, `Release/` | Carpetas de compilación | ❌ NO |
+
+### Estructura que DEBE QUEDAR después de limpiar:
+
+```
+pc212190u202418655/
+├── pc212190u202418655.sln
+└── PC212190.U202418655.Capbase.Platform/
+    ├── PC212190.U202418655.Capbase.Platform.csproj
+    ├── Program.cs
+    ├── appsettings.json
+    ├── appsettings.Development.json
+    └── Properties/
+        └── launchSettings.json
+```
+
+Todo lo demás (`bin/`, `obj/`, `.vs/`, etc.) debe eliminarse. En la raíz del proyecto, después de la limpieza, deben quedar **únicamente** los archivos fuente.
+
+> **Explicación para el profesor:** El profesor indicó que la estructura debe estar limpia de carpetas generadas por dependencias o compilación. Las carpetas `bin/` y `obj/` son generadas por el compilador de .NET al ejecutar `dotnet build` o `dotnet run`. La carpeta `.vs/` es generada por Visual Studio para almacenar configuraciones locales del entorno de desarrollo. Ninguna de estas debe incluirse en la entrega del proyecto. En su lugar, el proyecto debe compilarse desde el código fuente usando `dotnet build`, que regenerará estas carpetas automáticamente.
+
+### ¿Cómo eliminarlas?
+
+Desde la terminal:
+
+```bash
+# Parado en la raíz pc212190u202418655
+rm -rf PC212190.U202418655.Capbase.Platform/bin
+rm -rf PC212190.U202418655.Capbase.Platform/obj
+rm -rf .vs
+```
+
+O desde el explorador de archivos:
+1. Navegar a la carpeta del proyecto
+2. Eliminar manualmente `bin/`, `obj/`, `.vs/`
 
 ---
 
-### Archivo pom.xml
+## Configuración del SDK
 
-Abrir `pom.xml` y modificar la versión de Java en `properties`
+### En Visual Studio 2022
+
+1. Click derecho en el proyecto → **Properties**
+2. Ir a **Application** → **Target Framework**: `net10.0`
+3. Ir a **Build** → **Advanced** → **Language version**: `14` (o `latest`)
+
+### En Rider / JetBrains
+
+1. Archivo → **Settings** → **Build, Execution, Deployment** → **Compiler** → **C# Language Version**: `14`
+
+### Verificar configuración manual (archivo .csproj)
+
+El archivo `.csproj` debe tener las siguientes propiedades:
 
 ```xml
-<properties>
-    <java.version>26</java.version>
-</properties>
-```
-
-Agregar la siguiente dependencia después de `springdoc-openapi`
-
-```xml
-<!-- https://mvnrepository.com/artifact/io.github.encryptorcode/pluralize -->
-<dependency>
-    <groupId>io.github.encryptorcode</groupId>
-    <artifactId>pluralize</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
-
-Verificar que el `pom.xml` completo quede así
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-         https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.springframework.boot</groupId>
-        <artifactId>spring-boot-starter-parent</artifactId>
-        <version>4.1.0</version>
-        <relativePath/>
-    </parent>
-    <groupId>pe.com.facturease.platform</groupId>
-    <artifactId>pc211990u202418655</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>pc211990u202418655</name>
-    <description>Facturease Peru - Invoice Management RESTful API</description>
-    <properties>
-        <java.version>26</java.version>
-    </properties>
-    <dependencies>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-devtools</artifactId>
-            <scope>runtime</scope>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>3.0.2</version>
-        </dependency>
-        <!-- https://mvnrepository.com/artifact/io.github.encryptorcode/pluralize -->
-        <dependency>
-            <groupId>io.github.encryptorcode</groupId>
-            <artifactId>pluralize</artifactId>
-            <version>1.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <configuration>
-                    <excludes>
-                        <exclude>
-                            <groupId>org.projectlombok</groupId>
-                            <artifactId>lombok</artifactId>
-                        </exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>default-compile</id>
-                        <phase>compile</phase>
-                        <goals><goal>compile</goal></goals>
-                        <configuration>
-                            <annotationProcessorPaths>
-                                <path>
-                                    <groupId>org.projectlombok</groupId>
-                                    <artifactId>lombok</artifactId>
-                                </path>
-                            </annotationProcessorPaths>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <id>default-testCompile</id>
-                        <phase>test-compile</phase>
-                        <goals><goal>testCompile</goal></goals>
-                        <configuration>
-                            <annotationProcessorPaths>
-                                <path>
-                                    <groupId>org.projectlombok</groupId>
-                                    <artifactId>lombok</artifactId>
-                                </path>
-                            </annotationProcessorPaths>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+<PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>14</LangVersion>
+</PropertyGroup>
 ```
 
 ---
 
-### Proyecto Application
+## Archivo .csproj (Equivalente al pom.xml)
 
-Abrir el archivo `Pc211990u202418655Application.java` ubicado en el package `pe.com.facturease.platform.u202418655` y reemplazar con
+Abrir el archivo `PC212190.U202418655.Capbase.Platform.csproj` y reemplazar su contenido con:
 
-```java
-package pe.com.facturease.platform.u202418655;
+```xml
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <LangVersion>14</LangVersion>
+    </PropertyGroup>
 
-/**
- * Main application class for the Facturease Peru platform.
- *
- * <p>Enables JPA auditing for automatic management of entity creation
- * and last-updated timestamps across all aggregate roots.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@SpringBootApplication
-@EnableJpaAuditing
-public class Pc211990u202418655Application {
+    <ItemGroup>
+        <!-- EntityFrameworkCore Database Persistence related packages -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8"/>
 
-    /**
-     * Entry point of the Spring Boot application.
-     *
-     * @param args command-line arguments
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(Pc211990u202418655Application.class, args);
+        <!-- MySQL Database Persistence related packages -->
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7"/>
+
+        <!-- Naming convention conversion related packages -->
+        <PackageReference Include="Humanizer" Version="3.0.10"/>
+
+        <!-- OpenAPI documentation related packages -->
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.2.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Update="Paperwork\Resources\PaperworkMessages.es.resx">
+            <DependentUpon>PaperworkMessages.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Resources\ErrorMessages.es.resx">
+            <DependentUpon>ErrorMessages.cs</DependentUpon>
+        </EmbeddedResource>
+    </ItemGroup>
+
+</Project>
+```
+
+### Explicación de dependencias:
+
+| Paquete | Propósito |
+|---|---|
+| `Microsoft.EntityFrameworkCore` | ORM principal de Entity Framework Core |
+| `Microsoft.EntityFrameworkCore.Relational` | Funcionalidades relacionales de EF Core |
+| `Microsoft.EntityFrameworkCore.Design` | Herramientas de diseño (migrations, etc.) |
+| `MySql.EntityFrameworkCore` | Provider de MySQL para EF Core |
+| `Humanizer` | Conversión de nombres a snake_case, pluralización, etc. |
+| `Swashbuckle.AspNetCore` | Generación de documentación OpenAPI / Swagger UI |
+| `Swashbuckle.AspNetCore.Annotations` | Anotaciones para Swagger (`[SwaggerOperation]`, `[SwaggerResponse]`) |
+
+### Si usas PostgreSQL en lugar de MySQL:
+
+Reemplazar `MySql.EntityFrameworkCore` (10.0.7) por:
+
+```xml
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
+```
+
+> **Nota importante:** Elegir **una sola** base de datos. No incluyas ambos providers en el proyecto final. Esta guía usa MySQL como opción principal, con notas para PostgreSQL donde sea necesario.
+
+---
+
+## Archivo Program.cs (Equivalente a la clase Application.java)
+
+Abrir `Program.cs` y reemplazar con el siguiente contenido. Este archivo es el punto de entrada de la aplicación y configura todos los servicios necesarios:
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Application.CommandServices;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Application.Internal.CommandServices;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Repositories;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
+using PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ── Database ──────────────────────────────────────────────────────────────────
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySQL(connectionString));
+// Para PostgreSQL, reemplazar la línea anterior con:
+// options.UseNpgsql(connectionString);
+
+// ── Localization ──────────────────────────────────────────────────────────────
+builder.Services.AddLocalization();
+
+// ── Repositories & Unit of Work ───────────────────────────────────────────────
+builder.Services.AddScoped<ICovenantRepository, CovenantRepository>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// ── Application Services ──────────────────────────────────────────────────────
+builder.Services.AddScoped<ICovenantCommandService, CovenantCommandService>();
+
+// ── Controllers ───────────────────────────────────────────────────────────────
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
+// ── OpenAPI / Swagger ─────────────────────────────────────────────────────────
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Capbase Platform API",
+        Version = "v1",
+        Description = "RESTful API for the Capbase Paperwork bounded context. " +
+                       "Manages Covenant (legal covenant) documents.",
+        Contact = new OpenApiContact
+        {
+            Name = "u202418655 - Victor Jhosef Laura Acosta"
+        }
+    });
+    options.EnableAnnotations();
+});
+
+var app = builder.Build();
+
+// ── Request Localization ──────────────────────────────────────────────────────
+var supportedCultures = new[] { "en", "en-US", "es", "es-PE" };
+app.UseRequestLocalization(options =>
+{
+    options.SetDefaultCulture("en");
+    options.AddSupportedCultures(supportedCultures);
+    options.AddSupportedUICultures(supportedCultures);
+    options.ApplyCurrentCultureToResponseHeaders = true;
+});
+
+// ── Database Migration ────────────────────────────────────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
+}
+
+// ── Middleware ────────────────────────────────────────────────────────────────
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "Capbase Platform API v1");
+        options.RoutePrefix = "swagger";
+    });
+}
+
+app.UseHttpsRedirection();
+app.MapControllers();
+
+app.Run();
+```
+
+### Explicación de cada sección de Program.cs:
+
+| Sección | Descripción |
+|---|---|
+| **Database** | Configura la conexión a MySQL/PostgreSQL usando EF Core |
+| **Localization** | Habilita el sistema de recursos localizados (.resx) |
+| **Repositories & Unit of Work** | Registra las implementaciones concretas de los repositorios en el contenedor DI |
+| **Application Services** | Registra los servicios de aplicación (command/query handlers) |
+| **Controllers** | Habilita los controladores REST y configura JSON con soporte de enums como strings |
+| **OpenAPI / Swagger** | Configura Swagger UI para documentación interactiva |
+| **Request Localization** | Configura los idiomas soportados (inglés, español) via header Accept-Language |
+| **Database Migration** | Ejecuta EnsureCreated() para crear la tabla automáticamente al iniciar |
+| **Middleware** | Habilita Swagger UI en desarrollo y redirección HTTPS |
+
+---
+
+## Archivo appsettings.json (Equivalente a application.properties)
+
+Abrir `appsettings.json` y reemplazar con:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=3306;Database=clerky_wa;User=root;Password=12345678;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
     }
+  },
+  "AllowedHosts": "*"
 }
 ```
 
----
+### Configuración para PostgreSQL (alternativa):
 
-### Archivo application.properties
-
-Abrir el archivo `application.properties` en `src/main/resources` y reemplazar con
-
-```ini
-spring.application.name=pc211990u202418655
-
-# Spring DataSource Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/facturease_db?currentSchema=facturease_db
-spring.datasource.username=postgres
-spring.datasource.password=12345678
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-# Spring Data JPA Configuration
-spring.jpa.database=postgresql
-spring.jpa.show-sql=true
-
-# Spring Data JPA Hibernate Configuration
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.open-in-view=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.naming.physical-strategy=pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy.SnakeCaseWithPluralizedTablePhysicalNamingStrategy
-
-server.port=8097
-
-documentation.application.description=Facturease Peru - Invoice Management RESTful API
-documentation.application.version=@project.version@
-
-spring.messages.basename=messages
-spring.messages.encoding=UTF-8
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Host=localhost;Port=5432;Database=clerky_wa;Username=postgres;Password=12345678;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
 ```
 
-> **Nota sobre el esquema:** dado que el enunciado indica que la base de datos relacional debe usar el esquema `facturease_db` (mismo nombre que la base de datos), si su servidor PostgreSQL requiere que el esquema sea distinto del nombre de la base, puede crear adicionalmente la base `facturease` y dentro de ella el esquema `facturease_db`, ajustando la URL JDBC a `jdbc:postgresql://localhost:5432/facturease?currentSchema=facturease_db`.
+### Configuración del puerto (launchSettings.json):
 
----
+Abrir `Properties/launchSettings.json` y modificar el perfil para que use el puerto `8097`:
 
-### Archivo messages.properties (i18n - Inglés)
-
-Crear `src/main/resources/messages.properties`
-
-```properties
-# Validation messages
-validation.field.prefix=Field
-validation.request.failed=Request validation failed
-validation.request.argument=request-argument
-
-# Error messages
-error.validation.message=Validation failed: {0}
-error.business-rule.message=Business rule violation: {0}
-error.unexpected.message=An unexpected error occurred
-error.not-found.message={0} not found
-error.conflict.message=Conflict: {0}
-error.generic.message=An error occurred
+```json
+{
+  "profiles": {
+    "PC212190.U202418655.Capbase.Platform": {
+      "applicationUrl": "https://localhost:8097;http://localhost:5088",
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
+}
 ```
+
+> **Importante:** El puerto HTTPS (`8097`) es el que usaremos para las pruebas. Asegúrate de que esté disponible y no esté siendo usado por otro servicio.
 
 ---
 
-### Archivo messages_es.properties (i18n - Español)
+## Archivos de Recursos (i18n - Internacionalización)
 
-Crear `src/main/resources/messages_es.properties`
+### Resources/ErrorMessages.cs
 
-```properties
-# Validation messages
-validation.field.prefix=Campo
-validation.request.failed=Falló la validación de la solicitud
-validation.request.argument=argumento-de-solicitud
+Crear `Resources/ErrorMessages.cs`:
 
-# Error messages
-error.validation.message=Error de validación: {0}
-error.business-rule.message=Violación de regla de negocio: {0}
-error.unexpected.message=Ocurrió un error inesperado
-error.not-found.message={0} no encontrado
-error.conflict.message=Conflicto: {0}
-error.generic.message=Ocurrió un error
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Resources;
+
+/// <summary>
+/// Marker class used to scope IStringLocalizer for shared error messages.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public class ErrorMessages;
+```
+
+### Resources/ErrorMessages.resx (Inglés)
+
+Crear `Resources/ErrorMessages.resx`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BadRequest" xml:space="preserve">
+    <value>The request is invalid.</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>The resource already exists.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>An unexpected error occurred. Please try again later.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>The requested resource was not found.</value>
+  </data>
+</root>
+```
+
+### Resources/ErrorMessages.es.resx (Español)
+
+Crear `Resources/ErrorMessages.es.resx`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="BadRequest" xml:space="preserve">
+    <value>La solicitud es inválida.</value>
+  </data>
+  <data name="Conflict" xml:space="preserve">
+    <value>El recurso ya existe.</value>
+  </data>
+  <data name="InternalServerError" xml:space="preserve">
+    <value>Ocurrió un error inesperado. Por favor intente nuevamente.</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>El recurso solicitado no fue encontrado.</value>
+  </data>
+</root>
+```
+
+### Paperwork/Resources/PaperworkMessages.cs
+
+Crear `Paperwork/Resources/PaperworkMessages.cs`:
+
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Resources;
+
+/// <summary>
+/// Marker class used to scope IStringLocalizer for Paperwork-specific messages.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public class PaperworkMessages;
+```
+
+### Paperwork/Resources/PaperworkMessages.resx (Inglés)
+
+Crear `Paperwork/Resources/PaperworkMessages.resx`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CovenantCreatedSuccessfully" xml:space="preserve">
+    <value>Covenant created successfully.</value>
+  </data>
+  <data name="CovenantAlreadyExists" xml:space="preserve">
+    <value>A Covenant with the given document identifier already exists.</value>
+  </data>
+  <data name="InvalidPeriod" xml:space="preserve">
+    <value>EndDate must be strictly after StartDate.</value>
+  </data>
+  <data name="InvalidMonetaryAmount" xml:space="preserve">
+    <value>Monetary amount value must be greater than or equal to zero.</value>
+  </data>
+</root>
+```
+
+### Paperwork/Resources/PaperworkMessages.es.resx (Español)
+
+Crear `Paperwork/Resources/PaperworkMessages.es.resx`:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="CovenantCreatedSuccessfully" xml:space="preserve">
+    <value>Convenio creado exitosamente.</value>
+  </data>
+  <data name="CovenantAlreadyExists" xml:space="preserve">
+    <value>Ya existe un Convenio con el identificador de documento indicado.</value>
+  </data>
+  <data name="InvalidPeriod" xml:space="preserve">
+    <value>La fecha de fin debe ser estrictamente posterior a la fecha de inicio.</value>
+  </data>
+  <data name="InvalidMonetaryAmount" xml:space="preserve">
+    <value>El valor monetario debe ser mayor o igual a cero.</value>
+  </data>
+</root>
 ```
 
 ---
 
-### README.md
+## Shared Package - Estructura de Carpetas (Basada en Learning Center)
 
-Crear `README.md` en la raíz del proyecto
+> **IMPORTANTE:** Esta estructura de carpetas está inspirada en el proyecto **Learning Center Platform** proporcionado por el profesor, que fue calificado como un ejemplo de buena organización. La clave es que el bounded context `Shared` contiene infraestructura y utilidades reutilizables, mientras que los bounded contexts específicos (`Paperwork`) contienen la lógica de negocio. Nótese que NO existen archivos como `DataAnnotations` o validaciones en las entidades de dominio porque esas responsabilidades pertenecen a la capa de Infrastructure.
 
-```markdown
-# Facturease Peru - Invoice Management API
-
-## Description
-Facturease Peru Invoice Management API is a RESTful web service built with Spring Boot
-that provides backend support for registering electronic Invoices issued by corporate
-clients of Facturease Peru. The API enforces all business rules required by the platform,
-including unique invoiceIdentifier validation, IGV (18%) tax consistency validation between
-netAmount and calculatedTax, and itemCount validation when an Invoice is registered with a
-status other than DRAFT.
-
-## Technologies
-- Java 26
-- Spring Boot 4.1.0
-- Spring Data JPA
-- PostgreSQL
-- Lombok
-- OpenAPI (Swagger UI)
-
-## Author
-Victor Jhosef Laura Acosta
-
-## License
-Apache 2.0
-```
-
----
-
-## Shared Package - Estructura de carpetas
-
-Crear toda la siguiente estructura bajo `src/main/java/pe/com/facturease/platform/u202418655/shared`
+Crear toda la siguiente estructura bajo `PC212190.U202418655.Capbase.Platform/`:
 
 ```
-shared
-├── application
-│   └── result
-│       ├── Result.java
-│       └── ApplicationError.java
-├── domain
-│   └── model
-│       ├── aggregates
-│       │   └── AbstractDomainAggregateRoot.java
-│       └── valueobjects
-│           └── TaxSummary.java
-├── infrastructure
-│   ├── documentation
-│   │   └── openapi
-│   │       └── configuration
-│   │           └── OpenApiConfiguration.java
-│   ├── i18n
-│   │   └── configuration
-│   │       └── LocaleConfiguration.java
-│   └── persistence
-│       └── jpa
-│           ├── configuration
-│           │   └── strategy
-│           │       └── SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
-│           └── entities
-│               └── AuditableAbstractPersistenceEntity.java
-└── interfaces
-    └── rest
-        ├── GlobalExceptionHandler.java
-        ├── resources
-        │   ├── ErrorResource.java
-        │   └── MessageResource.java
-        └── transform
-            ├── ErrorResponseAssembler.java
-            └── ResponseEntityAssembler.java
+PC212190.U202418655.Capbase.Platform/
+├── (carpetas existentes: Program.cs, appsettings.json, etc.)
+├── Resources/
+│   ├── ErrorMessages.cs
+│   ├── ErrorMessages.resx
+│   └── ErrorMessages.es.resx
+└── Shared/
+    ├── Application/
+    │   └── Model/
+    │       └── Result.cs
+    ├── Domain/
+    │   ├── Model/
+    │   │   ├── IAuditableEntity.cs
+    │   │   ├── LegalityPeriod.cs
+    │   │   └── MonetaryAmount.cs
+    │   └── Repositories/
+    │       ├── IBaseRepository.cs
+    │       └── IUnitOfWork.cs
+    └── Infrastructure/
+        └── Persistence/
+            └── EntityFrameworkCore/
+                ├── Configuration/
+                │   └── AppDbContext.cs
+                └── Repositories/
+                    ├── BaseRepository.cs
+                    └── UnitOfWork.cs
 ```
 
-> **Nota:** A diferencia del proyecto de ejemplo (Sensibo), aquí el bounded context `shared` **sí** contiene un value object de dominio: `TaxSummary`, tal como lo exige expresamente el enunciado de Facturease Perú ("Especifica que el tipo TaxSummary es un value object compuesto ubicado en el bounded context shared"). Por eso se agrega el paquete `shared/domain/model/valueobjects`.
+> **NOTA IMPORTANTE sobre la estructura de Learning Center:**
+>
+> El proyecto Learning Center organiza el `Shared` de la siguiente manera:
+> - **Shared/Application/Model/** → `Result.cs` (patrón Result)
+> - **Shared/Application/Internal/EventHandlers/** → manejadores de eventos (si aplica)
+> - **Shared/Domain/Model/Entities/** → interfaces como `IAuditableEntity`
+> - **Shared/Domain/Model/Events/** → interfaces de eventos de dominio
+> - **Shared/Domain/Repositories/** → interfaces genéricas (`IBaseRepository`, `IUnitOfWork`)
+> - **Shared/Infrastructure/Persistence/EntityFrameworkCore/** → implementaciones concretas
+> - **Shared/Infrastructure/Interfaces/AspNetCore/** → convenciones de naming, middlewares
+> - **Shared/Interfaces/Rest/** → manejadores de errores globales, problemas de formato
+>
+> También NOTAR que en Learning Center el `Shared` NO contiene value objects de dominio porque cada bounded context define los suyos. Sin embargo, existen ciertos value objects que por su naturaleza transversal (como `LegalityPeriod` y `MonetaryAmount`) podrían ubicarse en Shared si son compartidos entre múltiples bounded contexts. En este proyecto, los colocamos en Shared precisamente por su naturaleza reutilizable.
+
+### Diagrama de dependencias entre capas:
+
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│  Interfaces  │────>│  Application │────>│   Domain     │
+│  (REST)      │     │  (Services)  │     │  (Core)      │
+└──────────────┘     └──────────────┘     └──────┬───────┘
+                                                  │
+                                                  ▼
+                                        ┌──────────────┐
+                                        │Infrastructure │
+                                        │ (Persistence) │
+                                        └──────────────┘
+```
+
+Las flechas indican dirección de dependencia. El **Domain** es la capa más interna y no depende de nada externo. La **Infrastructure** implementa los contratos definidos en Domain. La **Application** orquesta la lógica usando Domain e Infrastructure. Las **Interfaces** son el punto de entrada REST.
 
 ---
 
 ## Shared Package - Archivos
 
-### 01. AbstractDomainAggregateRoot.java
+### 01. Result.cs (Patrón Result)
 
-Ruta `shared/domain/model/aggregates/AbstractDomainAggregateRoot.java`
+Ruta: `Shared/Application/Model/Result.cs`
 
-Package `pe.com.facturease.platform.u202418655.shared.domain.model.aggregates`
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Application.Model`
 
-```java
-package pe.com.facturease.platform.u202418655.shared.domain.model.aggregates;
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Shared.Application.Model;
 
-import org.springframework.data.domain.AbstractAggregateRoot;
+/// <summary>
+/// Represents the outcome of an operation that produces a value of type T.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <typeparam name="T">The type of the value returned on success.</typeparam>
+public class Result<T>
+{
+    /// <summary>Gets the value produced on success.</summary>
+    public T? Value { get; }
 
-import java.util.Collection;
+    /// <summary>Gets whether the operation succeeded.</summary>
+    public bool IsSuccess { get; }
 
-/**
- * Base class for all domain aggregate roots.
- *
- * <p>Extends Spring Data Commons' {@link AbstractAggregateRoot} to gain
- * domain event registration support without pulling in any JPA or
- * persistence concern. Identity and auditing are intentionally left
- * to the infrastructure layer.</p>
- *
- * <p>All bounded-context domain aggregate roots should extend this class.</p>
- *
- * @param <T> the concrete aggregate root type
- * @author Victor Jhosef Laura Acosta
- */
-public abstract class AbstractDomainAggregateRoot<T extends AbstractDomainAggregateRoot<T>>
-        extends AbstractAggregateRoot<T> {
+    /// <summary>Gets the application-level error code identifying the kind of failure.</summary>
+    public string? ErrorCode { get; }
 
-    /**
-     * Registers a domain event to be published after this aggregate is saved.
-     *
-     * @param event the domain event to register
-     */
-    protected void registerDomainEvent(Object event) {
-        super.registerEvent(event);
+    /// <summary>Gets the localized error message when the operation failed.</summary>
+    public string? ErrorMessage { get; }
+
+    private Result(T value)
+    {
+        Value = value;
+        IsSuccess = true;
     }
 
-    /**
-     * Returns all domain events registered on this aggregate since the last publication.
-     *
-     * @return the registered domain events
-     */
-    @Override
-    public Collection<Object> domainEvents() {
-        return super.domainEvents();
+    private Result(string errorCode, string errorMessage)
+    {
+        ErrorCode = errorCode;
+        ErrorMessage = errorMessage;
+        IsSuccess = false;
     }
 
-    /**
-     * Clears all registered domain events.
-     */
-    @Override
-    public void clearDomainEvents() {
-        super.clearDomainEvents();
+    /// <summary>Creates a successful result containing the specified value.</summary>
+    public static Result<T> Success(T value) => new(value);
+
+    /// <summary>Creates a failed result with the given error code and localized message.</summary>
+    public static Result<T> Failure(string errorCode, string errorMessage) => new(errorCode, errorMessage);
+}
+
+/// <summary>
+/// Represents the outcome of an operation that does not produce a value.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public class Result
+{
+    /// <summary>Gets whether the operation succeeded.</summary>
+    public bool IsSuccess { get; }
+
+    /// <summary>Gets the application-level error code identifying the kind of failure.</summary>
+    public string? ErrorCode { get; }
+
+    /// <summary>Gets the localized error message when the operation failed.</summary>
+    public string? ErrorMessage { get; }
+
+    private Result(bool isSuccess, string? errorCode, string? errorMessage)
+    {
+        IsSuccess = isSuccess;
+        ErrorCode = errorCode;
+        ErrorMessage = errorMessage;
     }
+
+    /// <summary>Creates a successful result.</summary>
+    public static Result Success() => new(true, null, null);
+
+    /// <summary>Creates a failed result with the given error code and localized message.</summary>
+    public static Result Failure(string errorCode, string errorMessage) => new(false, errorCode, errorMessage);
 }
 ```
 
----
+**Explicación del patrón Result:**
 
-### 02. TaxSummary.java
+El patrón Result es una alternativa a las excepciones para el flujo de control en la capa de aplicación. En lugar de lanzar excepciones para errores esperados (como "registro duplicado" o "periodo inválido"), el servicio devuelve un objeto `Result<T>` que indica explícitamente si la operación fue exitosa o falló. Esto:
+- Evita usar excepciones para control de flujo (mejor práctica)
+- Permite que el controlador REST decida qué código HTTP retornar según el error
+- Facilita las pruebas unitarias al tener un contrato claro de salida
+- Es consistente con el patrón usado en Learning Center
 
-Ruta `shared/domain/model/valueobjects/TaxSummary.java`
+### 02. IAuditableEntity.cs
 
-Package `pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects`
+Ruta: `Shared/Domain/Model/IAuditableEntity.cs`
 
-```java
-package pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects;
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Domain.Model`
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.util.Objects;
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Shared.Domain.Model;
 
-/**
- * Value object representing the tax summary of a fiscal document.
- *
- * <p>Composed of {@code netAmount} (the net value before taxes) and
- * {@code calculatedTax} (the accumulated tax amount). This value object
- * is shared across bounded contexts that need to express IGV-related
- * (Peruvian general sales tax) tax amounts.</p>
- *
- * <p>Validates that {@code calculatedTax} is consistent with the application
- * of the eighteen percent (18%) national IGV rate over {@code netAmount}.</p>
- *
- * @param netAmount     the net amount before taxes
- * @param calculatedTax the accumulated tax amount
- * @author Victor Jhosef Laura Acosta
- */
-public record TaxSummary(BigDecimal netAmount, BigDecimal calculatedTax) {
+/// <summary>
+/// Marker interface for auditable entities that track creation and update timestamps.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public interface IAuditableEntity
+{
+    /// <summary>Gets or sets the date and time the entity was created.</summary>
+    DateTimeOffset? CreatedAt { get; set; }
 
-    private static final BigDecimal IGV_RATE = new BigDecimal("0.18");
-
-    /**
-     * Creates a TaxSummary with validation.
-     *
-     * @throws IllegalArgumentException if either amount is null, negative,
-     *                                   or if calculatedTax is not consistent
-     *                                   with the 18% IGV rate over netAmount
-     */
-    public TaxSummary {
-        if (Objects.isNull(netAmount) || netAmount.signum() < 0)
-            throw new IllegalArgumentException(
-                    "[TaxSummary] netAmount cannot be null or negative");
-        if (Objects.isNull(calculatedTax) || calculatedTax.signum() < 0)
-            throw new IllegalArgumentException(
-                    "[TaxSummary] calculatedTax cannot be null or negative");
-
-        BigDecimal expectedTax = netAmount.multiply(IGV_RATE)
-                .setScale(2, RoundingMode.HALF_UP);
-        BigDecimal roundedCalculatedTax = calculatedTax.setScale(2, RoundingMode.HALF_UP);
-
-        if (expectedTax.compareTo(roundedCalculatedTax) != 0)
-            throw new IllegalArgumentException(
-                    "[TaxSummary] calculatedTax is not consistent with 18% IGV over netAmount");
-    }
-
-    /**
-     * Default constructor required for JPA.
-     */
-    public TaxSummary() {
-        this(BigDecimal.ZERO, BigDecimal.ZERO);
-    }
+    /// <summary>Gets or sets the date and time the entity was last updated.</summary>
+    DateTimeOffset? UpdatedAt { get; set; }
 }
 ```
 
----
+**Explicación:**
 
-### 03. Result.java
+Esta interfaz permite que cualquier entidad que la implemente obtenga automáticamente las marcas de tiempo de creación y última modificación. El `AppDbContext` (en la capa de Infrastructure) se encarga de asignar estos valores automáticamente al guardar cambios mediante la sobreescritura de `SaveChangesAsync`. Esto es una implementación del patrón **Audit Trail** y es idéntico a cómo lo hace Learning Center.
 
-Ruta `shared/application/result/Result.java`
+### 03. LegalityPeriod.cs (Value Object - Dominio Compartido)
 
-Package `pe.com.facturease.platform.u202418655.shared.application.result`
+Ruta: `Shared/Domain/Model/LegalityPeriod.cs`
 
-```java
-package pe.com.facturease.platform.u202418655.shared.application.result;
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Domain.Model`
 
-import java.util.Optional;
-import java.util.function.Function;
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Shared.Domain.Model;
 
-/**
- * Represents the result of a command or operation that can either succeed
- * with a value or fail with an error.
- *
- * <p>This type encodes the possibility of failure in the type system,
- * making error cases explicit and composable.</p>
- *
- * @param <T> The type of the successful result value
- * @param <E> The type of the error/failure information
- * @author Victor Jhosef Laura Acosta
- */
-public sealed interface Result<T, E> {
+/// <summary>
+/// Value object representing a validity period defined by a start and end date.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public record LegalityPeriod
+{
+    /// <summary>Gets the inclusive start date of the period.</summary>
+    public DateOnly StartDate { get; private set; }
 
-    /**
-     * Represents a successful result containing a value.
-     */
-    record Success<T, E>(T value) implements Result<T, E> {}
+    /// <summary>Gets the inclusive end date of the period.</summary>
+    public DateOnly EndDate { get; private set; }
 
-    /**
-     * Represents a failed result containing error information.
-     */
-    record Failure<T, E>(E error) implements Result<T, E> {}
-
-    /**
-     * Creates a successful result with the given value.
-     */
-    static <T, E> Result<T, E> success(T value) {
-        return new Success<>(value);
+    /// <summary>
+    /// Initializes a new LegalityPeriod and validates that EndDate is after StartDate.
+    /// </summary>
+    /// <param name="startDate">Start date of the period.</param>
+    /// <param name="endDate">End date of the period. Must be strictly after startDate.</param>
+    /// <exception cref="ArgumentException">Thrown when endDate is less than or equal to startDate.</exception>
+    public LegalityPeriod(DateOnly startDate, DateOnly endDate)
+    {
+        if (endDate <= startDate)
+            throw new ArgumentException("EndDate must be strictly after StartDate.");
+        StartDate = startDate;
+        EndDate = endDate;
     }
 
-    /**
-     * Creates a failed result with the given error.
-     */
-    static <T, E> Result<T, E> failure(E error) {
-        return new Failure<>(error);
-    }
+    /// <summary>Parameterless constructor required by EF Core.</summary>
+    protected LegalityPeriod() { }
 
-    /**
-     * Returns true if this result is a success.
-     */
-    default boolean isSuccess() {
-        return this instanceof Success;
-    }
-
-    /**
-     * Returns true if this result is a failure.
-     */
-    default boolean isFailure() {
-        return this instanceof Failure;
-    }
-
-    /**
-     * Returns an Optional containing the value if success, otherwise empty.
-     */
-    default Optional<T> toOptional() {
-        return switch (this) {
-            case Success<T, E> s -> Optional.of(s.value);
-            case Failure<T, E> f -> Optional.empty();
-        };
-    }
-
-    /**
-     * Extracts the value if successful, or returns the given default if failed.
-     */
-    default T getOrElse(T defaultValue) {
-        return switch (this) {
-            case Success<T, E> s -> s.value;
-            case Failure<T, E> f -> defaultValue;
-        };
-    }
-
-    /**
-     * Applies a function to the error if this is a failure.
-     */
-    default <E2> Result<T, E2> mapError(Function<E, E2> f) {
-        return switch (this) {
-            case Success<T, E> s -> Result.success(s.value);
-            case Failure<T, E> failure -> Result.failure(f.apply(failure.error));
-        };
-    }
-
-    /**
-     * Applies a function to the value if this is a success, producing a new Result.
-     */
-    default <T2> Result<T2, E> flatMap(Function<T, Result<T2, E>> f) {
-        return switch (this) {
-            case Success<T, E> s -> f.apply(s.value);
-            case Failure<T, E> failure -> Result.failure(failure.error);
-        };
-    }
-
-    /**
-     * Applies a function to the value if this is a success.
-     */
-    default <T2> Result<T2, E> map(Function<T, T2> f) {
-        return switch (this) {
-            case Success<T, E> s -> Result.success(f.apply(s.value));
-            case Failure<T, E> failure -> Result.failure(failure.error);
-        };
-    }
-
-    /**
-     * Applies a function to the error if this is a failure, allowing fallback recovery.
-     */
-    default Result<T, E> recover(Function<E, Result<T, E>> f) {
-        return switch (this) {
-            case Success<T, E> s -> this;
-            case Failure<T, E> failure -> f.apply(failure.error);
-        };
-    }
+    /// <summary>
+    /// Determines whether the period has expired relative to a given check date.
+    /// </summary>
+    /// <param name="checkDate">The date to compare against the end of the period.</param>
+    /// <returns>true if checkDate is after EndDate; otherwise false.</returns>
+    public bool IsExpired(DateOnly checkDate) => checkDate > EndDate;
 }
 ```
 
----
+**Explicación:**
 
-### 04. ApplicationError.java
+`LegalityPeriod` es un **Value Object** del dominio compartido. Representa un período de validez legal con una fecha de inicio y una fecha de fin. Como value object:
+- Es inmutable (sus propiedades solo se asignan en el constructor)
+- Se valida a sí mismo (regla de negocio: EndDate > StartDate)
+- No tiene identidad propia (dos períodos con las mismas fechas son iguales)
+- Utiliza `DateOnly` (tipo de .NET 6+ que representa solo fecha, sin hora)
+- Se mapea a dos columnas en la base de datos mediante `OwnsOne` en Fluent API
+- Está en Shared porque podría ser usado por otros bounded contexts en el futuro
 
-Ruta `shared/application/result/ApplicationError.java`
+### 04. MonetaryAmount.cs (Value Object - Dominio Compartido)
 
-Package `pe.com.facturease.platform.u202418655.shared.application.result`
+Ruta: `Shared/Domain/Model/MonetaryAmount.cs`
 
-```java
-package pe.com.facturease.platform.u202418655.shared.application.result;
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Domain.Model`
 
-/**
- * Represents an error that occurred in the application layer.
- *
- * <p>Designed to be easily mapped to HTTP responses with structured
- * error information.</p>
- *
- * @param code     A machine-readable error code (e.g., INVOICE_CONFLICT)
- * @param message  A human-readable error message
- * @param details  Optional additional context about the error
- * @author Victor Jhosef Laura Acosta
- */
-public record ApplicationError(String code, String message, String details) {
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Shared.Domain.Model;
 
-    /**
-     * Creates an ApplicationError with code and message only.
-     */
-    public ApplicationError(String code, String message) {
-        this(code, message, null);
+/// <summary>
+/// Value object representing a monetary amount with a currency code.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public record MonetaryAmount
+{
+    /// <summary>Gets the numeric value of the monetary amount.</summary>
+    public decimal Value { get; private set; }
+
+    /// <summary>Gets the ISO currency code.</summary>
+    public string Currency { get; private set; } = string.Empty;
+
+    /// <summary>
+    /// Initializes a new MonetaryAmount with validation.
+    /// </summary>
+    /// <param name="value">The numeric amount. Must be greater than or equal to zero.</param>
+    /// <param name="currency">The currency code. Must not be null or blank.</param>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when value is less than zero.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when currency is null or blank.</exception>
+    public MonetaryAmount(decimal value, string currency)
+    {
+        if (value < decimal.Zero)
+            throw new ArgumentOutOfRangeException(nameof(value),
+                "Monetary amount value must be greater than or equal to zero.");
+        if (string.IsNullOrWhiteSpace(currency))
+            throw new ArgumentNullException(nameof(currency),
+                "Currency must not be null or blank.");
+        Value = value;
+        Currency = currency;
     }
 
-    /**
-     * Validation error: input data is invalid or violates constraints.
-     */
-    public static ApplicationError validationError(String fieldOrConcept, String reason) {
-        return new ApplicationError("VALIDATION_ERROR",
-                "Validation failed: %s".formatted(fieldOrConcept), reason);
-    }
+    /// <summary>Parameterless constructor required by EF Core.</summary>
+    protected MonetaryAmount() { }
 
-    /**
-     * Not found error: the requested resource does not exist.
-     */
-    public static ApplicationError notFound(String resourceType, String identifier) {
-        return new ApplicationError("%s_NOT_FOUND".formatted(resourceType.toUpperCase()),
-                "%s not found: %s".formatted(resourceType, identifier), null);
-    }
-
-    /**
-     * Business rule violation error: operation violates domain constraints.
-     */
-    public static ApplicationError businessRuleViolation(String rule, String reason) {
-        return new ApplicationError("BUSINESS_RULE_VIOLATION",
-                "Business rule violation: %s".formatted(rule), reason);
-    }
-
-    /**
-     * Conflict error: operation cannot be completed due to conflicting state.
-     */
-    public static ApplicationError conflict(String resource, String reason) {
-        return new ApplicationError("%s_CONFLICT".formatted(resource.toUpperCase()),
-                "Conflict with %s".formatted(resource), reason);
-    }
-
-    /**
-     * Unexpected error: something went wrong that shouldn't have.
-     */
-    public static ApplicationError unexpected(String context, String reason) {
-        return new ApplicationError("UNEXPECTED_ERROR",
-                "Unexpected error in %s".formatted(context), reason);
-    }
+    /// <summary>
+    /// Multiplies the monetary amount by a factor and returns a new MonetaryAmount with the same currency.
+    /// </summary>
+    /// <param name="factor">The multiplication factor.</param>
+    /// <returns>A new MonetaryAmount with the multiplied value and the original currency.</returns>
+    public MonetaryAmount MultiplyBy(decimal factor) => new(Value * factor, Currency);
 }
 ```
 
----
+**Explicación:**
 
-### 05. SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
+`MonetaryAmount` es un **Value Object** que encapsula un valor monetario con su moneda (código ISO como "USD", "PEN", "EUR"). Similar a `LegalityPeriod`:
+- Valida que el valor sea >= 0 y que la moneda no esté vacía
+- Es inmutable (los setters son privados)
+- Incluye un método `MultiplyBy` que devuelve una nueva instancia (opersión funcional)
+- Se mapea a dos columnas en la BD: `monetary_amount_value` y `monetary_amount_currency`
+- Está en Shared porque representa un concepto transversal
 
-Ruta `shared/infrastructure/persistence/jpa/configuration/strategy/SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java`
+### 05. IBaseRepository.cs
 
-Package `pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy`
+Ruta: `Shared/Domain/Repositories/IBaseRepository.cs`
 
-```java
-package pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.configuration.strategy;
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories`
 
-import org.hibernate.boot.model.naming.Identifier;
-import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
-import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
 
-import static io.github.encryptorcode.pluralize.Pluralize.pluralize;
+/// <summary>
+/// Generic base repository interface providing standard CRUD operations.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <typeparam name="TEntity">The entity type managed by this repository.</typeparam>
+public interface IBaseRepository<TEntity>
+{
+    /// <summary>Finds an entity by its primary key.</summary>
+    /// <param name="id">The primary key value.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The entity if found; otherwise null.</returns>
+    Task<TEntity?> FindByIdAsync(int id, CancellationToken cancellationToken);
 
-/**
- * Snake Case With Pluralized Table Physical Naming Strategy.
- *
- * <p>{@link PhysicalNamingStrategy} implementation that converts entity
- * names to snake_case and table names to pluralized snake_case.</p>
- *
- * @since 1.0.0
- * @author Victor Jhosef Laura Acosta
- */
-public class SnakeCaseWithPluralizedTablePhysicalNamingStrategy implements PhysicalNamingStrategy {
+    /// <summary>Returns all entities.</summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A read-only list of all entities.</returns>
+    Task<IEnumerable<TEntity>> ListAsync(CancellationToken cancellationToken);
 
-    @Override
-    public Identifier toPhysicalCatalogName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return null;
-    }
-
-    @Override
-    public Identifier toPhysicalSchemaName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(identifier);
-    }
-
-    @Override
-    public Identifier toPhysicalTableName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(this.toPlural(identifier));
-    }
-
-    @Override
-    public Identifier toPhysicalSequenceName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(identifier);
-    }
-
-    @Override
-    public Identifier toPhysicalColumnName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(identifier);
-    }
-
-    /**
-     * Converts an identifier to snake_case.
-     */
-    private Identifier toSnakeCase(final Identifier identifier) {
-        if (identifier == null) return null;
-        final String regex = "([a-z])([A-Z])";
-        final String replacement = "$1_$2";
-        final String newName = identifier.getText()
-                .replaceAll(regex, replacement)
-                .toLowerCase();
-        return Identifier.toIdentifier(newName);
-    }
-
-    /**
-     * Converts an identifier to its plural form.
-     */
-    private Identifier toPlural(final Identifier identifier) {
-        return Identifier.toIdentifier(pluralize(identifier.getText()));
-    }
+    /// <summary>Adds a new entity to the repository.</summary>
+    /// <param name="entity">The entity to add.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken);
 }
 ```
 
----
+### 06. IUnitOfWork.cs
 
-### 06. AuditableAbstractPersistenceEntity.java
+Ruta: `Shared/Domain/Repositories/IUnitOfWork.cs`
 
-Ruta `shared/infrastructure/persistence/jpa/entities/AuditableAbstractPersistenceEntity.java`
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories`
 
-Package `pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.entities`
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
 
-```java
-package pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.entities;
-
-import jakarta.persistence.*;
-import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.Date;
-
-/**
- * Base JPA persistence entity for all persistence entities that require auditing.
- *
- * <p>Provides {@code id}, {@code createdAt}, and {@code updatedAt} fields.
- * This class intentionally lives in the infrastructure layer to keep JPA
- * and Spring Data auditing concerns out of the domain model.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Getter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class AuditableAbstractPersistenceEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private Date createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private Date updatedAt;
-
-    /**
-     * Sets the id for reconstruction from an existing domain object.
-     *
-     * @param id the persistence identity to assign
-     */
-    public void setId(Long id) {
-        this.id = id;
-    }
+/// <summary>
+/// Unit of work abstraction that coordinates writing of changes to the database.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public interface IUnitOfWork
+{
+    /// <summary>
+    /// Persists all pending changes to the underlying data store.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task CompleteAsync(CancellationToken cancellationToken);
 }
 ```
 
----
+**Explicación del patrón Repository + Unit of Work:**
 
-### 07. OpenApiConfiguration.java
+Este patrón es fundamental en DDD y se utiliza tanto en Learning Center como en este proyecto:
 
-Ruta `shared/infrastructure/documentation/openapi/configuration/OpenApiConfiguration.java`
+- **Repository**: Abstrae el almacenamiento persistente. El dominio define la interfaz (contrato) y la infraestructura provee la implementación concreta (EF Core). Esto permite cambiar el motor de persistencia sin afectar la capa de dominio.
+- **Unit of Work**: Agrupa múltiples operaciones en una sola transacción atómica. Cuando se llama a `CompleteAsync()`, todos los cambios pendientes se guardan en la base de datos. Si algo falla, todo se revierte.
 
-Package `pe.com.facturease.platform.u202418655.shared.infrastructure.documentation.openapi.configuration`
+La separación entre `IBaseRepository<T>` (genérico) e `ICovenantRepository` (específico) permite:
+- Reutilizar operaciones CRUD estándar (AddAsync, FindByIdAsync, ListAsync)
+- Agregar operaciones específicas del dominio (como `ExistsByDocumentIdentifierAsync`)
+- Mantener el principio de Responsabilidad Única
 
-```java
-package pe.com.facturease.platform.u202418655.shared.infrastructure.documentation.openapi.configuration;
+### 07. AppDbContext.cs
 
-import io.swagger.v3.oas.models.ExternalDocumentation;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Configuration/AppDbContext.cs`
 
-import java.util.List;
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration`
 
-/**
- * Configures the OpenAPI specification exposed by the platform.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Configuration
-public class OpenApiConfiguration {
+```csharp
+using Microsoft.EntityFrameworkCore;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Model;
 
-    @Value("${spring.application.name}")
-    String applicationName;
+namespace PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-    @Value("${documentation.application.description}")
-    String applicationDescription;
+/// <summary>
+/// Entity Framework Core database context for the Capbase platform.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public class AppDbContext(DbContextOptions options) : DbContext(options)
+{
+    /// <summary>Gets the Covenants dataset.</summary>
+    public DbSet<Covenant> Covenants { get; set; }
 
-    @Value("${documentation.application.version}")
-    String applicationVersion;
-
-    /**
-     * Builds the OpenAPI document used by Swagger UI and client generation tools.
-     *
-     * @return configured OpenAPI descriptor
-     */
-    @Bean
-    public OpenAPI facturperuPlatformOpenApi() {
-        var openApi = new OpenAPI();
-        openApi
-                .info(new Info()
-                        .title(this.applicationName)
-                        .description(this.applicationDescription)
-                        .version(this.applicationVersion)
-                        .contact(new Contact()
-                                .name("Facturease Peru")
-                                .email("support@facturease.com.pe")
-                                .url("https://www.facturease.com.pe"))
-                        .license(new License()
-                                .name("Apache 2.0")
-                                .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
-                .externalDocs(new ExternalDocumentation()
-                        .description("Facturease Peru Platform Wiki Documentation")
-                        .url("https://facturease.wiki.github.io/docs"));
-
-        openApi.servers(List.of(
-                new Server().url("http://localhost:8097")
-                        .description("Local Development Environment"),
-                new Server().url("https://staging-api.facturease.com.pe")
-                        .description("Staging Environment"),
-                new Server().url("https://api.facturease.com.pe")
-                        .description("Production Environment")
-        ));
-        return openApi;
-    }
-}
-```
-
----
-
-### 08. LocaleConfiguration.java
-
-Ruta `shared/infrastructure/i18n/configuration/LocaleConfiguration.java`
-
-Package `pe.com.facturease.platform.u202418655.shared.infrastructure.i18n.configuration`
-
-```java
-package pe.com.facturease.platform.u202418655.shared.infrastructure.i18n.configuration;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
-
-import java.util.List;
-import java.util.Locale;
-
-/**
- * Configures locale resolution for REST requests.
- *
- * <p>Uses the Accept-Language header to determine the response language.
- * Supports English (default) and Spanish.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Configuration
-public class LocaleConfiguration {
-
-    /**
-     * Creates a LocaleResolver that uses the Accept-Language header.
-     *
-     * @return the locale resolver instance
-     */
-    @Bean
-    public LocaleResolver localeResolver() {
-        var resolver = new AcceptHeaderLocaleResolver();
-        resolver.setDefaultLocale(Locale.ENGLISH);
-        resolver.setSupportedLocales(List.of(Locale.ENGLISH, Locale.forLanguageTag("es")));
-        return resolver;
-    }
-}
-```
-
----
-
-### 09. ErrorResource.java
-
-Ruta `shared/interfaces/rest/resources/ErrorResource.java`
-
-Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources`
-
-```java
-package pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-/**
- * Standard error response resource returned from REST endpoints.
- *
- * @param code    A machine-readable error code
- * @param message A human-readable error message
- * @param details Optional additional context about the error
- * @author Victor Jhosef Laura Acosta
- */
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public record ErrorResource(String code, String message, String details) {
-
-    /**
-     * Creates an ErrorResource from code and message only (no details).
-     */
-    public ErrorResource(String code, String message) {
-        this(code, message, null);
-    }
-}
-```
-
----
-
-### 10. MessageResource.java
-
-Ruta `shared/interfaces/rest/resources/MessageResource.java`
-
-Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources`
-
-```java
-package pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources;
-
-/**
- * Resource used for simple success or informational REST responses.
- *
- * @param message An informational message
- * @author Victor Jhosef Laura Acosta
- */
-public record MessageResource(String message) {}
-```
-
----
-
-### 11. ErrorResponseAssembler.java
-
-Ruta `shared/interfaces/rest/transform/ErrorResponseAssembler.java`
-
-Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform`
-
-```java
-package pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform;
-
-import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
-import pe.com.facturease.platform.u202418655.shared.interfaces.rest.resources.ErrorResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-
-/**
- * Assembler for converting application errors to HTTP responses.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class ErrorResponseAssembler {
-
-    private ErrorResponseAssembler() {}
-
-    /**
-     * Maps an ApplicationError to an appropriate HTTP ResponseEntity.
-     *
-     * @param error the ApplicationError to map
-     * @return a ResponseEntity with the appropriate HTTP status and error resource
-     */
-    public static ResponseEntity<ErrorResource> toErrorResponseFromApplicationError(ApplicationError error) {
-        HttpStatusCode status = toStatusFromErrorCode(error.code());
-        return new ResponseEntity<>(
-                new ErrorResource(error.code(), error.message(), error.details()), status);
+    /// <inheritdoc/>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        modelBuilder.ApplyPaperworkConfiguration();
     }
 
-    /**
-     * Determines the appropriate HTTP status code for a given error code.
-     *
-     * @param errorCode the error code string
-     * @return the corresponding HttpStatus
-     */
-    public static HttpStatusCode toStatusFromErrorCode(String errorCode) {
-        return switch (errorCode) {
-            case "VALIDATION_ERROR" -> HttpStatus.BAD_REQUEST;
-            case String s when s.endsWith("_NOT_FOUND") -> HttpStatus.NOT_FOUND;
-            case "BUSINESS_RULE_VIOLATION" -> HttpStatusCode.valueOf(422);
-            case String s when s.endsWith("_CONFLICT") -> HttpStatus.CONFLICT;
-            case "UNEXPECTED_ERROR" -> HttpStatus.INTERNAL_SERVER_ERROR;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
-    }
-}
-```
-
----
-
-### 12. ResponseEntityAssembler.java
-
-Ruta `shared/interfaces/rest/transform/ResponseEntityAssembler.java`
-
-Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform`
-
-```java
-package pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform;
-
-import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
-import pe.com.facturease.platform.u202418655.shared.application.result.Result;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-
-import java.util.function.Function;
-
-/**
- * Assembler that translates application Result values into HTTP responses.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class ResponseEntityAssembler {
-
-    private ResponseEntityAssembler() {}
-
-    /**
-     * Converts a Result into an HTTP response using the provided assembler.
-     *
-     * @param result                    the application result
-     * @param successResourceAssembler  function that maps success value to response resource
-     * @param successStatus             HTTP status to use for successful responses
-     * @param <T>                       success value type
-     * @param <R>                       success response resource type
-     * @return response entity for success or failure
-     */
-    public static <T, R> ResponseEntity<?> toResponseEntityFromResult(
-            Result<T, ApplicationError> result,
-            Function<T, R> successResourceAssembler,
-            HttpStatusCode successStatus
-    ) {
-        return switch (result) {
-            case Result.Success<T, ApplicationError> success ->
-                    new ResponseEntity<>(successResourceAssembler.apply(success.value()), successStatus);
-            case Result.Failure<T, ApplicationError> failure ->
-                    ErrorResponseAssembler.toErrorResponseFromApplicationError(failure.error());
-        };
-    }
-}
-```
-
----
-
-### 13. GlobalExceptionHandler.java
-
-Ruta `shared/interfaces/rest/GlobalExceptionHandler.java`
-
-Package `pe.com.facturease.platform.u202418655.shared.interfaces.rest`
-
-```java
-package pe.com.facturease.platform.u202418655.shared.interfaces.rest;
-
-import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
-import pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform.ErrorResponseAssembler;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-/**
- * Global exception handler for REST API.
- *
- * <p>Provides centralized exception handling ensuring all unhandled
- * exceptions are translated to consistent HTTP responses.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-
-    /**
-     * Handles validation exceptions from Spring's request body validation.
-     */
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        var fieldErrors = ex.getBindingResult().getFieldErrors();
-        var errorDetails = fieldErrors.isEmpty()
-                ? "Request validation failed"
-                : fieldErrors.stream()
-                        .map(error -> "Field %s: %s".formatted(
-                                error.getField(), error.getDefaultMessage()))
-                        .reduce((a, b) -> a + "; " + b)
-                        .orElse("Request validation failed");
-
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.validationError("request-body", errorDetails));
-    }
-
-    /**
-     * Handles invalid request arguments such as malformed values.
-     */
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.validationError("request-argument",
-                        ex.getMessage() != null ? ex.getMessage() : "Invalid request argument"));
-    }
-
-    /**
-     * Handles illegal state exceptions raised by business rule enforcement.
-     */
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalStateException(IllegalStateException ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.businessRuleViolation("invoice-state",
-                        ex.getMessage() != null ? ex.getMessage() : "Invalid request state"));
-    }
-
-    /**
-     * Handles unexpected runtime exceptions.
-     */
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.unexpected("global-exception-handler",
-                        ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
-    }
-
-    /**
-     * Handles all other exceptions not matched by specific handlers.
-     */
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.unexpected("global-exception-handler",
-                        ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
-    }
-}
-```
-
----
-
-## Billing Bounded Context - Estructura de carpetas
-
-Crear la siguiente estructura bajo `src/main/java/pe/com/facturease/platform/u202418655/billing`
-
-```
-billing
-├── domain
-│   ├── model
-│   │   ├── aggregates
-│   │   │   └── Invoice.java
-│   │   ├── commands
-│   │   │   └── CreateInvoiceCommand.java
-│   │   ├── queries
-│   │   │   └── GetInvoiceById.java
-│   │   └── valueobjects
-│   │       ├── InvoiceIdentifier.java
-│   │       └── InvoiceStatus.java
-│   └── repositories
-│       └── InvoiceRepository.java
-├── application
-│   ├── commandservices
-│   │   └── InvoiceCommandService.java
-│   ├── queryservices
-│   │   └── InvoiceQueryService.java
-│   └── internal
-│       ├── commandservices
-│       │   └── InvoiceCommandServiceImpl.java
-│       └── queryservices
-│           └── InvoiceQueryServiceImpl.java
-├── infrastructure
-│   └── persistence
-│       └── jpa
-│           ├── adapters
-│           │   └── InvoiceRepositoryImpl.java
-│           ├── assemblers
-│           │   └── InvoicePersistenceAssembler.java
-│           ├── converters
-│           │   └── InvoiceIdentifierPersistenceConverter.java
-│           ├── entities
-│           │   └── InvoicePersistenceEntity.java
-│           └── repositories
-│               └── InvoicePersistenceRepository.java
-└── interfaces
-    └── rest
-        ├── InvoicesController.java
-        ├── resources
-        │   ├── CreateInvoiceResource.java
-        │   └── InvoiceResource.java
-        └── transform
-            ├── CreateInvoiceCommandFromResourceAssembler.java
-            └── InvoiceResourceFromEntityAssembler.java
-```
-
----
-
-## Billing - Domain Layer (Value Objects)
-
-### 14. InvoiceStatus.java
-
-Ruta `billing/domain/model/valueobjects/InvoiceStatus.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects;
-
-import java.util.Arrays;
-
-/**
- * Enumeration representing the status of an electronic Invoice.
- *
- * <p>Defines the available statuses:</p>
- * <ul>
- *   <li>DRAFT - default status when no status is specified</li>
- *   <li>ISSUED - the invoice has been formally issued to SUNAT</li>
- *   <li>PAID - the invoice has been fully paid</li>
- * </ul>
- *
- * @author Victor Jhosef Laura Acosta
- */
-public enum InvoiceStatus {
-    DRAFT,
-    ISSUED,
-    PAID;
-
-    /**
-     * Returns the InvoiceStatus from a given name (case-insensitive).
-     *
-     * @param name the name of the status
-     * @return the matching InvoiceStatus
-     * @throws IllegalArgumentException if no status matches
-     */
-    public static InvoiceStatus fromString(String name) {
-        return Arrays.stream(InvoiceStatus.values())
-                .filter(status -> status.name().equalsIgnoreCase(name))
-                .findFirst()
-                .orElseThrow(() ->
-                        new IllegalArgumentException("[InvoiceStatus] Invalid string: " + name));
-    }
-}
-```
-
----
-
-### 15. InvoiceIdentifier.java
-
-Ruta `billing/domain/model/valueobjects/InvoiceIdentifier.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects;
-
-import java.util.Objects;
-import java.util.UUID;
-
-/**
- * Value object representing the unique identifier of an electronic Invoice.
- *
- * <p>Wraps a UUID value generated in another bounded context, used to
- * uniquely identify the electronic fiscal document.</p>
- *
- * @param value the UUID value of the invoice identifier
- * @author Victor Jhosef Laura Acosta
- */
-public record InvoiceIdentifier(UUID value) {
-
-    /**
-     * Creates an InvoiceIdentifier with validation.
-     *
-     * @throws IllegalArgumentException if value is null
-     */
-    public InvoiceIdentifier {
-        if (Objects.isNull(value))
-            throw new IllegalArgumentException(
-                    "[InvoiceIdentifier] value cannot be null");
-    }
-
-    /**
-     * Creates an InvoiceIdentifier from a String representation of a UUID.
-     *
-     * @param value the string representation of the UUID
-     * @return the InvoiceIdentifier instance
-     * @throws IllegalArgumentException if value is null, blank, or not a valid UUID
-     */
-    public static InvoiceIdentifier fromString(String value) {
-        if (Objects.isNull(value) || value.isBlank())
-            throw new IllegalArgumentException(
-                    "[InvoiceIdentifier] value cannot be null or blank");
-        try {
-            return new InvoiceIdentifier(UUID.fromString(value));
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException(
-                    "[InvoiceIdentifier] value must be a valid UUID");
+    /// <inheritdoc/>
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var now = DateTimeOffset.UtcNow;
+        foreach (var entry in ChangeTracker.Entries<IAuditableEntity>())
+        {
+            if (entry.State == EntityState.Added)
+                entry.Entity.CreatedAt = now;
+            if (entry.State is EntityState.Added or EntityState.Modified)
+                entry.Entity.UpdatedAt = now;
         }
+        return base.SaveChangesAsync(cancellationToken);
     }
+}
+```
 
-    /**
-     * Default constructor required for JPA.
-     */
-    public InvoiceIdentifier() {
-        this(UUID.randomUUID());
-    }
+**Explicación del DbContext:**
+
+El `AppDbContext` es el corazón de la persistencia. Aquí ocurren varias cosas importantes:
+
+1. **DbSet Covenants**: Expone la colección de entidades Covenant para consultas y operaciones.
+2. **OnModelCreating**: Aplica la configuración Fluent API definida en `ModelBuilderExtensions.ApplyPaperworkConfiguration()`. Esta configuración define el mapeo entre las clases C# y las tablas/columnas de la base de datos.
+3. **SaveChangesAsync override**: Implementa la auditoría automática. Cada vez que se guarda un cambio, las entidades que implementan `IAuditableEntity` reciben automáticamente los valores de `CreatedAt` y `UpdatedAt`. Esto evita que el developer tenga que asignar estas propiedades manualmente.
+
+> **Diferencia con Learning Center:** En Learning Center, la auditoría se implementa mediante un `AuditableEntityInterceptor` de EF Core. En este proyecto, se implementa directamente en `SaveChangesAsync`. Ambas son enfoques válidos. La ventaja del interceptor es que funciona incluso si se usa `SaveChanges()` sin llamar al override; la ventaja de sobrescribir es que es más explícito y fácil de entender.
+
+### 08. BaseRepository.cs
+
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/BaseRepository.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories`
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
+using PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+
+namespace PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+
+/// <summary>
+/// Base EF Core repository implementing standard CRUD operations.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <typeparam name="TEntity">The entity type managed by this repository.</typeparam>
+public abstract class BaseRepository<TEntity>(AppDbContext context) : IBaseRepository<TEntity>
+    where TEntity : class
+{
+    /// <summary>Provides access to the underlying database context.</summary>
+    protected AppDbContext Context { get; } = context;
+
+    /// <inheritdoc/>
+    public async Task<TEntity?> FindByIdAsync(int id, CancellationToken cancellationToken)
+        => await Context.Set<TEntity>().FindAsync([id], cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task<IEnumerable<TEntity>> ListAsync(CancellationToken cancellationToken)
+        => await Context.Set<TEntity>().ToListAsync(cancellationToken);
+
+    /// <inheritdoc/>
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
+        => await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
+}
+```
+
+### 09. UnitOfWork.cs
+
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/UnitOfWork.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories`
+
+```csharp
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
+using PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+
+namespace PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+
+/// <summary>
+/// EF Core implementation of IUnitOfWork that saves all pending changes.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public class UnitOfWork(AppDbContext context) : IUnitOfWork
+{
+    /// <inheritdoc/>
+    public async Task CompleteAsync(CancellationToken cancellationToken)
+        => await context.SaveChangesAsync(cancellationToken);
 }
 ```
 
 ---
 
-## Billing - Domain Layer (Aggregate Root)
+## Paperwork Bounded Context - Estructura de Carpetas
 
-### 16. Invoice.java
+> **IMPORTANTE:** Esta estructura sigue EXACTAMENTE el mismo patrón que Learning Center:
+> - `Paperwork/Domain/Model/Aggregates/` → Aggregate roots (Covenant)
+> - `Paperwork/Domain/Model/ValueObjects/` → Value objects específicos del BC
+> - `Paperwork/Domain/Model/Commands/` → Comandos CQRS
+> - `Paperwork/Domain/Model/Queries/` → Queries CQRS (si aplica)
+> - `Paperwork/Domain/Model/Errors/` → Errores específicos del BC
+> - `Paperwork/Domain/Repositories/` → Interfaces de repositorio
+> - `Paperwork/Application/CommandServices/` → Interfaces de servicios de comando
+> - `Paperwork/Application/Internal/CommandServices/` → Implementaciones de servicios
+> - `Paperwork/Interfaces/Rest/` → Controladores REST
+> - `Paperwork/Interfaces/Rest/Resources/` → DTOs de entrada/salida
+> - `Paperwork/Interfaces/Rest/Transform/` → Assemblers (Resource ↔ Command)
+> - `Paperwork/Infrastructure/Persistence/EntityFrameworkCore/` → Persistencia EF Core
 
-Ruta `billing/domain/model/aggregates/Invoice.java`
+Crear la siguiente estructura bajo `PC212190.U202418655.Capbase.Platform/`:
 
-Package `pe.com.facturease.platform.u202418655.billing.domain.model.aggregates`
+```
+Paperwork/
+├── Resources/
+│   ├── PaperworkMessages.cs
+│   ├── PaperworkMessages.resx
+│   └── PaperworkMessages.es.resx
+├── Domain/
+│   ├── Model/
+│   │   ├── Aggregates/
+│   │   │   ├── Covenant.cs
+│   │   │   ├── CovenantAudit.cs
+│   │   │   ├── CovenantStatus.cs
+│   │   │   └── PaperworkError.cs
+│   │   ├── ValueObjects/
+│   │   │   ├── CapbaseIdentifier.cs
+│   │   │   └── PartyId.cs
+│   │   └── Commands/
+│   │       └── CreateCovenantCommand.cs
+│   └── Repositories/
+│       └── ICovenantRepository.cs
+├── Application/
+│   ├── CommandServices/
+│   │   └── ICovenantCommandService.cs
+│   └── Internal/
+│       └── CommandServices/
+│           └── CovenantCommandService.cs
+├── Interfaces/
+│   └── Rest/
+│       ├── CovenantsController.cs
+│       ├── Resources/
+│       │   ├── CreateCovenantResource.cs
+│       │   └── CovenantResource.cs
+│       └── Transform/
+│           ├── CreateCovenantCommandFromResourceAssembler.cs
+│           └── CovenantResourceFromEntityAssembler.cs
+└── Infrastructure/
+    └── Persistence/
+        └── EntityFrameworkCore/
+            ├── Configuration/
+            │   └── ModelBuilderExtensions.cs
+            └── Repositories/
+                └── CovenantRepository.cs
+```
 
-```java
-package pe.com.facturease.platform.u202418655.billing.domain.model.aggregates;
+**Explicación de la estructura comparada con Learning Center:**
 
-import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceStatus;
-import pe.com.facturease.platform.u202418655.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
-import pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects.TaxSummary;
-import lombok.Getter;
-import lombok.Setter;
+| Learning Center | PC (Capbase) | Explicación |
+|---|---|---|
+| `Publishing/Domain/Model/Aggregates/Tutorial.cs` | `Paperwork/Domain/Model/Aggregates/Covenant.cs` | Aggregate root principal |
+| `Publishing/Domain/Model/Aggregates/TutorialAudit.cs` | `Paperwork/Domain/Model/Aggregates/CovenantAudit.cs` | Partial class para auditoría |
+| `Publishing/Domain/Model/ValueObjects/` | `Paperwork/Domain/Model/ValueObjects/` | Value objects del BC |
+| `Publishing/Domain/Model/Commands/CreateTutorialCommand.cs` | `Paperwork/Domain/Model/Commands/CreateCovenantCommand.cs` | Comando CQRS |
+| `Publishing/Application/CommandServices/` | `Paperwork/Application/CommandServices/` | Interfaces de servicios |
+| `Publishing/Application/Internal/CommandServices/` | `Paperwork/Application/Internal/CommandServices/` | Implementaciones |
+| `Publishing/Interfaces/Rest/Controllers.cs` | `Paperwork/Interfaces/Rest/CovenantsController.cs` | Controladores REST |
+| `Publishing/Interfaces/Rest/Resources/` | `Paperwork/Interfaces/Rest/Resources/` | DTOs |
+| `Publishing/Interfaces/Rest/Transform/` | `Paperwork/Interfaces/Rest/Transform/` | Assemblers |
+| `Publishing/Infrastructure/Persistence/` | `Paperwork/Infrastructure/Persistence/` | Persistencia EF Core |
+| `Shared/Domain/Model/Entities/IAuditableEntity.cs` | `Shared/Domain/Model/IAuditableEntity.cs` | Interfaz de auditoría |
+| `Shared/Domain/Repositories/IBaseRepository.cs` | `Shared/Domain/Repositories/IBaseRepository.cs` | Repositorio genérico |
 
-/**
- * Aggregate root representing an electronic corporate Invoice.
- *
- * <p>An Invoice represents a fiscal document issued by a Facturease Peru
- * corporate client, holding its identifier, description, status, tax
- * summary, and item count.</p>
- *
- * <p>Business rules enforced:</p>
- * <ul>
- *   <li>The {@code calculatedTax} inside {@code taxSummary} must be consistent
- *   with the 18% national IGV rate applied over {@code netAmount}.</li>
- *   <li>An Invoice can only be registered with an initial status different
- *   from DRAFT (i.e., ISSUED or PAID) if {@code itemCount} is strictly
- *   greater than zero.</li>
- * </ul>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Getter
-@Setter
-public class Invoice extends AbstractDomainAggregateRoot<Invoice> {
+---
 
-    private Long id;
-    private InvoiceIdentifier invoiceIdentifier;
-    private String description;
-    private InvoiceStatus status;
-    private TaxSummary taxSummary;
-    private Integer itemCount;
+## Paperwork - Domain Layer (Value Objects)
 
-    /**
-     * Default constructor required by JPA.
-     */
-    public Invoice() {}
+### 10. CapbaseIdentifier.cs
 
-    /**
-     * Creates a new Invoice from the given command.
-     *
-     * @param command the create invoice command
-     * @throws IllegalStateException if status is not DRAFT and itemCount is not greater than zero
-     */
-    public Invoice(CreateInvoiceCommand command) {
-        this.invoiceIdentifier = InvoiceIdentifier.fromString(command.invoiceIdentifier());
-        this.description = command.description();
-        this.status = command.status() == null
-                ? InvoiceStatus.DRAFT
-                : InvoiceStatus.fromString(command.status());
-        this.taxSummary = new TaxSummary(command.netAmount(), command.calculatedTax());
-        this.itemCount = command.itemCount();
+Ruta: `Paperwork/Domain/Model/ValueObjects/CapbaseIdentifier.cs`
 
-        // BUSINESS RULE: itemCount must be > 0 for any status other than DRAFT
-        if (this.status != InvoiceStatus.DRAFT && (this.itemCount == null || this.itemCount <= 0)) {
-            throw new IllegalStateException(
-                    "[Invoice] itemCount must be strictly greater than zero when status is ISSUED or PAID");
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.ValueObjects`
+
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.ValueObjects;
+
+/// <summary>
+/// Value object that uniquely identifies a Covenant document using a GUID generated externally.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <param name="Value">The GUID that identifies the Covenant document.</param>
+public record CapbaseIdentifier(Guid Value)
+{
+    /// <summary>Returns the string representation of the underlying GUID.</summary>
+    public override string ToString() => Value.ToString();
+}
+```
+
+### 11. PartyId.cs
+
+Ruta: `Paperwork/Domain/Model/ValueObjects/PartyId.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.ValueObjects`
+
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.ValueObjects;
+
+/// <summary>
+/// Value object identifying a client party by a UUID originating in another bounded context.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <param name="Value">The UUID that identifies the party.</param>
+public record PartyId(Guid Value)
+{
+    /// <summary>Returns the string representation of the underlying UUID.</summary>
+    public override string ToString() => Value.ToString();
+}
+```
+
+**Explicación de CapbaseIdentifier y PartyId:**
+
+Ambos son **Value Objects** que encapsulan identificadores UUID/GUID generados externamente:
+
+- **CapbaseIdentifier**: Identifica de manera única un documento Covenant. Es generado por el cliente (frontend u otro servicio) y se recibe como parte del comando de creación.
+- **PartyId**: Identifica a la parte contratante (cliente). También es un UUID generado externamente, probablemente en otro bounded context (ej. un contexto de Clientes/Parties).
+
+Son **records** de C# porque:
+- Tienen igualdad estructural (dos instancias con el mismo GUID son iguales)
+- Son inmutables por defecto
+- Son livianos y fáciles de crear
+
+Se mapean a la base de datos como columnas GUID mediante `OwnsOne` en EF Core Fluent API, almacenándose como tipo `uniqueidentifier` en SQL Server o `char(36)` en MySQL.
+
+---
+
+## Paperwork - Domain Layer (Aggregate Root)
+
+### 12. Covenant.cs
+
+Ruta: `Paperwork/Domain/Model/Aggregates/Covenant.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates`
+
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.ValueObjects;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Model;
+
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+
+/// <summary>
+/// Aggregate root representing a legal covenant document in the Paperwork bounded context.
+/// </summary>
+/// <remarks>
+/// A Covenant represents a legal agreement between parties, with a unique document identifier,
+/// a validity period, a total monetary value, a lifecycle status, and optional footnotes.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public partial class Covenant
+{
+    /// <summary>Gets the auto-generated primary key of the Covenant.</summary>
+    public int Id { get; private set; }
+
+    /// <summary>Gets the unique document identifier assigned externally.</summary>
+    public CapbaseIdentifier DocumentIdentifier { get; private set; }
+
+    /// <summary>Gets the identifier of the client party associated with this Covenant.</summary>
+    public PartyId ClientId { get; private set; }
+
+    /// <summary>Gets the legality period during which this Covenant is in effect.</summary>
+    public LegalityPeriod Period { get; private set; }
+
+    /// <summary>Gets the total monetary value of the Covenant.</summary>
+    public MonetaryAmount TotalValue { get; private set; }
+
+    /// <summary>Gets the current status of the Covenant.</summary>
+    public CovenantStatus Status { get; private set; }
+
+    /// <summary>Gets optional footnotes or additional remarks for the Covenant.</summary>
+    public string? Footnotes { get; private set; }
+
+    /// <summary>
+    /// Initializes a new Covenant with all required attributes.
+    /// </summary>
+    /// <param name="documentIdentifier">Unique document identifier.</param>
+    /// <param name="clientId">Client party identifier.</param>
+    /// <param name="period">Validity period of the covenant.</param>
+    /// <param name="totalValue">Total monetary value.</param>
+    /// <param name="status">Lifecycle status; defaults to Draft.</param>
+    /// <param name="footnotes">Optional footnotes.</param>
+    public Covenant(
+        CapbaseIdentifier documentIdentifier,
+        PartyId clientId,
+        LegalityPeriod period,
+        MonetaryAmount totalValue,
+        CovenantStatus status = CovenantStatus.Draft,
+        string? footnotes = null)
+    {
+        DocumentIdentifier = documentIdentifier;
+        ClientId = clientId;
+        Period = period;
+        TotalValue = totalValue;
+        Status = status;
+        Footnotes = footnotes;
+    }
+
+    /// <summary>Parameterless constructor required by EF Core.</summary>
+    protected Covenant()
+    {
+        DocumentIdentifier = null!;
+        ClientId = null!;
+        Period = null!;
+        TotalValue = null!;
+    }
+}
+```
+
+**Explicación del Aggregate Root Covenant:**
+
+`Covenant` es el **Aggregate Root** del bounded context Paperwork. Como aggregate root:
+
+1. **Es la entidad raíz del agregado**: Todo acceso al agregado (conjunto de objetos que cambian juntos) debe pasar por Covenant. En este caso, el agregado incluye los value objects embebidos (DocumentIdentifier, ClientId, Period, TotalValue).
+
+2. **Propiedades privadas**: Todas las propiedades tienen setter privado. Solo se pueden establecer mediante el constructor o métodos específicos del dominio. Esto garantiza la integridad del agregado.
+
+3. **Constructor público con parámetros**: Es la forma canónica de crear un Covenant válido. Recibe todos los value objects ya construidos, delegando la validación a los constructores de estos.
+
+4. **Constructor protegido sin parámetros**: Requerido por EF Core para materializar entidades desde la base de datos. Usa `null!` para suprimir warnings de nullable, ya que EF Core asignará los valores desde la BD.
+
+5. **Uso de `partial class`**: La clase es parcial, permitiendo que `CovenantAudit.cs` (ver siguiente archivo) agregue la implementación de `IAuditableEntity` sin modificar este archivo. Esto mantiene la separación de concerns.
+
+### 13. CovenantAudit.cs
+
+Ruta: `Paperwork/Domain/Model/Aggregates/CovenantAudit.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates`
+
+```csharp
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Model;
+
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+
+/// <summary>
+/// Partial class providing auditing capabilities to the Covenant aggregate root.
+/// </summary>
+/// <remarks>
+/// This partial class adds IAuditableEntity implementation to Covenant,
+/// enabling automatic CreatedAt/UpdatedAt tracking via the AppDbContext.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public partial class Covenant : IAuditableEntity
+{
+    /// <inheritdoc/>
+    public DateTimeOffset? CreatedAt { get; set; }
+
+    /// <inheritdoc/>
+    public DateTimeOffset? UpdatedAt { get; set; }
+}
+```
+
+**Explicación de CovenantAudit (partial class):**
+
+Esta es una técnica de organización de código que se usa también en **Learning Center** (ej. `TutorialAudit.cs`, `UserAudit.cs`). La clase `Covenant` se declara como `partial` en dos archivos:
+
+- `Covenant.cs`: Contiene las propiedades del dominio (Id, DocumentIdentifier, ClientId, etc.)
+- `CovenantAudit.cs`: Contiene la implementación de `IAuditableEntity` (CreatedAt, UpdatedAt)
+
+Ventajas:
+- Separa las responsabilidades de dominio de las preocupaciones transversales (auditoría)
+- Si en el futuro se agrega otro comportamiento transversal (ej. soft delete, versionado), se puede agregar otro archivo partial
+- Mantiene cada archivo más pequeño y enfocado
+
+### 14. CovenantStatus.cs
+
+Ruta: `Paperwork/Domain/Model/Aggregates/CovenantStatus.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates`
+
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+
+/// <summary>
+/// Represents the lifecycle status of a Covenant document.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public enum CovenantStatus
+{
+    /// <summary>The covenant has been drafted but not yet activated.</summary>
+    Draft,
+
+    /// <summary>The covenant is currently active.</summary>
+    Active,
+
+    /// <summary>The covenant has expired.</summary>
+    Expired
+}
+```
+
+### 15. PaperworkError.cs
+
+Ruta: `Paperwork/Domain/Model/Aggregates/PaperworkError.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates`
+
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+
+/// <summary>
+/// Enumeration of domain-level errors that can occur within the Paperwork bounded context.
+/// </summary>
+/// <remarks>
+/// Each member corresponds to a specific business rule violation or error condition.
+/// Used as error codes in Result.Failure() to enable proper HTTP status mapping in the controller.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public enum PaperworkError
+{
+    /// <summary>No error.</summary>
+    None,
+
+    /// <summary>A Covenant with the same document identifier already exists.</summary>
+    CovenantAlreadyExists,
+
+    /// <summary>The supplied period dates are invalid.</summary>
+    InvalidPeriod,
+
+    /// <summary>The monetary amount or currency is invalid.</summary>
+    InvalidMonetaryAmount,
+
+    /// <summary>A database error occurred.</summary>
+    DatabaseError,
+
+    /// <summary>The operation was cancelled.</summary>
+    OperationCancelled,
+
+    /// <summary>An unexpected internal error occurred.</summary>
+    InternalServerError
+}
+```
+
+**Explicación de PaperworkError:**
+
+Esta enumeración define todos los errores que pueden ocurrir en el bounded context Paperwork. Sirve como **código de error** estándar que se pasa a `Result.Failure()`. Cada valor del enum:
+
+- Es un identificador legible y auto-documentado
+- Se usa para buscar el mensaje localizado en los archivos .resx
+- Permite al controlador REST mapear cada error a un código HTTP específico
+- Centraliza la definición de errores del BC en un solo lugar
+
+El mapeo en el controlador es:
+- `CovenantAlreadyExists` → HTTP 409 Conflict
+- `InvalidPeriod`, `InvalidMonetaryAmount` → HTTP 400 Bad Request
+- `DatabaseError`, `OperationCancelled`, `InternalServerError` → HTTP 500 Internal Server Error
+
+---
+
+## Paperwork - Domain Layer (Commands)
+
+### 16. CreateCovenantCommand.cs
+
+Ruta: `Paperwork/Domain/Model/Commands/CreateCovenantCommand.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Commands`
+
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Commands;
+
+/// <summary>
+/// Command to create a new Covenant in the Paperwork bounded context.
+/// </summary>
+/// <remarks>
+/// Encapsulates all data required to create a Covenant aggregate root.
+/// The command is an immutable record that travels from the interface layer
+/// through the application layer to the domain layer.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <param name="DocumentIdentifier">The unique GUID document identifier.</param>
+/// <param name="ClientId">The UUID identifying the client party.</param>
+/// <param name="PeriodStartDate">The start date of the covenant's validity period.</param>
+/// <param name="PeriodEndDate">The end date of the covenant's validity period.</param>
+/// <param name="MonetaryAmountValue">The total monetary value of the covenant.</param>
+/// <param name="MonetaryAmountCurrency">The currency code for the monetary amount.</param>
+/// <param name="Status">The initial status; defaults to Draft.</param>
+/// <param name="Footnotes">Optional footnotes for the covenant.</param>
+public record CreateCovenantCommand(
+    Guid DocumentIdentifier,
+    Guid ClientId,
+    DateOnly PeriodStartDate,
+    DateOnly PeriodEndDate,
+    decimal MonetaryAmountValue,
+    string MonetaryAmountCurrency,
+    CovenantStatus Status = CovenantStatus.Draft,
+    string? Footnotes = null);
+```
+
+**Explicación de CreateCovenantCommand (patrón CQRS):**
+
+Este comando sigue el patrón **CQRS (Command Query Responsibility Segregation)** donde:
+
+- **Commands**: Representan intenciones de modificar el estado del sistema. Son imperativos (ej. "crear un covenant"). Siempre retornan un resultado (éxito o error), nunca datos de consulta.
+- **Queries**: Representan intenciones de leer datos sin modificar el estado (no implementadas en esta versión, pero la estructura está preparada para agregarlas).
+
+El comando como `record`:
+- Es **inmutable**: Una vez creado, no puede modificarse. Viaja a través de las capas sin riesgo de efectos secundarios.
+- Tiene **igualdad estructural**: Dos comandos con los mismos valores son iguales.
+- Es **auto-documentado**: Los nombres de los parámetros describen exactamente qué datos se necesitan.
+
+**Flujo del comando:**
+```
+HTTP POST → Controller → Assembler → Command → CommandService → Domain (Covenant) → Repository → Database
+```
+
+---
+
+## Paperwork - Domain Layer (Repository)
+
+### 17. ICovenantRepository.cs
+
+Ruta: `Paperwork/Domain/Repositories/ICovenantRepository.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Repositories`
+
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
+
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Repositories;
+
+/// <summary>
+/// Domain repository interface for the Covenant aggregate root.
+/// </summary>
+/// <remarks>
+/// Extends IBaseRepository to inherit standard CRUD operations (AddAsync, FindByIdAsync, ListAsync).
+/// Adds Covenant-specific query methods.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public interface ICovenantRepository : IBaseRepository<Covenant>
+{
+    /// <summary>
+    /// Determines whether a Covenant with the given document identifier already exists.
+    /// </summary>
+    /// <param name="documentIdentifier">The GUID document identifier to check.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>true if a Covenant with that identifier exists; otherwise false.</returns>
+    Task<bool> ExistsByDocumentIdentifierAsync(Guid documentIdentifier, CancellationToken cancellationToken);
+}
+```
+
+---
+
+## Paperwork - Application Layer (Service Interfaces)
+
+### 18. ICovenantCommandService.cs
+
+Ruta: `Paperwork/Application/CommandServices/ICovenantCommandService.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Application.CommandServices`
+
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Commands;
+using PC212190.U202418655.Capbase.Platform.Shared.Application.Model;
+
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Application.CommandServices;
+
+/// <summary>
+/// Application service interface for Covenant command operations.
+/// </summary>
+/// <remarks>
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public interface ICovenantCommandService
+{
+    /// <summary>
+    /// Handles the creation of a new Covenant.
+    /// </summary>
+    /// <param name="command">The command carrying the data for the new Covenant.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>A result containing the created Covenant on success, or an error on failure.</returns>
+    Task<Result<Covenant>> Handle(CreateCovenantCommand command, CancellationToken cancellationToken);
+}
+```
+
+---
+
+## Paperwork - Application Layer (Service Implementations)
+
+### 19. CovenantCommandService.cs
+
+Ruta: `Paperwork/Application/Internal/CommandServices/CovenantCommandService.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Application.Internal.CommandServices`
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Localization;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Application.CommandServices;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Commands;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.ValueObjects;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Repositories;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Resources;
+using PC212190.U202418655.Capbase.Platform.Resources;
+using PC212190.U202418655.Capbase.Platform.Shared.Application.Model;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Model;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
+
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Application.Internal.CommandServices;
+
+/// <summary>
+/// Handles Covenant creation commands, enforcing business rules and persisting the aggregate.
+/// </summary>
+/// <remarks>
+/// Business rules enforced:
+/// 1. No duplicate DocumentIdentifier - a Covenant with the same identifier cannot be created twice
+/// 2. Valid LegalityPeriod - EndDate must be strictly after StartDate
+/// 3. Valid MonetaryAmount - value must be >= 0 and currency must be non-empty
+///
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public class CovenantCommandService(
+    ICovenantRepository covenantRepository,
+    IUnitOfWork unitOfWork,
+    IStringLocalizer<PaperworkMessages> paperworkLocalizer,
+    IStringLocalizer<ErrorMessages> errorLocalizer) : ICovenantCommandService
+{
+    /// <inheritdoc/>
+    public async Task<Result<Covenant>> Handle(CreateCovenantCommand command, CancellationToken cancellationToken)
+    {
+        // BUSINESS RULE 1: No duplicate DocumentIdentifier
+        if (await covenantRepository.ExistsByDocumentIdentifierAsync(
+                command.DocumentIdentifier, cancellationToken))
+            return Result<Covenant>.Failure(
+                nameof(PaperworkError.CovenantAlreadyExists),
+                paperworkLocalizer[nameof(PaperworkError.CovenantAlreadyExists)]);
+
+        LegalityPeriod period;
+        MonetaryAmount totalValue;
+
+        // BUSINESS RULE 2: Valid LegalityPeriod
+        try
+        {
+            period = new LegalityPeriod(command.PeriodStartDate, command.PeriodEndDate);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<Covenant>.Failure(
+                nameof(PaperworkError.InvalidPeriod), ex.Message);
+        }
+
+        // BUSINESS RULE 3: Valid MonetaryAmount
+        try
+        {
+            totalValue = new MonetaryAmount(
+                command.MonetaryAmountValue, command.MonetaryAmountCurrency);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<Covenant>.Failure(
+                nameof(PaperworkError.InvalidMonetaryAmount), ex.Message);
+        }
+
+        // Create the Covenant aggregate root
+        var covenant = new Covenant(
+            new CapbaseIdentifier(command.DocumentIdentifier),
+            new PartyId(command.ClientId),
+            period,
+            totalValue,
+            command.Status,
+            command.Footnotes);
+
+        // Persist
+        try
+        {
+            await covenantRepository.AddAsync(covenant, cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+            return Result<Covenant>.Success(covenant);
+        }
+        catch (DbUpdateException)
+        {
+            return Result<Covenant>.Failure(
+                nameof(PaperworkError.DatabaseError),
+                errorLocalizer[nameof(PaperworkError.InternalServerError)]);
+        }
+        catch (OperationCanceledException)
+        {
+            return Result<Covenant>.Failure(
+                nameof(PaperworkError.OperationCancelled),
+                errorLocalizer[nameof(PaperworkError.InternalServerError)]);
+        }
+        catch (Exception)
+        {
+            return Result<Covenant>.Failure(
+                nameof(PaperworkError.InternalServerError),
+                errorLocalizer[nameof(PaperworkError.InternalServerError)]);
         }
     }
 }
 ```
 
+**Explicación detallada del servicio de aplicación:**
+
+`CovenantCommandService` es el **Application Service** que maneja el comando `CreateCovenantCommand`. Aquí ocurre toda la orquestación:
+
+**Flujo completo:**
+
+1. **Validación de unicidad**: Se verifica que no exista otro Covenant con el mismo `DocumentIdentifier`. Esta es una regla de negocio de integridad (no pueden existir dos documentos con el mismo identificador).
+
+2. **Creación de Value Objects**: Se construyen `LegalityPeriod` y `MonetaryAmount`. Cada uno se valida a sí mismo:
+   - Si `EndDate <= StartDate`, `LegalityPeriod` lanza `ArgumentException`
+   - Si `Value < 0` o `Currency` vacío, `MonetaryAmount` lanza `ArgumentException`
+
+3. **Creación del Aggregate Root**: Se crea `Covenant` con todos los value objects y el status.
+
+4. **Persistencia**: Se usa el patrón **Unit of Work** para guardar atómicamente:
+   - `AddAsync` agrega el covenant al contexto de EF Core
+   - `CompleteAsync` confirma la transacción (SaveChanges)
+
+5. **Manejo de errores**: Cada posible fallo se traduce en un `Result.Failure` con el código de error apropiado, permitiendo que la capa de interfaz determine la respuesta HTTP correcta.
+
+**Inyección de dependencias (DI):**
+
+El servicio recibe sus dependencias mediante **primary constructor** (característica de C# 12/14):
+- `ICovenantRepository`: Para operaciones de persistencia específicas de Covenant
+- `IUnitOfWork`: Para confirmar la transacción
+- `IStringLocalizer<PaperworkMessages>`: Para mensajes localizados del BC Paperwork
+- `IStringLocalizer<ErrorMessages>`: Para mensajes de error genéricos
+
+Todas estas dependencias se registran en `Program.cs` con `AddScoped`, lo que significa que se crea una nueva instancia por cada request HTTP.
+
 ---
 
-## Billing - Domain Layer (Commands)
+## Paperwork - Infrastructure Layer (Fluent API Configuration)
 
-### 17. CreateInvoiceCommand.java
+### 20. ModelBuilderExtensions.cs
 
-Ruta `billing/domain/model/commands/CreateInvoiceCommand.java`
+Ruta: `Paperwork/Infrastructure/Persistence/EntityFrameworkCore/Configuration/ModelBuilderExtensions.cs`
 
-Package `pe.com.facturease.platform.u202418655.billing.domain.model.commands`
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Infrastructure.Persistence.EntityFrameworkCore.Configuration`
 
-```java
-package pe.com.facturease.platform.u202418655.billing.domain.model.commands;
+```csharp
+using Microsoft.EntityFrameworkCore;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
 
-import java.math.BigDecimal;
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-/**
- * Command to create a new Invoice.
- *
- * <p>Encapsulates all data required to create an Invoice aggregate.
- * Validation of mandatory fields is performed in the constructor.</p>
- *
- * @param invoiceIdentifier the UUID string identifying the invoice
- * @param description       the optional invoice description
- * @param status             the optional initial status name (defaults to DRAFT)
- * @param netAmount          the net amount before taxes
- * @param calculatedTax      the accumulated tax amount
- * @param itemCount          the number of items in the invoice
- * @author Victor Jhosef Laura Acosta
- */
-public record CreateInvoiceCommand(
-        String invoiceIdentifier, String description, String status,
-        BigDecimal netAmount, BigDecimal calculatedTax, Integer itemCount) {
+/// <summary>
+/// Extension methods to apply Paperwork bounded context EF Core configuration.
+/// </summary>
+/// <remarks>
+/// Uses Fluent API to define table mapping, column naming (snake_case),
+/// primary keys, value object ownership, and constraints.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public static class ModelBuilderExtensions
+{
+    /// <summary>
+    /// Applies Fluent API configuration for all Paperwork entities.
+    /// </summary>
+    /// <param name="builder">The EF Core model builder.</param>
+    public static void ApplyPaperworkConfiguration(this ModelBuilder builder)
+    {
+        builder.Entity<Covenant>(entity =>
+        {
+            entity.ToTable("covenants");
 
-    /**
-     * Validates that all required fields are present.
-     *
-     * @throws IllegalArgumentException if any required field is null
-     */
-    public CreateInvoiceCommand {
-        if (invoiceIdentifier == null)
-            throw new IllegalArgumentException("invoiceIdentifier cannot be null");
-        if (netAmount == null)
-            throw new IllegalArgumentException("netAmount cannot be null");
-        if (calculatedTax == null)
-            throw new IllegalArgumentException("calculatedTax cannot be null");
-        if (itemCount == null)
-            throw new IllegalArgumentException("itemCount cannot be null");
+            entity.HasKey(c => c.Id);
+            entity.Property(c => c.Id)
+                .HasColumnName("id")
+                .IsRequired()
+                .ValueGeneratedOnAdd();
+
+            entity.Property(c => c.Status)
+                .HasColumnName("status")
+                .IsRequired()
+                .HasConversion<string>();
+
+            entity.Property(c => c.Footnotes)
+                .HasColumnName("footnotes")
+                .IsRequired(false);
+
+            entity.Property(c => c.CreatedAt)
+                .HasColumnName("created_at");
+
+            entity.Property(c => c.UpdatedAt)
+                .HasColumnName("updated_at");
+
+            // CapbaseIdentifier value object — stored as GUID column
+            entity.OwnsOne(c => c.DocumentIdentifier, di =>
+            {
+                di.Property(x => x.Value)
+                    .HasColumnName("document_identifier")
+                    .IsRequired();
+                di.HasIndex(x => x.Value)
+                    .IsUnique();
+            });
+
+            // PartyId value object — stored as GUID column
+            entity.OwnsOne(c => c.ClientId, ci =>
+            {
+                ci.Property(x => x.Value)
+                    .HasColumnName("client_id")
+                    .IsRequired();
+            });
+
+            // LegalityPeriod value object — stored as two date columns
+            entity.OwnsOne(c => c.Period, p =>
+            {
+                p.Property(x => x.StartDate)
+                    .HasColumnName("period_start_date")
+                    .IsRequired();
+                p.Property(x => x.EndDate)
+                    .HasColumnName("period_end_date")
+                    .IsRequired();
+            });
+
+            // MonetaryAmount value object — stored as two columns
+            entity.OwnsOne(c => c.TotalValue, tv =>
+            {
+                tv.Property(x => x.Value)
+                    .HasColumnName("monetary_amount_value")
+                    .HasColumnType("decimal(18,4)")
+                    .IsRequired();
+                tv.Property(x => x.Currency)
+                    .HasColumnName("monetary_amount_currency")
+                    .IsRequired();
+            });
+        });
     }
 }
 ```
 
+**Explicación de la configuración Fluent API:**
+
+Este archivo es el equivalente al `SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java` del proyecto Facturease, pero adaptado a EF Core. Define el mapeo entre las clases C# y la base de datos:
+
+| Clase C# | Tabla/Columna BD | Tipo |
+|---|---|---|
+| `Covenant` | `covenants` | Tabla (plural) |
+| `Covenant.Id` | `id` | INT PK auto-increment |
+| `Covenant.Status` | `status` | VARCHAR (enum as string) |
+| `Covenant.Footnotes` | `footnotes` | TEXT nullable |
+| `Covenant.CreatedAt` | `created_at` | DATETIME |
+| `Covenant.UpdatedAt` | `updated_at` | DATETIME |
+| `CapbaseIdentifier.Value` | `document_identifier` | CHAR(36) GUID (UNIQUE) |
+| `PartyId.Value` | `client_id` | CHAR(36) GUID |
+| `LegalityPeriod.StartDate` | `period_start_date` | DATE |
+| `LegalityPeriod.EndDate` | `period_end_date` | DATE |
+| `MonetaryAmount.Value` | `monetary_amount_value` | DECIMAL(18,4) |
+| `MonetaryAmount.Currency` | `monetary_amount_currency` | VARCHAR(3) |
+
+**Convenciones de nomenclatura:**
+
+Siguiendo el estándar del proyecto Learning Center, los nombres de tablas y columnas están en **snake_case**:
+- Tablas en **plural** (`covenants`, no `covenant`)
+- Columnas en **snake_case** (`period_start_date`, no `PeriodStartDate`)
+- Los value objects se "aplanan" en columnas de la misma tabla (no hay tablas separadas para ellos)
+
+> **Nota sobre pluralización:** En Learning Center, se usa `Humanizer` para pluralizar automáticamente nombres de tablas. En este proyecto, la pluralización se hace manualmente en `ToTable("covenants")` para tener control explícito sobre los nombres.
+
 ---
 
-## Billing - Domain Layer (Queries)
+## Paperwork - Infrastructure Layer (Repository Implementation)
 
-### 18. GetInvoiceById.java
+### 21. CovenantRepository.cs
 
-Ruta `billing/domain/model/queries/GetInvoiceById.java`
+Ruta: `Paperwork/Infrastructure/Persistence/EntityFrameworkCore/Repositories/CovenantRepository.cs`
 
-Package `pe.com.facturease.platform.u202418655.billing.domain.model.queries`
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Infrastructure.Persistence.EntityFrameworkCore.Repositories`
 
-```java
-package pe.com.facturease.platform.u202418655.billing.domain.model.queries;
+```csharp
+using Microsoft.EntityFrameworkCore;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Repositories;
+using PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using PC212190.U202418655.Capbase.Platform.Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
-/**
- * Query to retrieve an Invoice by its identifier.
- *
- * @param invoiceId the unique identifier of the invoice
- * @author Victor Jhosef Laura Acosta
- */
-public record GetInvoiceById(Long invoiceId) {
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
-    /**
-     * Validates the query parameters.
-     *
-     * @throws IllegalArgumentException if invoiceId is null or negative
-     */
-    public GetInvoiceById {
-        if (invoiceId == null)
-            throw new IllegalArgumentException("invoiceId cannot be null");
-        if (invoiceId < 0)
-            throw new IllegalArgumentException("invoiceId cannot be negative");
-    }
+/// <summary>
+/// EF Core repository for the Covenant aggregate root.
+/// </summary>
+/// <remarks>
+/// Extends BaseRepository to inherit standard CRUD operations.
+/// Implements ICovenantRepository to provide Covenant-specific queries.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public class CovenantRepository(AppDbContext context)
+    : BaseRepository<Covenant>(context), ICovenantRepository
+{
+    /// <inheritdoc/>
+    public async Task<bool> ExistsByDocumentIdentifierAsync(
+        Guid documentIdentifier, CancellationToken cancellationToken)
+        => await Context.Set<Covenant>()
+            .AnyAsync(c => c.DocumentIdentifier.Value == documentIdentifier, cancellationToken);
 }
 ```
 
 ---
 
-## Billing - Domain Layer (Repository)
+## Paperwork - Interfaces Layer (Resources)
 
-### 19. InvoiceRepository.java
+### 22. CreateCovenantResource.cs (Request DTO)
 
-Ruta `billing/domain/repositories/InvoiceRepository.java`
+Ruta: `Paperwork/Interfaces/Rest/Resources/CreateCovenantResource.cs`
 
-Package `pe.com.facturease.platform.u202418655.billing.domain.repositories`
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Resources`
 
-```java
-package pe.com.facturease.platform.u202418655.billing.domain.repositories;
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
 
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Resources;
 
-import java.util.Optional;
+/// <summary>
+/// Request resource for creating a new Covenant via the REST API.
+/// </summary>
+/// <remarks>
+/// This is the DTO (Data Transfer Object) that maps the incoming JSON request body
+/// to a typed structure. Value object attributes (DocumentIdentifier, Period, TotalValue)
+/// are flattened into primitive-typed attributes.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <param name="DocumentIdentifier">Unique GUID document identifier generated externally.</param>
+/// <param name="ClientId">UUID of the client party, originating from another bounded context.</param>
+/// <param name="PeriodStartDate">Start date of the covenant's validity period (yyyy-MM-dd).</param>
+/// <param name="PeriodEndDate">End date of the covenant's validity period (yyyy-MM-dd).</param>
+/// <param name="MonetaryAmountValue">Total monetary value of the covenant.</param>
+/// <param name="MonetaryAmountCurrency">ISO currency code for the monetary amount.</param>
+/// <param name="Status">Initial status of the covenant. Defaults to Draft.</param>
+/// <param name="Footnotes">Optional additional notes or remarks.</param>
+public record CreateCovenantResource(
+    Guid DocumentIdentifier,
+    Guid ClientId,
+    DateOnly PeriodStartDate,
+    DateOnly PeriodEndDate,
+    decimal MonetaryAmountValue,
+    string MonetaryAmountCurrency,
+    CovenantStatus Status = CovenantStatus.Draft,
+    string? Footnotes = null);
+```
 
-/**
- * Repository interface for Invoice aggregate root.
- *
- * <p>Defines the contract for persisting and retrieving invoices.
- * Implementations are provided in the infrastructure layer.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-public interface InvoiceRepository {
+**Explicación de CreateCovenantResource:**
 
-    /**
-     * Saves an invoice.
-     *
-     * @param invoice the invoice to save
-     * @return the saved invoice
-     */
-    Invoice save(Invoice invoice);
+Este es el **DTO (Data Transfer Object)** de entrada. Es un `record` inmutable que modela el cuerpo JSON de la petición `POST /api/v1/covenants`. Los value objects del dominio (`CapbaseIdentifier`, `PartyId`, `LegalityPeriod`, `MonetaryAmount`) se "aplanan" en campos primitivos porque el API REST no debe exponer la complejidad interna del dominio.
 
-    /**
-     * Finds an invoice by its identifier.
-     *
-     * @param invoiceId the invoice identifier
-     * @return an Optional containing the invoice if found
-     */
-    Optional<Invoice> findById(Long invoiceId);
+**Mapeo JSON** (ejemplo de request body):
+```json
+{
+  "documentIdentifier": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+  "periodStartDate": "2025-01-01",
+  "periodEndDate": "2026-01-01",
+  "monetaryAmountValue": 15000.00,
+  "monetaryAmountCurrency": "USD",
+  "status": "Draft",
+  "footnotes": "Optional notes here."
+}
+```
 
-    /**
-     * Checks if an invoice already exists with the given invoiceIdentifier.
-     *
-     * @param invoiceIdentifier the invoice identifier value object
-     * @return true if an invoice with that identifier exists
-     */
-    boolean existsByInvoiceIdentifier(InvoiceIdentifier invoiceIdentifier);
+ASP.NET Core usa **camelCase** por defecto en la serialización JSON, por lo que las propiedades del record C# (PascalCase) se convierten automáticamente a camelCase en el JSON.
+
+### 23. CovenantResource.cs (Response DTO)
+
+Ruta: `Paperwork/Interfaces/Rest/Resources/CovenantResource.cs`
+
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Resources`
+
+```csharp
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Resources;
+
+/// <summary>
+/// Response resource representing a Covenant returned by the REST API.
+/// </summary>
+/// <remarks>
+/// This DTO flattens value objects into primitive fields for the API response.
+/// Note that status and footnotes are intentionally excluded from the response
+/// as per the API specification (they are internal domain concepts).
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <param name="Id">Auto-generated primary key of the Covenant.</param>
+/// <param name="DocumentId">String representation of the document identifier GUID.</param>
+/// <param name="ClientId">String representation of the client party UUID.</param>
+/// <param name="PeriodStartDate">Start date of the validity period as an ISO string.</param>
+/// <param name="PeriodEndDate">End date of the validity period as an ISO string.</param>
+/// <param name="MonetaryAmountValue">Total monetary value.</param>
+/// <param name="MonetaryAmountCurrency">ISO currency code.</param>
+public record CovenantResource(
+    int Id,
+    string DocumentId,
+    string ClientId,
+    string PeriodStartDate,
+    string PeriodEndDate,
+    decimal MonetaryAmountValue,
+    string MonetaryAmountCurrency);
+```
+
+**Explicación de CovenantResource:**
+
+Este es el DTO de respuesta. Al igual que el de entrada, aplana los value objects. Notar que:
+- `DocumentId` y `ClientId` se devuelven como string (representación del GUID), no como GUID directamente
+- `PeriodStartDate` y `PeriodEndDate` se devuelven como string ISO (`yyyy-MM-dd`)
+- `status` y `footnotes` NO se incluyen en la respuesta (según la especificación del API)
+
+**Ejemplo de respuesta JSON:**
+```json
+{
+  "id": 1,
+  "documentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+  "periodStartDate": "2025-01-01",
+  "periodEndDate": "2026-01-01",
+  "monetaryAmountValue": 15000.00,
+  "monetaryAmountCurrency": "USD"
 }
 ```
 
 ---
 
-## Billing - Application Layer (Service Interfaces)
+## Paperwork - Interfaces Layer (Assemblers)
 
-### 20. InvoiceCommandService.java
+### 24. CreateCovenantCommandFromResourceAssembler.cs
 
-Ruta `billing/application/commandservices/InvoiceCommandService.java`
+Ruta: `Paperwork/Interfaces/Rest/Transform/CreateCovenantCommandFromResourceAssembler.cs`
 
-Package `pe.com.facturease.platform.u202418655.billing.application.commandservices`
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Transform`
 
-```java
-package pe.com.facturease.platform.u202418655.billing.application.commandservices;
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Commands;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Resources;
 
-import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
-import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
-import pe.com.facturease.platform.u202418655.shared.application.result.Result;
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Transform;
 
-/**
- * Service interface for handling invoice commands.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public interface InvoiceCommandService {
-
-    /**
-     * Handles the creation of a new invoice.
-     *
-     * @param command the create invoice command
-     * @return a Result containing the ID of the created invoice on success, or an error on failure
-     */
-    Result<Long, ApplicationError> handle(CreateInvoiceCommand command);
+/// <summary>
+/// Assembler that transforms a CreateCovenantResource into a CreateCovenantCommand.
+/// </summary>
+/// <remarks>
+/// Follows the assembler pattern used in Learning Center to separate
+/// resource-to-command mapping logic from the controller.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public static class CreateCovenantCommandFromResourceAssembler
+{
+    /// <summary>
+    /// Converts a REST request resource to a domain command.
+    /// </summary>
+    /// <param name="resource">The inbound REST resource.</param>
+    /// <returns>A CreateCovenantCommand populated from the resource.</returns>
+    public static CreateCovenantCommand ToCommandFromResource(CreateCovenantResource resource)
+        => new(
+            resource.DocumentIdentifier,
+            resource.ClientId,
+            resource.PeriodStartDate,
+            resource.PeriodEndDate,
+            resource.MonetaryAmountValue,
+            resource.MonetaryAmountCurrency,
+            resource.Status,
+            resource.Footnotes);
 }
 ```
 
----
+### 25. CovenantResourceFromEntityAssembler.cs
 
-### 21. InvoiceQueryService.java
+Ruta: `Paperwork/Interfaces/Rest/Transform/CovenantResourceFromEntityAssembler.cs`
 
-Ruta `billing/application/queryservices/InvoiceQueryService.java`
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Transform`
 
-Package `pe.com.facturease.platform.u202418655.billing.application.queryservices`
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Resources;
 
-```java
-package pe.com.facturease.platform.u202418655.billing.application.queryservices;
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Transform;
 
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.domain.model.queries.GetInvoiceById;
-
-import java.util.Optional;
-
-/**
- * Service interface for handling invoice queries.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public interface InvoiceQueryService {
-
-    /**
-     * Handles the retrieval of an invoice by its identifier.
-     *
-     * @param query the get invoice by id query
-     * @return an Optional containing the invoice if found
-     */
-    Optional<Invoice> handle(GetInvoiceById query);
+/// <summary>
+/// Assembler that maps a Covenant domain aggregate to a CovenantResource.
+/// </summary>
+/// <remarks>
+/// Converts domain objects to REST response DTOs, flattening value objects.
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+public static class CovenantResourceFromEntityAssembler
+{
+    /// <summary>
+    /// Converts a Covenant entity to a REST response resource.
+    /// </summary>
+    /// <param name="covenant">The domain entity to convert.</param>
+    /// <returns>A CovenantResource suitable for the API response.</returns>
+    public static CovenantResource ToResourceFromEntity(Covenant covenant)
+        => new(
+            covenant.Id,
+            covenant.DocumentIdentifier.Value.ToString(),
+            covenant.ClientId.Value.ToString(),
+            covenant.Period.StartDate.ToString("yyyy-MM-dd"),
+            covenant.Period.EndDate.ToString("yyyy-MM-dd"),
+            covenant.TotalValue.Value,
+            covenant.TotalValue.Currency);
 }
 ```
 
+**Explicación del patrón Assembler:**
+
+Los Assemblers son una parte fundamental de la arquitectura, también usados en **Learning Center**. Su propósito es **aislar la capa de Interfaces de los detalles del dominio**:
+
+- **Resource → Command**: Convierte el DTO de entrada en un comando de dominio. Esto permite que el controlador REST no conozca los detalles del dominio.
+- **Entity → Resource**: Convierte el aggregate root del dominio en un DTO de respuesta. Oculta propiedades internas del dominio que no deben exponerse.
+
+En Learning Center, estos assemblers están en `Publishing/Interfaces/Rest/Transform/` y se llaman `CreateTutorialCommandFromResourceAssembler`, `TutorialResourceFromEntityAssembler`, etc.
+
 ---
 
-## Billing - Application Layer (Service Implementations)
+## Paperwork - Interfaces Layer (Controller con OpenAPI / Swagger)
 
-### 22. InvoiceCommandServiceImpl.java
+### 26. CovenantsController.cs
 
-Ruta `billing/application/internal/commandservices/InvoiceCommandServiceImpl.java`
+Ruta: `Paperwork/Interfaces/Rest/CovenantsController.cs`
 
-Package `pe.com.facturease.platform.u202418655.billing.application.internal.commandservices`
+Package: `PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest`
 
-```java
-package pe.com.facturease.platform.u202418655.billing.application.internal.commandservices;
+```csharp
+using System.Net.Mime;
+using Microsoft.AspNetCore.Mvc;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Application.CommandServices;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Resources;
+using PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest.Transform;
+using Swashbuckle.AspNetCore.Annotations;
 
-import pe.com.facturease.platform.u202418655.billing.application.commandservices.InvoiceCommandService;
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
-import pe.com.facturease.platform.u202418655.billing.domain.repositories.InvoiceRepository;
-import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
-import pe.com.facturease.platform.u202418655.shared.application.result.Result;
-import org.springframework.stereotype.Service;
+namespace PC212190.U202418655.Capbase.Platform.Paperwork.Interfaces.Rest;
 
-/**
- * Implementation of {@link InvoiceCommandService}.
- *
- * <p>Business rules enforced:</p>
- * <ul>
- *   <li>No duplicate invoiceIdentifier is allowed.</li>
- * </ul>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Service
-public class InvoiceCommandServiceImpl implements InvoiceCommandService {
+/// <summary>
+/// REST controller exposing the Covenant endpoints for the Paperwork bounded context.
+/// </summary>
+/// <remarks>
+/// Base URL: /api/v1/covenants
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+[ApiController]
+[Route("api/v1/covenants")]
+[Produces(MediaTypeNames.Application.Json)]
+[SwaggerTag("Available Covenant endpoints")]
+public class CovenantsController(ICovenantCommandService covenantCommandService) : ControllerBase
+{
+    /// <summary>
+    /// Creates a new Covenant document in the Paperwork bounded context.
+    /// </summary>
+    /// <param name="resource">The request body containing all required Covenant data.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The created Covenant resource with HTTP 201, or an error response.</returns>
+    [HttpPost]
+    [SwaggerOperation(
+        Summary = "Create a Covenant",
+        Description = "Creates a new Covenant document in the Paperwork bounded context. " +
+                       "The Covenant represents a legal agreement with a unique document identifier, " +
+                       "validity period, monetary value, and optional footnotes.",
+        OperationId = "CreateCovenant")]
+    [SwaggerResponse(StatusCodes.Status201Created, "The Covenant was created successfully.", typeof(CovenantResource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid request data or business rule violation.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict, "A Covenant with the same document identifier already exists.")]
+    [SwaggerResponse(StatusCodes.Status500InternalServerError, "An unexpected server error occurred.")]
+    public async Task<IActionResult> CreateCovenant(
+        [FromBody] CreateCovenantResource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = CreateCovenantCommandFromResourceAssembler
+            .ToCommandFromResource(resource);
+        var result = await covenantCommandService.Handle(command, cancellationToken);
 
-    private final InvoiceRepository invoiceRepository;
+        if (!result.IsSuccess)
+        {
+            var body = new { message = result.ErrorMessage };
 
-    /**
-     * Constructor for dependency injection.
-     *
-     * @param invoiceRepository the invoice repository
-     */
-    public InvoiceCommandServiceImpl(InvoiceRepository invoiceRepository) {
-        this.invoiceRepository = invoiceRepository;
-    }
-
-    /**
-     * Creates a new invoice after validating all business rules.
-     *
-     * @param command the create invoice command
-     * @return a Result containing the invoice ID on success, or an error on failure
-     */
-    @Override
-    public Result<Long, ApplicationError> handle(CreateInvoiceCommand command) {
-
-        // BUSINESS RULE: No duplicate invoiceIdentifier
-        if (this.invoiceRepository.existsByInvoiceIdentifier(
-                InvoiceIdentifier.fromString(command.invoiceIdentifier()))) {
-            return Result.failure(ApplicationError.conflict("Invoice",
-                    "An invoice with the same invoiceIdentifier already exists"));
+            return result.ErrorCode switch
+            {
+                nameof(PaperworkError.CovenantAlreadyExists) => Conflict(body),
+                nameof(PaperworkError.DatabaseError)
+                    or nameof(PaperworkError.OperationCancelled)
+                    or nameof(PaperworkError.InternalServerError) =>
+                    StatusCode(StatusCodes.Status500InternalServerError, body),
+                _ => BadRequest(body)
+            };
         }
 
-        Invoice invoice;
-        try {
-            invoice = new Invoice(command);
-            invoice = invoiceRepository.save(invoice);
-        } catch (IllegalArgumentException e) {
-            return Result.failure(
-                    ApplicationError.validationError("create-invoice", e.getMessage()));
-        } catch (IllegalStateException e) {
-            return Result.failure(
-                    ApplicationError.businessRuleViolation("invoice-status-item-count", e.getMessage()));
-        } catch (Exception e) {
-            return Result.failure(
-                    ApplicationError.unexpected("create-invoice", e.getMessage()));
-        }
-        return Result.success(invoice.getId());
+        var covenantResource = CovenantResourceFromEntityAssembler
+            .ToResourceFromEntity(result.Value!);
+        return CreatedAtAction(
+            nameof(CreateCovenant), new { id = covenantResource.Id }, covenantResource);
     }
+}
+```
+
+**Explicación del Controlador REST:**
+
+El controlador sigue el mismo patrón que los controladores de **Learning Center** (`ProfilesController.cs`, `TutorialsController.cs`):
+
+**Flujo completo del request:**
+
+```
+Cliente HTTP                      Servidor
+    │                                │
+    │  POST /api/v1/covenants        │
+    │  {                             │
+    │    "documentIdentifier": "...", │
+    │    "clientId": "...",          │
+    │    "periodStartDate": "...",   │
+    │    "periodEndDate": "...",     │
+    │    "monetaryAmountValue": 15000,│
+    │    "monetaryAmountCurrency": "USD",│
+    │    "status": "Draft",          │
+    │    "footnotes": "..."          │
+    │  }                             │
+    │────────────────────────────>   │
+    │                                │
+    │  1. Controller recibe JSON     │
+    │  2. Serializa a                │
+    │     CreateCovenantResource     │
+    │  3. Assembler convierte a      │
+    │     CreateCovenantCommand      │
+    │  4. CommandService.Handle()    │
+    │     a. Valida unicidad         │
+    │     b. Crea value objects      │
+    │     c. Crea Covenant           │
+    │     d. Persiste                │
+    │  5. Assembler convierte        │
+    │     Covenant → CovenantResource│
+    │  6. Retorna 201 Created        │
+    │                                │
+    │  HTTP 201                      │
+    │  {                             │
+    │    "id": 1,                    │
+    │    "documentId": "...",        │
+    │    ...                         │
+    │  }                             │
+    │<────────────────────────────   │
+```
+
+**Mapeo de errores a códigos HTTP:**
+
+| Condición | Código HTTP | Error |
+|---|---|---|
+| Creación exitosa | 201 Created | - |
+| DocumentIdentifier duplicado | 409 Conflict | `CovenantAlreadyExists` |
+| Periodo inválido (EndDate <= StartDate) | 400 Bad Request | `InvalidPeriod` |
+| Valor monetario inválido (< 0) | 400 Bad Request | `InvalidMonetaryAmount` |
+| Error de base de datos | 500 Internal Server Error | `DatabaseError` |
+| Operación cancelada | 500 Internal Server Error | `OperationCancelled` |
+| Error interno inesperado | 500 Internal Server Error | `InternalServerError` |
+
+**Anotaciones Swagger / OpenAPI:**
+
+El controlador usa `[SwaggerOperation]`, `[SwaggerResponse]`, y `[SwaggerTag]` del paquete `Swashbuckle.AspNetCore.Annotations`. Estas anotaciones generan documentación OpenAPI enriquecida visible en Swagger UI:
+
+```
+http://localhost:8097/swagger/index.html
+```
+
+---
+
+## README.md
+
+Crear `README.md` en la raíz del proyecto `pc212190u202418655/`:
+
+```markdown
+# Capbase Platform API
+
+## Description
+RESTful API for the **Capbase** case study, implementing the **Paperwork** bounded context.  
+Exposes a single endpoint to create Covenant documents, persisted in a MySQL or PostgreSQL relational database.
+
+Built with C# 14 / .NET 10 / ASP.NET Core, following Domain-Driven Design (DDD), CQRS, and layered architecture.
+
+## Technologies
+- .NET 10.0 (C# 14)
+- ASP.NET Core 10.0
+- Entity Framework Core 10.0.8
+- MySQL (MySql.EntityFrameworkCore 10.0.7) / PostgreSQL (Npgsql)
+- Swashbuckle (Swagger UI) 10.2.0
+- Humanizer 3.0.10
+
+## Author
+- **Name:** Victor Jhosef Laura Acosta
+- **Student code:** u202418655
+- **Section / NRC:** 12190
+- **Course:** Aplicaciones Web
+- **Professor:** Hugo Allan Mori Paiva
+
+## Prerequisites
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
+- MySQL Server (5.7+ or 8.x) or PostgreSQL (14+)
+
+## Database Configuration
+1. Start your database server.
+2. Create the schema (database):
+
+**MySQL:**
+```sql
+CREATE SCHEMA IF NOT EXISTS clerky_wa
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+```
+
+**PostgreSQL:**
+```sql
+CREATE DATABASE clerky_wa;
+```
+
+3. Update the connection string in `appsettings.json` if needed.
+
+## Running the Project
+```bash
+cd pc212190u202418655/PC212190.U202418655.Capbase.Platform
+dotnet run
+```
+
+The application runs `EnsureCreated()` on startup, so the `covenants` table is created automatically.
+
+## API Endpoint
+### POST /api/v1/covenants
+Creates a new Covenant document.
+
+**Request body:**
+```json
+{
+  "documentIdentifier": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+  "periodStartDate": "2025-01-01",
+  "periodEndDate": "2026-01-01",
+  "monetaryAmountValue": 15000.00,
+  "monetaryAmountCurrency": "USD",
+  "status": "Draft",
+  "footnotes": "Optional notes here."
+}
+```
+
+**Successful response — HTTP 201:**
+```json
+{
+  "id": 1,
+  "documentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+  "periodStartDate": "2025-01-01",
+  "periodEndDate": "2026-01-01",
+  "monetaryAmountValue": 15000.00,
+  "monetaryAmountCurrency": "USD"
+}
+```
+
+## OpenAPI / Swagger UI
+Available at: `http://localhost:8097/swagger`
+
+## Localization
+The API respects the `Accept-Language` header for error messages.  
+Supported cultures: `en`, `en-US`, `es`, `es-PE`.
+```
+
+---
+
+---
+
+## Troubleshooting - Solución de Problemas Comunes
+
+### Error: "Connection string 'DefaultConnection' not found."
+
+**Causa:** El archivo `appsettings.json` no tiene la sección `ConnectionStrings` o el nombre no coincide.
+
+**Solución:** Verificar que `appsettings.json` contenga:
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=3306;Database=clerky_wa;User=root;Password=12345678;"
+  }
+}
+```
+
+Y que `Program.cs` use:
+
+```csharp
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+```
+
+### Error: "Unable to connect to any of the specified MySQL hosts."
+
+**Causas posibles:**
+1. MySQL no está corriendo
+2. Puerto incorrecto (no es 3306)
+3. Firewall bloqueando la conexión
+4. MySQL configurado solo para localhost
+
+**Soluciones:**
+1. Iniciar MySQL: `net start mysql` (Windows) o `sudo systemctl start mysql` (Linux)
+2. Verificar puerto: `SHOW VARIABLES LIKE 'port';` en MySQL CLI
+3. Verificar que el usuario `root` tenga acceso desde localhost:
+   ```sql
+   SELECT host, user FROM mysql.user WHERE user = 'root';
+   ```
+
+### Error: "The type or namespace name 'Covenant' could not be found"
+
+**Causa:** Falta el `using` correspondiente en algún archivo.
+
+**Solución:** Agregar al inicio del archivo:
+```csharp
+using PC212190.U202418655.Capbase.Platform.Paperwork.Domain.Model.Aggregates;
+```
+
+### Error: "Invalid object name 'covenants'."
+
+**Causa:** La tabla no se ha creado en la base de datos.
+
+**Solución:**
+1. Verificar que la base de datos `clerky_wa` existe
+2. Verificar que `EnsureCreated()` se ejecuta en `Program.cs`
+3. Si la tabla ya existe pero con otro nombre, verificar `ToTable("covenants")` en `ModelBuilderExtensions.cs`
+4. Si es necesario, forzar la recreación:
+   ```sql
+   DROP TABLE IF EXISTS clerky_wa.covenants;
+   ```
+   Luego reiniciar la aplicación.
+
+### Error de compilación: "'LangVersion' must be '14' or higher"
+
+**Causa:** El SDK de .NET instalado es anterior a .NET 10.
+
+**Solución:**
+```bash
+# Verificar versión instalada
+dotnet --version
+
+# Si es menor a 10.0.x, descargar .NET 10 SDK desde:
+# https://dotnet.microsoft.com/download/dotnet/10.0
+```
+
+### Error: "No database provider has been configured for this DbContext"
+
+**Causa:** No se llamó a `UseMySQL()` o `UseNpgsql()` en la configuración del DbContext.
+
+**Solución:** Verificar `Program.cs`:
+```csharp
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySQL(connectionString));
+```
+
+### Error: "Cannot write DateTime with Kind=Local to MySQL"
+
+**Causa:** MySQL espera DateTime con Kind=Utc pero se envía Local.
+
+**Solución:** Agregar en `Program.cs` antes de `builder.Build()`:
+```csharp
+AppContext.SetSwitch("MySql.Data.EnableUtcConversion", true);
+```
+
+O en la cadena de conexión:
+```
+"DefaultConnection": "Server=localhost;Port=3306;Database=clerky_wa;User=root;Password=12345678;convert zero datetime=True;Allow Zero Datetime=True;"
+```
+
+### Error: "The JSON value could not be converted to System.Guid"
+
+**Causa:** El GUID enviado en el JSON no tiene un formato válido.
+
+**Solución:** Asegurar que el `documentIdentifier` y `clientId` sean GUIDs válidos:
+```
+"documentIdentifier": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+```
+Formato válido: 8-4-4-4-12 hexadecimal digits (con guiones).
+
+### La tabla `covenants` no se crea con las columnas correctas
+
+**Causa:** Posibles conflictos con migraciones anteriores o esquema existente.
+
+**Solución:** Si la tabla ya existe pero con estructura incorrecta, eliminarla y dejar que `EnsureCreated()` la regenere:
+
+```sql
+DROP TABLE IF EXISTS clerky_wa.covenants;
+```
+
+Luego reiniciar la aplicación.
+
+### Swagger UI no carga o muestra error 404
+
+**Causas posibles:**
+1. El middleware de Swagger no está configurado
+2. La ruta del prefix es incorrecta
+3. Se está ejecutando en producción (no development)
+
+**Soluciones:**
+1. Verificar que `Program.cs` tenga:
+   ```csharp
+   if (app.Environment.IsDevelopment())
+   {
+       app.UseSwagger();
+       app.UseSwaggerUI(...);
+   }
+   ```
+2. La URL correcta es: `http://localhost:8097/swagger/index.html`
+3. Si quieres Swagger en producción, quita el `if (app.Environment.IsDevelopment())`
+
+### El endpoint POST devuelve 400 Bad Request sin mensaje claro
+
+**Causa:** El modelo no se está serializando correctamente o falta el `[FromBody]`.
+
+**Solución:**
+1. Verificar que el parámetro del controlador tenga `[FromBody]`:
+   ```csharp
+   public async Task<IActionResult> CreateCovenant(
+       [FromBody] CreateCovenantResource resource, ...)
+   ```
+2. Verificar que el Content-Type del request sea `application/json`
+3. Verificar que el JSON del body coincida con las propiedades de `CreateCovenantResource`
+
+---
+
+## Guía Rápida de Comandos .NET CLI
+
+### Creación del proyecto
+
+```bash
+# Crear solución
+dotnet new sln -n pc212190u202418655
+
+# Crear proyecto Web API
+dotnet new webapi -n PC212190.U202418655.Capbase.Platform --use-controllers
+
+# Agregar a solución
+dotnet sln add PC212190.U202418655.Capbase.Platform/PC212190.U202418655.Capbase.Platform.csproj
+```
+
+### Agregar paquetes NuGet
+
+```bash
+# Navegar al directorio del proyecto
+cd PC212190.U202418655.Capbase.Platform
+
+# EF Core packages
+dotnet add package Microsoft.EntityFrameworkCore --version 10.0.8
+dotnet add package Microsoft.EntityFrameworkCore.Relational --version 10.0.8
+dotnet add package Microsoft.EntityFrameworkCore.Design --version 10.0.8
+
+# MySQL provider
+dotnet add package MySql.EntityFrameworkCore --version 10.0.7
+
+# PostgreSQL provider (alternativa)
+dotnet add package Npgsql.EntityFrameworkCore.PostgreSQL --version 10.0.0
+
+# Humanizer (naming conventions)
+dotnet add package Humanizer --version 3.0.10
+
+# Swagger
+dotnet add package Swashbuckle.AspNetCore --version 10.2.0
+dotnet add package Swashbuckle.AspNetCore.Annotations --version 10.2.0
+```
+
+### Compilar y ejecutar
+
+```bash
+# Compilar
+dotnet build
+
+# Ejecutar
+dotnet run
+
+# Ejecutar en modo release
+dotnet run --configuration Release
+
+# Publicar
+dotnet publish -c Release -o ./publish
+```
+
+### Verificar configuración
+
+```bash
+# Ver SDKs instalados
+dotnet --list-sdks
+
+# Ver versión actual
+dotnet --version
+
+# Ver runtime instalado
+dotnet --list-runtimes
+```
+
+---
+
+## Pruebas del API con curl
+
+### Crear Covenant exitoso
+
+```bash
+curl -X POST http://localhost:8097/api/v1/covenants \
+  -H "Content-Type: application/json" \
+  -H "Accept-Language: en" \
+  -d '{
+    "documentIdentifier": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+    "periodStartDate": "2025-01-01",
+    "periodEndDate": "2026-01-01",
+    "monetaryAmountValue": 15000.00,
+    "monetaryAmountCurrency": "USD",
+    "status": "Draft",
+    "footnotes": "Test covenant"
+  }'
+```
+
+**Respuesta esperada: HTTP 201 Created**
+```json
+{
+  "id": 1,
+  "documentId": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+  "periodStartDate": "2025-01-01",
+  "periodEndDate": "2026-01-01",
+  "monetaryAmountValue": 15000.00,
+  "monetaryAmountCurrency": "USD"
+}
+```
+
+### Crear Covenant duplicado (mismo DocumentIdentifier)
+
+```bash
+curl -X POST http://localhost:8097/api/v1/covenants \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documentIdentifier": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+    "periodStartDate": "2025-01-01",
+    "periodEndDate": "2026-01-01",
+    "monetaryAmountValue": 15000.00,
+    "monetaryAmountCurrency": "USD"
+  }'
+```
+
+**Respuesta esperada: HTTP 409 Conflict**
+```json
+{
+  "message": "A Covenant with the given document identifier already exists."
+}
+```
+
+### Crear Covenant con período inválido (EndDate <= StartDate)
+
+```bash
+curl -X POST http://localhost:8097/api/v1/covenants \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documentIdentifier": "550e8400-e29b-41d4-a716-446655440001",
+    "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+    "periodStartDate": "2026-01-01",
+    "periodEndDate": "2025-01-01",
+    "monetaryAmountValue": 15000.00,
+    "monetaryAmountCurrency": "USD"
+  }'
+```
+
+**Respuesta esperada: HTTP 400 Bad Request**
+```json
+{
+  "message": "EndDate must be strictly after StartDate."
+}
+```
+
+### Crear Covenant con monto negativo
+
+```bash
+curl -X POST http://localhost:8097/api/v1/covenants \
+  -H "Content-Type: application/json" \
+  -d '{
+    "documentIdentifier": "550e8400-e29b-41d4-a716-446655440002",
+    "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+    "periodStartDate": "2025-01-01",
+    "periodEndDate": "2026-01-01",
+    "monetaryAmountValue": -100.00,
+    "monetaryAmountCurrency": "USD"
+  }'
+```
+
+**Respuesta esperada: HTTP 400 Bad Request**
+
+### Probar localización en español
+
+```bash
+curl -X POST http://localhost:8097/api/v1/covenants \
+  -H "Content-Type: application/json" \
+  -H "Accept-Language: es" \
+  -d '{
+    "documentIdentifier": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+    "clientId": "4fb96a75-6828-5673-c4gd-3d074g77bgb7",
+    "periodStartDate": "2025-01-01",
+    "periodEndDate": "2026-01-01",
+    "monetaryAmountValue": 15000.00,
+    "monetaryAmountCurrency": "USD"
+  }'
+```
+
+**Respuesta esperada: HTTP 409 Conflict con mensaje en español**
+```json
+{
+  "message": "Ya existe un Convenio con el identificador de documento indicado."
 }
 ```
 
 ---
 
-### 23. InvoiceQueryServiceImpl.java
+## Explicación Detallada de los Patrones Arquitectónicos
 
-Ruta `billing/application/internal/queryservices/InvoiceQueryServiceImpl.java`
+### Domain-Driven Design (DDD)
 
-Package `pe.com.facturease.platform.u202418655.billing.application.internal.queryservices`
+El proyecto sigue los principios de DDD, donde:
 
-```java
-package pe.com.facturease.platform.u202418655.billing.application.internal.queryservices;
+- **Aggregate Root**: `Covenant` es la raíz del agregado. Garantiza la consistencia de todas las entidades y value objects dentro de su límite.
+- **Value Objects**: `CapbaseIdentifier`, `PartyId`, `LegalityPeriod`, `MonetaryAmount` son objetos inmutables que se definen por sus atributos, no por una identidad.
+- **Repositories**: `ICovenantRepository` abstrae el almacenamiento del aggregate root.
+- **Bounded Context**: `Paperwork` es un contexto delimitado que contiene toda la lógica relacionada con trámites documentarios.
 
-import pe.com.facturease.platform.u202418655.billing.application.queryservices.InvoiceQueryService;
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.domain.model.queries.GetInvoiceById;
-import pe.com.facturease.platform.u202418655.billing.domain.repositories.InvoiceRepository;
-import org.springframework.stereotype.Service;
+### CQRS (Command Query Responsibility Segregation)
 
-import java.util.Optional;
+Aunque en esta versión solo hay un comando (CreateCovenant), la arquitectura está preparada para separar:
 
-/**
- * Implementation of {@link InvoiceQueryService}.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Service
-public class InvoiceQueryServiceImpl implements InvoiceQueryService {
+- **Commands**: Modifican el estado (Create, Update, Delete). Retornan `Result<T>`.
+- **Queries**: Leen el estado sin modificarlo. Retornan `Optional<T>` o `IEnumerable<T>`.
 
-    private final InvoiceRepository invoiceRepository;
+En el futuro, se podrían agregar queries como:
+```csharp
+public record GetAllCovenantsQuery();
+public record GetCovenantByIdQuery(int Id);
+```
 
-    /**
-     * Constructor for dependency injection.
-     *
-     * @param invoiceRepository the invoice repository
-     */
-    public InvoiceQueryServiceImpl(InvoiceRepository invoiceRepository) {
-        this.invoiceRepository = invoiceRepository;
-    }
+### Layered Architecture (Arquitectura en Capas)
 
-    /**
-     * Retrieves an invoice by its identifier.
-     *
-     * @param query the get invoice by id query
-     * @return an Optional containing the invoice if found
-     */
-    @Override
-    public Optional<Invoice> handle(GetInvoiceById query) {
-        return this.invoiceRepository.findById(query.invoiceId());
-    }
-}
+Cada capa tiene una responsabilidad bien definida:
+
+**1. Domain Layer (Capa de Dominio)**
+- Contiene las entidades, value objects, aggregates, commands, queries, interfaces de repositorio, y errores de dominio.
+- **NO depende de ninguna otra capa.**
+- **NO tiene referencias a EF Core, MySQL, ni a ningún framework externo.**
+
+Archivos: `Covenant.cs`, `CovenantAudit.cs`, `CovenantStatus.cs`, `PaperworkError.cs`, `CapbaseIdentifier.cs`, `PartyId.cs`, `CreateCovenantCommand.cs`, `ICovenantRepository.cs`, `IAuditableEntity.cs`, `LegalityPeriod.cs`, `MonetaryAmount.cs`, `IBaseRepository.cs`, `IUnitOfWork.cs`.
+
+**2. Application Layer (Capa de Aplicación)**
+- Orquesta los casos de uso del sistema.
+- Coordina repositorios, servicios de dominio, y otras dependencias.
+- Define los puertos (interfaces) que los servicios de aplicación exponen.
+- Implementa la lógica de aplicación (no de negocio).
+
+Archivos: `ICovenantCommandService.cs`, `CovenantCommandService.cs`.
+
+**3. Infrastructure Layer (Capa de Infraestructura)**
+- Implementa los contratos definidos en Domain.
+- Contiene la configuración de EF Core, repositorios concretos, DbContext.
+- Depende de frameworks externos (EF Core, MySQL provider).
+
+Archivos: `AppDbContext.cs`, `BaseRepository.cs`, `UnitOfWork.cs`, `CovenantRepository.cs`, `ModelBuilderExtensions.cs`.
+
+**4. Interfaces Layer (Capa de Interfaces)**
+- Contiene los controladores REST, DTOs (Resources), y assemblers.
+- Es el punto de entrada de las peticiones HTTP.
+- Traduce recursos REST a comandos de dominio y viceversa.
+
+Archivos: `CovenantsController.cs`, `CreateCovenantResource.cs`, `CovenantResource.cs`, `CreateCovenantCommandFromResourceAssembler.cs`, `CovenantResourceFromEntityAssembler.cs`.
+
+### Patrón Result
+
+El patrón Result (también conocido como "Railway Oriented Programming") evita usar excepciones para control de flujo. En lugar de lanzar y capturar excepciones para errores esperados (como "registro duplicado"), el servicio devuelve un objeto `Result<T>` que:
+
+- En éxito: contiene `IsSuccess = true` y `Value` con el resultado
+- En error: contiene `IsSuccess = false`, `ErrorCode` (máquina) y `ErrorMessage` (humano/localizado)
+
+**Ventajas:**
+- El tipo de retorno documenta explícitamente que la operación puede fallar
+- El compilador obliga al llamador a manejar ambos casos (éxito y error)
+- Los errores son tipados y predecibles
+- Facilita el testing (puedes mockear Result sin lidiar con excepciones)
+
+### Patrón Repository + Unit of Work
+
+**Repository**: Abstrae la lógica de persistencia. El dominio define la interfaz (ICovenantRepository) y la infraestructura provee la implementación (CovenantRepository). Esto permite:
+
+- Cambiar de MySQL a PostgreSQL sin modificar el dominio
+- Hacer unit testing mockeando el repositorio
+- Centralizar consultas complejas
+
+**Unit of Work**: Agrupa cambios en una transacción atómica. Cuando hay múltiples operaciones (ej. guardar Covenant + actualizar otro agregado), el Unit of Work garantiza que todas se guarden o ninguna. En este proyecto, `IUnitOfWork.CompleteAsync()` llama a `SaveChangesAsync()` del DbContext, que internamente maneja la transacción.
+
+### Patrón Assembler
+
+Los Assemblers transforman objetos entre capas:
+
+**Resource → Command**: Convierte el DTO de entrada plana en un comando de dominio estructurado. Ejemplo:
+- `CreateCovenantResource.DocumentIdentifier` (Guid) → `CreateCovenantCommand.DocumentIdentifier` (Guid)
+- `CreateCovenantResource.PeriodStartDate` (DateOnly) → `CreateCovenantCommand.PeriodStartDate` (DateOnly)
+
+**Entity → Resource**: Convierte el aggregate root en un DTO de respuesta plano. Ejemplo:
+- `Covenant.DocumentIdentifier.Value.ToString()` → `CovenantResource.DocumentId` (string)
+- `Covenant.TotalValue.Value` → `CovenantResource.MonetaryAmountValue` (decimal)
+
+---
+
+## Comparación Detallada con Learning Center Platform
+
+A continuación se muestra cómo cada componente de Learning Center se mapea a este proyecto:
+
+### Shared Infrastructure
+
+| Learning Center | Capbase PC2 | Propósito |
+|---|---|---|
+| `Shared.Application.Model.Result<T>` | `Shared.Application.Model.Result<T>` | Patrón Result para operaciones |
+| `Shared.Domain.Model.Entities.IAuditableEntity` | `Shared.Domain.Model.IAuditableEntity` | Interfaz de auditoría (CreatedAt/UpdatedAt) |
+| `Shared.Domain.Repositories.IBaseRepository<T>` | `Shared.Domain.Repositories.IBaseRepository<T>` | Repositorio genérico CRUD |
+| `Shared.Domain.Repositories.IUnitOfWork` | `Shared.Domain.Repositories.IUnitOfWork` | Transacciones atómicas |
+| `Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration.AppDbContext` | `Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration.AppDbContext` | DbContext principal |
+| `Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories.BaseRepository<T>` | `Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories.BaseRepository<T>` | Implementación base de repositorio |
+| `Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories.UnitOfWork` | `Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories.UnitOfWork` | Implementación de Unit of Work |
+| `Shared.Infrastructure.Persistence.EntityFrameworkCore.Interceptors.AuditableEntityInterceptor` | (Implementado en SaveChangesAsync) | Auditoría automática |
+| `Shared.Interfaces.Rest.ProblemDetails.ProblemDetailsFactory` | (Implementado en Controller con switch) | Manejo centralizado de errores |
+
+### Paperwork (PC) vs Publishing (Learning Center)
+
+| Learning Center | Capbase PC2 | Propósito |
+|---|---|---|
+| `Publishing.Domain.Model.Aggregates.Tutorial` | `Paperwork.Domain.Model.Aggregates.Covenant` | Aggregate root principal |
+| `Publishing.Domain.Model.Aggregates.TutorialAudit` | `Paperwork.Domain.Model.Aggregates.CovenantAudit` | Partial class para auditoría |
+| `Publishing.Domain.Model.Commands.CreateTutorialCommand` | `Paperwork.Domain.Model.Commands.CreateCovenantCommand` | Comando de creación CQRS |
+| `Publishing.Domain.Repositories.ITutorialRepository` | `Paperwork.Domain.Repositories.ICovenantRepository` | Interfaz de repositorio específico |
+| `Publishing.Application.CommandServices.ITutorialCommandService` | `Paperwork.Application.CommandServices.ICovenantCommandService` | Servicio de aplicación (interfaz) |
+| `Publishing.Application.Internal.CommandServices.TutorialCommandService` | `Paperwork.Application.Internal.CommandServices.CovenantCommandService` | Servicio de aplicación (implementación) |
+| `Publishing.Interfaces.Rest.TutorialsController` | `Paperwork.Interfaces.Rest.CovenantsController` | Controlador REST |
+| `Publishing.Interfaces.Rest.Resources.CreateTutorialResource` | `Paperwork.Interfaces.Rest.Resources.CreateCovenantResource` | DTO de entrada |
+| `Publishing.Interfaces.Rest.Resources.TutorialResource` | `Paperwork.Interfaces.Rest.Resources.CovenantResource` | DTO de salida |
+| `Publishing.Interfaces.Rest.Transform.CreateTutorialCommandFromResourceAssembler` | `Paperwork.Interfaces.Rest.Transform.CreateCovenantCommandFromResourceAssembler` | Assembler entrada |
+| `Publishing.Interfaces.Rest.Transform.TutorialResourceFromEntityAssembler` | `Paperwork.Interfaces.Rest.Transform.CovenantResourceFromEntityAssembler` | Assembler salida |
+| `Publishing.Infrastructure.Persistence.EntityFrameworkCore.Configuration.ModelBuilderExtensions` | `Paperwork.Infrastructure.Persistence.EntityFrameworkCore.Configuration.ModelBuilderExtensions` | Configuración Fluent API |
+
+### Shared Domain (Value Objects Transversales)
+
+| Learning Center | Capbase PC2 | Propósito |
+|---|---|---|
+| `Publishing.Domain.Model.ValueObjects.ProfileId` | `Paperwork.Domain.Model.ValueObjects.CapbaseIdentifier` | UUID de otro BC |
+| `Publishing.Domain.Model.ValueObjects.EAssetType` | `Paperwork.Domain.Model.Aggregates.CovenantStatus` | Enumeración de estado |
+| - | `Shared.Domain.Model.LegalityPeriod` | Periodo de validez (compartido) |
+| - | `Shared.Domain.Model.MonetaryAmount` | Monto monetario (compartido) |
+| - | `Paperwork.Domain.Model.ValueObjects.PartyId` | Identificador de parte contratante |
+
+### Lo que Learning Center tiene que PC2 NO tiene (y por qué)
+
+| Componente | Learning Center | PC2 | Razón |
+|---|---|---|---|
+| **Authentication (IAM)** | Bounded context IAM con JWT, BCrypt, SignIn/SignUp | No implementado | PC2 no requiere autenticación |
+| **Cortex.Mediator** | Mediator pattern para eventos de dominio | No implementado | PC2 no tiene eventos de dominio complejos |
+| **Middlewares** | GlobalExceptionHandlerMiddleware, RequestAuthorizationMiddleware | No implementado | PC2 maneja errores en el controlador |
+| **Queries Múltiples** | GetAllTutorialsQuery, GetTutorialByIdQuery, etc. | No implementado | PC2 solo tiene un endpoint POST |
+| **Eventos de Dominio** | CategoryCreatedEvent | No implementado | No hay eventos asíncronos en PC2 |
+| **ACL (Anti-Corruption Layer)** | ProfilesContextFacade, IamContextFacade | No implementado | PC2 no interactúa con otros BCs |
+
+---
+
+## Notas sobre la Creación del Proyecto con Visual Studio 2022
+
+### Paso a paso detallado:
+
+1. Abrir **Visual Studio 2022**
+2. Click en **"Create a new project"**
+3. En el buscador, escribir **"ASP.NET Core Web API"**
+4. Seleccionar la plantilla **"ASP.NET Core Web API"** con los tags C#, Web, API
+5. Click **"Next"**
+6. Configurar:
+   - **Project name:** `PC212190.U202418655.Capbase.Platform`
+   - **Location:** `C:\Users\vcris\Downloads\Examen\pc212190u202418655\`
+   - **Solution name:** `pc212190u202418655`
+   - **Place solution and project in same directory:** DESMARCAR (para que la solución esté en la carpeta raíz y el proyecto dentro)
+7. Click **"Next"**
+8. Configurar:
+   - **Framework:** .NET 10.0
+   - **Authentication type:** None (ninguna)
+   - **Configure for HTTPS:** ✅ Marcado
+   - **Enable OpenAPI support:** ✅ Marcado
+   - **Use controllers:** ✅ Marcado (importante: NO usar minimal APIs)
+   - **Enable Docker:** ❌ Desmarcado
+9. Click **"Create"**
+
+### Después de crear el proyecto:
+
+1. **Agregar paquetes NuGet:**
+   - Tools → NuGet Package Manager → Manage NuGet Packages for Solution
+   - Buscar e instalar:
+     - `Microsoft.EntityFrameworkCore` (10.0.8)
+     - `Microsoft.EntityFrameworkCore.Relational` (10.0.8)
+     - `Microsoft.EntityFrameworkCore.Design` (10.0.8)
+     - `MySql.EntityFrameworkCore` (10.0.7)
+     - `Humanizer` (3.0.10)
+     - `Swashbuckle.AspNetCore` (10.2.0)
+     - `Swashbuckle.AspNetCore.Annotations` (10.2.0)
+
+2. **Verificar el framework:**
+   - Click derecho en el proyecto → Properties
+   - Application → Target Framework: `net10.0`
+
+3. **Verificar el archivo launchSettings.json:**
+   - En `Properties/launchSettings.json`, cambiar el puerto a 8097
+
+4. **Eliminar archivos por defecto que sobran:**
+   - Eliminar `WeatherForecast.cs` (si existe)
+   - Eliminar `Controllers/WeatherForecastController.cs` (si existe)
+
+### Creación de carpetas manualmente:
+
+En el Explorador de Soluciones, crear las siguientes carpetas (click derecho → Add → New Folder):
+
+```
+Shared/
+Shared/Application/
+Shared/Application/Model/
+Shared/Domain/
+Shared/Domain/Model/
+Shared/Domain/Repositories/
+Shared/Infrastructure/
+Shared/Infrastructure/Persistence/
+Shared/Infrastructure/Persistence/EntityFrameworkCore/
+Shared/Infrastructure/Persistence/EntityFrameworkCore/Configuration/
+Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/
+Paperwork/
+Paperwork/Resources/
+Paperwork/Domain/
+Paperwork/Domain/Model/
+Paperwork/Domain/Model/Aggregates/
+Paperwork/Domain/Model/ValueObjects/
+Paperwork/Domain/Model/Commands/
+Paperwork/Domain/Repositories/
+Paperwork/Application/
+Paperwork/Application/CommandServices/
+Paperwork/Application/Internal/
+Paperwork/Application/Internal/CommandServices/
+Paperwork/Interfaces/
+Paperwork/Interfaces/Rest/
+Paperwork/Interfaces/Rest/Resources/
+Paperwork/Interfaces/Rest/Transform/
+Paperwork/Infrastructure/
+Paperwork/Infrastructure/Persistence/
+Paperwork/Infrastructure/Persistence/EntityFrameworkCore/
+Paperwork/Infrastructure/Persistence/EntityFrameworkCore/Configuration/
+Paperwork/Infrastructure/Persistence/EntityFrameworkCore/Repositories/
+Resources/
+```
+
+Luego crear cada archivo .cs dentro de su carpeta correspondiente.
+
+---
+
+## Análisis de la Estructura de Carpetas de Learning Center vs el Proyecto Creado por Defecto
+
+### Estructura por defecto al crear un ASP.NET Core Web API:
+
+```
+PC212190.U202418655.Capbase.Platform/
+├── (archivos de proyecto)
+├── Controllers/
+│   └── WeatherForecastController.cs   ← ELIMINAR
+├── Models/
+│   └── WeatherForecast.cs              ← ELIMINAR
+├── Properties/
+│   └── launchSettings.json
+├── appsettings.json
+├── appsettings.Development.json
+└── Program.cs
+```
+
+### Estructura DESPUÉS de aplicar la guía (estilo Learning Center):
+
+```
+PC212190.U202418655.Capbase.Platform/
+├── (archivos de proyecto)
+├── Properties/
+│   └── launchSettings.json
+├── Program.cs (modificado)
+├── appsettings.json (modificado)
+├── appsettings.Development.json
+├── Resources/                          ← NUEVO (i18n compartido)
+│   ├── ErrorMessages.cs
+│   ├── ErrorMessages.resx
+│   └── ErrorMessages.es.resx
+├── Shared/                             ← NUEVO (infraestructura compartida)
+│   ├── Application/Model/
+│   │   └── Result.cs
+│   ├── Domain/Model/
+│   │   ├── IAuditableEntity.cs
+│   │   ├── LegalityPeriod.cs
+│   │   └── MonetaryAmount.cs
+│   ├── Domain/Repositories/
+│   │   ├── IBaseRepository.cs
+│   │   └── IUnitOfWork.cs
+│   └── Infrastructure/Persistence/EntityFrameworkCore/
+│       ├── Configuration/
+│       │   └── AppDbContext.cs
+│       └── Repositories/
+│           ├── BaseRepository.cs
+│           └── UnitOfWork.cs
+└── Paperwork/                          ← NUEVO (bounded context)
+    ├── Resources/
+    │   ├── PaperworkMessages.cs
+    │   ├── PaperworkMessages.resx
+    │   └── PaperworkMessages.es.resx
+    ├── Domain/Model/Aggregates/
+    │   ├── Covenant.cs
+    │   ├── CovenantAudit.cs
+    │   ├── CovenantStatus.cs
+    │   └── PaperworkError.cs
+    ├── Domain/Model/ValueObjects/
+    │   ├── CapbaseIdentifier.cs
+    │   └── PartyId.cs
+    ├── Domain/Model/Commands/
+    │   └── CreateCovenantCommand.cs
+    ├── Domain/Repositories/
+    │   └── ICovenantRepository.cs
+    ├── Application/CommandServices/
+    │   └── ICovenantCommandService.cs
+    ├── Application/Internal/CommandServices/
+    │   └── CovenantCommandService.cs
+    ├── Interfaces/Rest/
+    │   ├── CovenantsController.cs
+    │   ├── Resources/
+    │   │   ├── CreateCovenantResource.cs
+    │   │   └── CovenantResource.cs
+    │   └── Transform/
+    │       ├── CreateCovenantCommandFromResourceAssembler.cs
+    │       └── CovenantResourceFromEntityAssembler.cs
+    └── Infrastructure/Persistence/EntityFrameworkCore/
+        ├── Configuration/
+        │   └── ModelBuilderExtensions.cs
+        └── Repositories/
+            └── CovenantRepository.cs
+```
+
+### ¿Qué se elimina? (Archivos por defecto que sobran)
+
+| Archivo/Carpeta | ¿Se elimina? | Razón |
+|---|---|---|
+| `Controllers/WeatherForecastController.cs` | ✅ SÍ | Es un ejemplo de plantilla, no parte del proyecto |
+| `Models/WeatherForecast.cs` | ✅ SÍ | Es un modelo de ejemplo, no parte del dominio |
+| `bin/` | ✅ SÍ | Generado por compilación |
+| `obj/` | ✅ SÍ | Generado por compilación |
+| `.vs/` | ✅ SÍ | Configuración local de Visual Studio |
+| `wwwroot/` | ❌ Solo si no se usa | En APIs web, normalmente no se necesita |
+| `appsettings.Development.json` | ❌ NO | Configuración de desarrollo útil |
+
+---
+
+## Migrando de MySQL a PostgreSQL (Guía de Cambios)
+
+Si decides usar PostgreSQL en lugar de MySQL, estos son todos los cambios necesarios:
+
+### 1. .csproj: Cambiar el provider
+
+```xml
+<!-- ELIMINAR -->
+<!-- <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7"/> --> -->
+
+<!-- AGREGAR -->
+<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.0"/>
+```
+
+### 2. Program.cs: Cambiar UseMySQL por UseNpgsql
+
+```csharp
+// ELIMINAR
+// options.UseMySQL(connectionString);
+
+// AGREGAR
+options.UseNpgsql(connectionString);
+```
+
+### 3. appsettings.json: Cambiar la cadena de conexión
+
+```json
+// MySQL (ELIMINAR)
+// "DefaultConnection": "Server=localhost;Port=3306;Database=clerky_wa;User=root;Password=12345678;"
+
+// PostgreSQL (AGREGAR)
+"DefaultConnection": "Host=localhost;Port=5432;Database=clerky_wa;Username=postgres;Password=12345678;"
+```
+
+### 4. ModelBuilderExtensions.cs: Posibles ajustes de tipos
+
+```csharp
+// Para PostgreSQL, el tipo decimal puede necesitar ajuste
+tv.Property(x => x.Value)
+    .HasColumnName("monetary_amount_value")
+    .HasColumnType("numeric(18,4)")  // PostgreSQL usa 'numeric' en lugar de 'decimal'
+    .IsRequired();
+```
+
+### 5. Base de datos: Crear en PostgreSQL
+
+```sql
+CREATE DATABASE clerky_wa;
+```
+
+### 6. Verificación: Tabla creada
+
+En PostgreSQL, la tabla se crea en el esquema `public` por defecto. Para verificar:
+
+```sql
+SELECT table_name, column_name, data_type
+FROM information_schema.columns
+WHERE table_name = 'covenants'
+ORDER BY ordinal_position;
 ```
 
 ---
 
-## Billing - Infrastructure Layer (JPA Converter)
+---
 
-### 24. InvoiceIdentifierPersistenceConverter.java
+## Convenciones de Nomenclatura (Coding Standards)
 
-Ruta `billing/infrastructure/persistence/jpa/converters/InvoiceIdentifierPersistenceConverter.java`
+Para mantener un código consistente y profesional, seguir estas convenciones en todo el proyecto:
 
-Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.converters`
+### C# Naming Conventions
 
-```java
-package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.converters;
+| Elemento | Convención | Ejemplo |
+|---|---|---|
+| Clases | PascalCase | `Covenant`, `CovenantCommandService`, `CovenantsController` |
+| Interfaces | PascalCase con prefijo I | `ICovenantRepository`, `IAuditableEntity`, `IUnitOfWork` |
+| Records | PascalCase | `CapbaseIdentifier`, `CreateCovenantCommand`, `CovenantResource` |
+| Enums | PascalCase | `CovenantStatus`, `PaperworkError` |
+| Enum members | PascalCase | `Draft`, `Active`, `Expired` |
+| Métodos | PascalCase | `Handle()`, `ToCommandFromResource()`, `ToResourceFromEntity()` |
+| Propiedades públicas | PascalCase | `Id`, `DocumentIdentifier`, `Period`, `Status` |
+| Propiedades privadas | camelCase | `context`, `unitOfWork` |
+| Parámetros de métodos | camelCase | `command`, `cancellationToken`, `resource` |
+| Variables locales | camelCase | `period`, `totalValue`, `covenant` |
+| Constantes | PascalCase (SCREAMING_CASE opcional) | `IGV_RATE` o `IgvRate` |
+| Archivos | PascalCase (coincide con clase) | `Covenant.cs`, `CovenantCommandService.cs` |
 
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+### Base de Datos Naming Conventions
 
-import java.util.UUID;
+| Elemento | Convención | Ejemplo |
+|---|---|---|
+| Tablas | snake_case, plural | `covenants` |
+| Columnas | snake_case | `document_identifier`, `period_start_date` |
+| Primary Key | `id` | `id` |
+| Foreign Keys | `{tabla}_id` | `covenant_id` |
+| Índices | `ix_{tabla}_{columna}` | `ix_covenants_document_identifier` |
+| Esquema | `clerky_wa` | `clerky_wa` |
 
-/**
- * JPA attribute converter for {@link InvoiceIdentifier}.
- *
- * <p>Converts between InvoiceIdentifier (domain) and UUID (database column).</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Converter(autoApply = true)
-public class InvoiceIdentifierPersistenceConverter implements AttributeConverter<InvoiceIdentifier, UUID> {
+### REST API Conventions
 
-    @Override
-    public UUID convertToDatabaseColumn(InvoiceIdentifier attribute) {
-        return attribute == null ? null : attribute.value();
-    }
+| Elemento | Convención | Ejemplo |
+|---|---|---|
+| URLs | minúsculas, plural | `/api/v1/covenants` |
+| Versionado | `v1`, `v2` en URL | `/api/v1/covenants` |
+| Método POST | Crear recurso | `POST /api/v1/covenants` |
+| Método GET | Obtener recurso(s) | `GET /api/v1/covenants/{id}` |
+| Request body | JSON con camelCase | `{ "documentIdentifier": "..." }` |
+| Response body | JSON con camelCase | `{ "documentId": "..." }` |
+| Códigos HTTP | Estándar REST | 201 Created, 400 Bad Request, 409 Conflict |
+| Content-Type | `application/json` | Header de request/response |
+| Accept-Language | Para i18n | `en`, `es`, `es-PE` |
 
-    @Override
-    public InvoiceIdentifier convertToEntityAttribute(UUID dbData) {
-        return dbData == null ? null : new InvoiceIdentifier(dbData);
-    }
-}
+### XML Comments Conventions
+
+Todos los archivos .cs deben tener XML comments en inglés siguiendo este formato:
+
+```csharp
+/// <summary>
+/// Breve descripción de la clase/método.
+/// </summary>
+/// <remarks>
+/// Descripción detallada (opcional).
+/// Author: Victor Jhosef Laura Acosta - u202418655
+/// </remarks>
+/// <param name="paramName">Descripción del parámetro.</param>
+/// <returns>Descripción del valor de retorno.</returns>
+```
+
+### Organización de Usings
+
+Los `using` statements deben organizarse en este orden (separados por líneas en blanco):
+
+```csharp
+// 1. System namespaces
+using System.Net.Mime;
+
+// 2. Microsoft/ASP.NET Core namespaces
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+// 3. Proyecto namespaces (del mismo proyecto)
+using PC212190.U202418655.Capbase.Platform.Paperwork.Application.CommandServices;
+using PC212190.U202418655.Capbase.Platform.Shared.Domain.Repositories;
 ```
 
 ---
 
-## Billing - Infrastructure Layer (JPA Entity)
-
-### 25. InvoicePersistenceEntity.java
-
-Ruta `billing/infrastructure/persistence/jpa/entities/InvoicePersistenceEntity.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities;
-
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceStatus;
-import pe.com.facturease.platform.u202418655.shared.infrastructure.persistence.jpa.entities.AuditableAbstractPersistenceEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.math.BigDecimal;
-
-/**
- * JPA persistence entity for Invoice.
- *
- * <p>Maps the Invoice aggregate root to the database table. The TaxSummary
- * value object is flattened into two columns: {@code net_amount} and
- * {@code calculated_tax}.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Entity
-@Table(name = "invoices", schema = "facturease_db")
-@Getter
-@Setter
-public class InvoicePersistenceEntity extends AuditableAbstractPersistenceEntity {
-
-    @Convert(converter = pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.converters.InvoiceIdentifierPersistenceConverter.class)
-    @Column(name = "invoice_identifier", nullable = false, unique = true)
-    private InvoiceIdentifier invoiceIdentifier;
-
-    @Column(name = "description")
-    private String description;
-
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private InvoiceStatus status;
-
-    @Column(name = "net_amount", nullable = false)
-    private BigDecimal netAmount;
-
-    @Column(name = "calculated_tax", nullable = false)
-    private BigDecimal calculatedTax;
-
-    @Column(name = "item_count", nullable = false)
-    private Integer itemCount;
-}
-```
-
----
-
-## Billing - Infrastructure Layer (JPA Repository)
-
-### 26. InvoicePersistenceRepository.java
-
-Ruta `billing/infrastructure/persistence/jpa/repositories/InvoicePersistenceRepository.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.repositories`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.repositories;
-
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
-import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities.InvoicePersistenceEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-/**
- * Spring Data JPA repository for InvoicePersistenceEntity.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Repository
-public interface InvoicePersistenceRepository extends JpaRepository<InvoicePersistenceEntity, Long> {
-
-    /**
-     * Checks if an invoice exists with the given invoiceIdentifier.
-     *
-     * @param invoiceIdentifier the invoice identifier value object
-     * @return true if a matching invoice exists
-     */
-    boolean existsByInvoiceIdentifier(InvoiceIdentifier invoiceIdentifier);
-}
-```
-
----
-
-## Billing - Infrastructure Layer (Assembler)
-
-### 27. InvoicePersistenceAssembler.java
-
-Ruta `billing/infrastructure/persistence/jpa/assemblers/InvoicePersistenceAssembler.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.assemblers`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.assemblers;
-
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.entities.InvoicePersistenceEntity;
-import pe.com.facturease.platform.u202418655.shared.domain.model.valueobjects.TaxSummary;
-
-/**
- * Assembler for converting between Invoice (domain) and InvoicePersistenceEntity (JPA).
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class InvoicePersistenceAssembler {
-
-    private InvoicePersistenceAssembler() {}
-
-    /**
-     * Converts a domain Invoice to a JPA persistence entity.
-     *
-     * @param invoice the domain aggregate
-     * @return the JPA persistence entity
-     */
-    public static InvoicePersistenceEntity toPersistenceFromDomain(Invoice invoice) {
-        InvoicePersistenceEntity entity = new InvoicePersistenceEntity();
-        entity.setId(invoice.getId());
-        entity.setInvoiceIdentifier(invoice.getInvoiceIdentifier());
-        entity.setDescription(invoice.getDescription());
-        entity.setStatus(invoice.getStatus());
-        entity.setNetAmount(invoice.getTaxSummary().netAmount());
-        entity.setCalculatedTax(invoice.getTaxSummary().calculatedTax());
-        entity.setItemCount(invoice.getItemCount());
-        return entity;
-    }
-
-    /**
-     * Converts a JPA persistence entity to a domain Invoice.
-     *
-     * @param entity the JPA persistence entity
-     * @return the domain aggregate
-     */
-    public static Invoice toDomainFromPersistence(InvoicePersistenceEntity entity) {
-        Invoice invoice = new Invoice();
-        invoice.setId(entity.getId());
-        invoice.setInvoiceIdentifier(entity.getInvoiceIdentifier());
-        invoice.setDescription(entity.getDescription());
-        invoice.setStatus(entity.getStatus());
-        invoice.setTaxSummary(new TaxSummary(entity.getNetAmount(), entity.getCalculatedTax()));
-        invoice.setItemCount(entity.getItemCount());
-        return invoice;
-    }
-}
-```
-
----
-
-## Billing - Infrastructure Layer (Adapter)
-
-### 28. InvoiceRepositoryImpl.java
-
-Ruta `billing/infrastructure/persistence/jpa/adapters/InvoiceRepositoryImpl.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.adapters`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.adapters;
-
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.domain.model.valueobjects.InvoiceIdentifier;
-import pe.com.facturease.platform.u202418655.billing.domain.repositories.InvoiceRepository;
-import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.assemblers.InvoicePersistenceAssembler;
-import pe.com.facturease.platform.u202418655.billing.infrastructure.persistence.jpa.repositories.InvoicePersistenceRepository;
-import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
-
-/**
- * Implementation of {@link InvoiceRepository} using JPA.
- *
- * <p>Acts as an adapter between the domain repository interface and
- * Spring Data JPA persistence.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Repository
-public class InvoiceRepositoryImpl implements InvoiceRepository {
-
-    private final InvoicePersistenceRepository invoicePersistenceRepository;
-
-    /**
-     * Constructor for dependency injection.
-     *
-     * @param invoicePersistenceRepository the JPA persistence repository
-     */
-    public InvoiceRepositoryImpl(InvoicePersistenceRepository invoicePersistenceRepository) {
-        this.invoicePersistenceRepository = invoicePersistenceRepository;
-    }
-
-    /**
-     * Saves an invoice by converting to persistence entity, saving, and converting back.
-     */
-    @Override
-    public Invoice save(Invoice invoice) {
-        var saved = this.invoicePersistenceRepository
-                .save(InvoicePersistenceAssembler.toPersistenceFromDomain(invoice));
-        return InvoicePersistenceAssembler.toDomainFromPersistence(saved);
-    }
-
-    /**
-     * Finds an invoice by its identifier.
-     */
-    @Override
-    public Optional<Invoice> findById(Long invoiceId) {
-        return this.invoicePersistenceRepository.findById(invoiceId)
-                .map(InvoicePersistenceAssembler::toDomainFromPersistence);
-    }
-
-    /**
-     * Checks if an invoice exists with the given invoiceIdentifier.
-     */
-    @Override
-    public boolean existsByInvoiceIdentifier(InvoiceIdentifier invoiceIdentifier) {
-        return this.invoicePersistenceRepository
-                .existsByInvoiceIdentifier(invoiceIdentifier);
-    }
-}
-```
-
----
-
-## Billing - Interfaces Layer (Resources)
-
-### 29. CreateInvoiceResource.java
-
-Ruta `billing/interfaces/rest/resources/CreateInvoiceResource.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources;
-
-import java.math.BigDecimal;
-
-/**
- * REST resource for creating a new Invoice.
- *
- * <p>Value object attributes ({@code invoiceIdentifier}, {@code taxSummary})
- * are flattened into primitive-typed attributes in the request body, as
- * required by the API contract. Note that {@code id} is not included here,
- * since it is auto-generated when storing the information.</p>
- *
- * @param invoiceIdentifier the UUID string identifying the invoice
- * @param description       the optional description of the invoice
- * @param status             the optional initial status (DRAFT, ISSUED, PAID)
- * @param netAmount          the net amount before taxes
- * @param calculatedTax      the accumulated tax amount (must equal 18% of netAmount)
- * @param itemCount          the number of items in the invoice
- * @author Victor Jhosef Laura Acosta
- */
-public record CreateInvoiceResource(
-        String invoiceIdentifier, String description, String status,
-        BigDecimal netAmount, BigDecimal calculatedTax, Integer itemCount) {
-
-    /**
-     * Validates the resource fields at the boundary.
-     *
-     * @throws IllegalArgumentException if any required field violates constraints
-     */
-    public CreateInvoiceResource {
-        if (invoiceIdentifier == null || invoiceIdentifier.isBlank())
-            throw new IllegalArgumentException("invoiceIdentifier cannot be null or blank");
-        if (netAmount == null)
-            throw new IllegalArgumentException("netAmount cannot be null");
-        if (calculatedTax == null)
-            throw new IllegalArgumentException("calculatedTax cannot be null");
-        if (itemCount == null)
-            throw new IllegalArgumentException("itemCount cannot be null");
-    }
-}
-```
-
----
-
-### 30. InvoiceResource.java
-
-Ruta `billing/interfaces/rest/resources/InvoiceResource.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources;
-
-import java.math.BigDecimal;
-
-/**
- * REST resource representing an Invoice response.
- *
- * <p>Includes id, invoiceId (as String), description (as String),
- * status (as String), netAmountValue (as BigDecimal), calculatedTaxValue
- * (as BigDecimal), and itemCount (as Integer).</p>
- *
- * @param id                 the invoice identifier (database primary key)
- * @param invoiceId          the invoiceIdentifier as a String (UUID)
- * @param description        the invoice description
- * @param status              the invoice status name
- * @param netAmountValue      the net amount before taxes
- * @param calculatedTaxValue  the accumulated tax amount
- * @param itemCount           the number of items in the invoice
- * @author Victor Jhosef Laura Acosta
- */
-public record InvoiceResource(
-        Long id, String invoiceId, String description, String status,
-        BigDecimal netAmountValue, BigDecimal calculatedTaxValue, Integer itemCount) {
-}
-```
-
----
-
-## Billing - Interfaces Layer (Assemblers)
-
-### 31. CreateInvoiceCommandFromResourceAssembler.java
-
-Ruta `billing/interfaces/rest/transform/CreateInvoiceCommandFromResourceAssembler.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform;
-
-import pe.com.facturease.platform.u202418655.billing.domain.model.commands.CreateInvoiceCommand;
-import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.CreateInvoiceResource;
-
-/**
- * Assembler for converting a {@link CreateInvoiceResource} to a
- * {@link CreateInvoiceCommand}.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class CreateInvoiceCommandFromResourceAssembler {
-
-    private CreateInvoiceCommandFromResourceAssembler() {}
-
-    /**
-     * Converts a REST resource to a domain command.
-     *
-     * @param resource the REST resource from the request body
-     * @return the create invoice command
-     */
-    public static CreateInvoiceCommand toCommandFromResource(CreateInvoiceResource resource) {
-        return new CreateInvoiceCommand(
-                resource.invoiceIdentifier(), resource.description(), resource.status(),
-                resource.netAmount(), resource.calculatedTax(), resource.itemCount());
-    }
-}
-```
-
----
-
-### 32. InvoiceResourceFromEntityAssembler.java
-
-Ruta `billing/interfaces/rest/transform/InvoiceResourceFromEntityAssembler.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform;
-
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.InvoiceResource;
-
-/**
- * Assembler for converting an {@link Invoice} domain entity to an
- * {@link InvoiceResource}.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class InvoiceResourceFromEntityAssembler {
-
-    private InvoiceResourceFromEntityAssembler() {}
-
-    /**
-     * Converts a domain Invoice to a REST resource.
-     *
-     * @param entity the domain aggregate
-     * @return the REST resource
-     */
-    public static InvoiceResource toResourceFromEntity(Invoice entity) {
-        return new InvoiceResource(
-                entity.getId(),
-                entity.getInvoiceIdentifier().value().toString(),
-                entity.getDescription(),
-                entity.getStatus().name(),
-                entity.getTaxSummary().netAmount(),
-                entity.getTaxSummary().calculatedTax(),
-                entity.getItemCount());
-    }
-}
-```
-
----
-
-## Billing - Interfaces Layer (Controller con OpenAPI - Punto 14 de la rúbrica)
-
-### 33. InvoicesController.java
-
-Ruta `billing/interfaces/rest/InvoicesController.java`
-
-Package `pe.com.facturease.platform.u202418655.billing.interfaces.rest`
-
-```java
-package pe.com.facturease.platform.u202418655.billing.interfaces.rest;
-
-import pe.com.facturease.platform.u202418655.billing.application.commandservices.InvoiceCommandService;
-import pe.com.facturease.platform.u202418655.billing.application.queryservices.InvoiceQueryService;
-import pe.com.facturease.platform.u202418655.billing.domain.model.aggregates.Invoice;
-import pe.com.facturease.platform.u202418655.billing.domain.model.queries.GetInvoiceById;
-import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.CreateInvoiceResource;
-import pe.com.facturease.platform.u202418655.billing.interfaces.rest.resources.InvoiceResource;
-import pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform.CreateInvoiceCommandFromResourceAssembler;
-import pe.com.facturease.platform.u202418655.billing.interfaces.rest.transform.InvoiceResourceFromEntityAssembler;
-import pe.com.facturease.platform.u202418655.shared.application.result.ApplicationError;
-import pe.com.facturease.platform.u202418655.shared.application.result.Result;
-import pe.com.facturease.platform.u202418655.shared.interfaces.rest.transform.ResponseEntityAssembler;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-/**
- * REST controller for invoice operations.
- *
- * <p>Exposes endpoints for managing invoices under the
- * {@code /api/v1/invoices} base path.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@RestController
-@RequestMapping(value = "/api/v1/invoices")
-@Tag(name = "Invoices", description = "Operations related to invoice management in the Facturease Peru platform")
-public class InvoicesController {
-
-    private final InvoiceCommandService invoiceCommandService;
-    private final InvoiceQueryService invoiceQueryService;
-
-    /**
-     * Constructor for dependency injection.
-     *
-     * @param invoiceCommandService the command service
-     * @param invoiceQueryService   the query service
-     */
-    public InvoicesController(
-            InvoiceCommandService invoiceCommandService,
-            InvoiceQueryService invoiceQueryService) {
-        this.invoiceCommandService = invoiceCommandService;
-        this.invoiceQueryService = invoiceQueryService;
-    }
-
-    /**
-     * Creates a new invoice.
-     *
-     * <p>The id is auto-generated by the database. The status defaults to
-     * DRAFT when not specified. The netAmount and calculatedTax values are
-     * validated to be consistent with the 18% national IGV rate.</p>
-     *
-     * @param resource the request body containing invoice details
-     * @return HTTP 201 with the created invoice resource on success,
-     *         or appropriate error status on failure
-     */
-    @PostMapping
-    @Operation(
-            summary = "Create a new invoice",
-            description = "Registers a new electronic Invoice in the Facturease Peru platform. "
-                    + "The status defaults to DRAFT when not specified. The calculatedTax value "
-                    + "must be consistent with the 18% national IGV rate applied over netAmount. "
-                    + "When status is ISSUED or PAID, itemCount must be strictly greater than zero. "
-                    + "The id is auto-generated by the database."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "201",
-                    description = "Invoice created successfully",
-                    content = @Content(
-                            schema = @Schema(implementation = InvoiceResource.class))
-            ),
-            @ApiResponse(
-                    responseCode = "400",
-                    description = "Invalid input data - validation error"),
-            @ApiResponse(
-                    responseCode = "409",
-                    description = "Conflict - Invoice with same invoiceIdentifier already exists"),
-            @ApiResponse(
-                    responseCode = "422",
-                    description = "Business rule violation")
-    })
-    public ResponseEntity<?> createInvoice(@RequestBody CreateInvoiceResource resource) {
-        var command = CreateInvoiceCommandFromResourceAssembler
-                .toCommandFromResource(resource);
-        var result = this.invoiceCommandService.handle(command)
-                .flatMap(invoiceId -> this.invoiceQueryService
-                        .handle(new GetInvoiceById(invoiceId))
-                        .<Result<Invoice, ApplicationError>>map(Result::success)
-                        .orElseGet(() -> Result.failure(
-                                ApplicationError.notFound("Invoice",
-                                        invoiceId.toString()))));
-
-        return ResponseEntityAssembler.toResponseEntityFromResult(
-                result,
-                InvoiceResourceFromEntityAssembler::toResourceFromEntity,
-                HttpStatus.CREATED);
-    }
-}
-```
+## Preparación para la Entrega (ZIP)
+
+### Pasos para generar el ZIP de entrega:
+
+1. **Limpiar el proyecto** (eliminar bin/ obj/):
+   ```bash
+   # Desde la raíz del proyecto pc212190u202418655/
+   dotnet clean
+   rm -rf PC212190.U202418655.Capbase.Platform/bin
+   rm -rf PC212190.U202418655.Capbase.Platform/obj
+   rm -rf .vs
+   ```
+
+2. **Verificar que NO existen estos archivos/carpetas:**
+   - `bin/` ❌
+   - `obj/` ❌
+   - `.vs/` ❌
+   - `.idea/` ❌
+   - `packages/` ❌
+   - `*.user` ❌
+   - `*.suo` ❌
+   - `*.cache` ❌
+   - `.DS_Store` ❌
+
+3. **Verificar que SÍ existen estos archivos:**
+   - `pc212190u202418655.sln` ✅
+   - `PC212190.U202418655.Capbase.Platform/PC212190.U202418655.Capbase.Platform.csproj` ✅
+   - `PC212190.U202418655.Capbase.Platform/Program.cs` ✅
+   - `PC212190.U202418655.Capbase.Platform/appsettings.json` ✅
+   - Todos los archivos .cs de Shared/ y Paperwork/ ✅
+   - `README.md` ✅
+
+4. **Compilar para verificar:**
+   ```bash
+   dotnet build
+   ```
+   Debe mostrar: `Build succeeded.`
+
+5. **Crear el ZIP:**
+   ```bash
+   # En la carpeta raíz pc212190u202418655/
+   # Windows PowerShell:
+   Compress-Archive -Path * -DestinationPath ..\pc212190u202418655.zip
+   
+   # O desde el explorador:
+   # 1. Seleccionar todos los archivos (Ctrl+E)
+   # 2. Click derecho → Enviar a → Carpeta comprimida (zip)
+   # 3. Nombrar: pc212190u202418655.zip
+   ```
+
+6. **Verificar contenido del ZIP:**
+   - Abrir el ZIP y confirmar que contiene solo los archivos fuente
+   - NO debe contener `bin/`, `obj/`, `.vs/`
 
 ---
 
@@ -2367,28 +3354,28 @@ public class InvoicesController {
 
 | Punto | Requisito | Estado | Dónde |
 |---|---|---|---|
-| 1 | Java 26, Spring Boot 4.1.0 | ✅ | `pom.xml` |
-| 2 | Nombre `pc2<NRC>u<código>` | ✅ | `pc211990u202418655` |
-| 3 | PostgreSQL, esquema `facturease_db` | ✅ | `application.properties` + `@Table(schema = "facturease_db")` |
-| 4 | Package raíz `pe.com.facturease.platform.u<código>` | ✅ | `pe.com.facturease.platform.u202418655` |
-| 5 | Bounded context `billing` para Invoice | ✅ | Package `billing` |
-| 6 | Bounded context `shared` para TaxSummary | ✅ | Package `shared.domain.model.valueobjects` |
-| 7 | Jakarta Validation / @Pattern | ✅ | Value Objects con validación propia |
-| 8 | i18n EN/ES via Accept-Language | ✅ | `LocaleConfiguration.java` + `messages.properties` |
-| 9 | DDD, CQRS, layered architecture | ✅ | domain/application/interfaces/infrastructure |
-| 10 | Separación de domain vs persistence concepts | ✅ | `Invoice` vs `InvoicePersistenceEntity` |
-| 11 | SnakeCase + plural naming strategy | ✅ | `SnakeCaseWithPluralizedTablePhysicalNamingStrategy` |
-| 12 | Shared bounded context (estilo learning center) | ✅ | `shared` package |
-| 13 | JavaDoc en inglés con @author | ✅ | Todos los archivos |
-| 14 | OpenAPI con Swagger UI | ✅ | `@Operation` + `@ApiResponses` en `InvoicesController.java` |
-| 15 | Puerto 8097 | ✅ | `application.properties` |
-| 16 | URLs minúsculas y plural | ✅ | `/api/v1/invoices` |
-| 17 | Lombok | ✅ | `@Getter`, `@Setter` |
-| 18 | Mensajes en inglés | ✅ | `messages.properties` |
-| 19 | Gestión de excepciones | ✅ | `GlobalExceptionHandler.java` |
+| 1 | .NET 10.0, C# 14 | ✅ | `PC212190.U202418655.Capbase.Platform.csproj` |
+| 2 | Nombre `pc2<NRC>u<código>` | ✅ | `pc212190u202418655` |
+| 3 | MySQL, BD `clerky_wa` | ✅ | `appsettings.json` |
+| 4 | Package raíz `PC212190.U202418655.Capbase.Platform` | ✅ | `PC212190.U202418655.Capbase.Platform.csproj` |
+| 5 | Bounded context `Paperwork` para Covenant | ✅ | Package `Paperwork` |
+| 6 | Bounded context `Shared` con IAuditableEntity, Result | ✅ | Package `Shared` |
+| 7 | Validación en Value Objects | ✅ | LegalityPeriod, MonetaryAmount con validación en constructores |
+| 8 | i18n EN/ES/ES-PE via Accept-Language | ✅ | `UseRequestLocalization` + `PaperworkMessages.resx` |
+| 9 | DDD, CQRS, layered architecture | ✅ | Domain/Application/Interfaces/Infrastructure |
+| 10 | Separación de conceptos (partial class Covenant + CovenantAudit) | ✅ | `Covenant.cs` + `CovenantAudit.cs` |
+| 11 | Convención snake_case en BD | ✅ | Fluent API con `.HasColumnName("snake_case")` |
+| 12 | Shared bounded context (estilo Learning Center) | ✅ | `Shared` package con Application/Domain/Infrastructure |
+| 13 | XML comments en inglés con @author/Author | ✅ | Todos los archivos |
+| 14 | OpenAPI con Swagger UI + SwaggerResponse | ✅ | `[SwaggerOperation]` + `[SwaggerResponse]` en `CovenantsController.cs` |
+| 15 | Puerto 8097 | ✅ | `launchSettings.json` |
+| 16 | URLs minúsculas y plural | ✅ | `/api/v1/covenants` |
+| 17 | Result Pattern en lugar de excepciones | ✅ | `Result<T>` en `CovenantCommandService` |
+| 18 | Mensajes en inglés y español | ✅ | `.resx` files con EN/ES |
+| 19 | Gestión de errores con HTTP Status correctos | ✅ | Switch en `CovenantsController` |
 | 20 | README.md | ✅ | `README.md` |
-| 21 | ZIP `pc2<NRC>u<código>.zip` | ✅ | `pc211990u202418655.zip` |
-| 22 | Subir a actividad PC2 | ✅ | — |
+| 21 | ZIP `pc2<NRC>u<código>.zip` | ✅ | `pc212190u202418655.zip` |
+| 22 | Estructura limpia sin bin/obj/.vs | ✅ | Explicado en sección "Limpieza de Carpetas" |
 
 ---
 
@@ -2396,132 +3383,344 @@ public class InvoicesController {
 
 | # | Regla | Implementación | Archivo |
 |---|---|---|---|
-| 1 | No duplicado de `invoiceIdentifier` | `existsByInvoiceIdentifier()` | `InvoiceCommandServiceImpl.java` |
-| 2 | `calculatedTax` debe ser 18% IGV de `netAmount`, sino `IllegalArgumentException` | Validación en compact constructor | `TaxSummary.java` |
-| 3 | Si `status` ≠ DRAFT (ISSUED o PAID), `itemCount` debe ser > 0, sino `IllegalStateException` | Validación en constructor del aggregate | `Invoice.java` |
-| 4 | `InvoiceIdentifier` es un value object UUID generado en otro bounded context | `InvoiceIdentifier.fromString()` | `InvoiceIdentifier.java` |
-| 5 | `InvoiceStatus` enum con DRAFT por defecto | `InvoiceStatus.fromString()` + default en `Invoice` | `InvoiceStatus.java` + `Invoice.java` |
-| 6 | `TaxSummary` value object compuesto en bounded context `shared` | `record TaxSummary(netAmount, calculatedTax)` | `TaxSummary.java` |
-| 7 | Invoice auditable | `@EnableJpaAuditing` + `AuditableAbstractPersistenceEntity` | `Application.java` + shared |
-| 8 | i18n EN/ES | `AcceptHeaderLocaleResolver` + ResourceBundle | `LocaleConfiguration.java` |
-| 9 | `description` opcional | Sin `@Column(nullable = false)` en persistencia | `InvoicePersistenceEntity.java` |
-| 10 | Response incluye id, invoiceId, description, status, netAmountValue, calculatedTaxValue, itemCount | `InvoiceResource` con 7 campos | `InvoiceResource.java` |
-| 11 | `id` autogenerado | `@GeneratedValue(IDENTITY)` | `AuditableAbstractPersistenceEntity.java` |
-| 12 | `id` no se ingresa al crear | No incluido en `CreateInvoiceResource` | `CreateInvoiceResource.java` |
-| 13 | Status como String (input), con default DRAFT | `InvoiceStatus.fromString()` en `Invoice` | `Invoice.java` |
-| 14 | HTTP 201 en éxito | `HttpStatus.CREATED` | `InvoicesController.java` |
-| 15 | HTTP Status correcto en errores | Switch en `ErrorResponseAssembler` | `ErrorResponseAssembler.java` |
+| 1 | No duplicado de `DocumentIdentifier` | `ExistsByDocumentIdentifierAsync()` verifica antes de crear | `CovenantCommandService.cs` |
+| 2 | `Period.EndDate` > `Period.StartDate`, sino `ArgumentException` | Validación en constructor de `LegalityPeriod` | `LegalityPeriod.cs` |
+| 3 | `MonetaryAmount.Value` >= 0, sino `ArgumentOutOfRangeException` | Validación en constructor de `MonetaryAmount` | `MonetaryAmount.cs` |
+| 4 | `MonetaryAmount.Currency` no vacío, sino `ArgumentNullException` | Validación en constructor de `MonetaryAmount` | `MonetaryAmount.cs` |
+| 5 | `CapbaseIdentifier` es un value object UUID generado externamente | `record CapbaseIdentifier(Guid Value)` | `CapbaseIdentifier.cs` |
+| 6 | `PartyId` es un value object UUID de otro bounded context | `record PartyId(Guid Value)` | `PartyId.cs` |
+| 7 | `CovenantStatus` enum con Draft por defecto | `CovenantStatus.Draft` como default en `CreateCovenantCommand` | `CovenantStatus.cs` + `CreateCovenantCommand.cs` |
+| 8 | Covenant auditable con CreatedAt/UpdatedAt | `IAuditableEntity` + `SaveChangesAsync` override | `CovenantAudit.cs` + `AppDbContext.cs` |
+| 9 | i18n EN/ES/ES-PE | `UseRequestLocalization` + `IStringLocalizer` | `Program.cs` + archivos .resx |
+| 10 | `Footnotes` opcional | `string?` nullable + `.IsRequired(false)` en Fluent API | `Covenant.cs` + `ModelBuilderExtensions.cs` |
+| 11 | Response NO incluye status ni footnotes | `CovenantResource` solo expone 7 campos | `CovenantResource.cs` |
+| 12 | `Id` autogenerado por BD | `.ValueGeneratedOnAdd()` + `HasKey(c => c.Id)` | `ModelBuilderExtensions.cs` |
+| 13 | `Id` no se ingresa al crear | No incluido en `CreateCovenantResource` | `CreateCovenantResource.cs` |
+| 14 | Status como string en JSON | `JsonStringEnumConverter()` en `Program.cs` | `Program.cs` |
+| 15 | HTTP 201 Created en éxito | `CreatedAtAction(nameof(CreateCovenant), ...)` | `CovenantsController.cs` |
+| 16 | HTTP Status correcto en errores | Switch por `result.ErrorCode` | `CovenantsController.cs` |
 
 ---
 
 ## Verificación Final (Checklist)
 
-- [ ] Puerto `http://localhost:8097`
-- [ ] Swagger UI `http://localhost:8097/swagger-ui/index.html`
-- [ ] OpenAPI JSON `http://localhost:8097/v3/api-docs`
-- [ ] BD PostgreSQL `facturease_db` con esquema `facturease_db`
-- [ ] Endpoint `POST /api/v1/invoices` → 201 Created
-- [ ] Regla 1: mismo `invoiceIdentifier` → 409 Conflict
-- [ ] Regla 2: `calculatedTax` inconsistente con 18% IGV → 400 Bad Request
-- [ ] Regla 3: `status` ISSUED/PAID con `itemCount` ≤ 0 → 422 Unprocessable Entity
-- [ ] Status DRAFT por defecto cuando no se envía `status`
-- [ ] Convenciones snake_case, tablas en plural, inglés, UpperCamelCase clases, lowerCamelCase métodos/variables
-- [ ] JavaDoc `@author Victor Jhosef Laura Acosta` en todos los archivos
-- [ ] OpenAPI `@Operation` + `@ApiResponses` visibles en Swagger UI
-- [ ] i18n con header `Accept-Language: es` → mensajes en español
-- [ ] Nombre del ZIP `pc211990u202418655.zip`
+### Requisitos previos
+- [ ] .NET 10 SDK instalado (`dotnet --version` → 10.0.x)
+- [ ] MySQL Server instalado y corriendo (puerto 3306)
+- [ ] Base de datos `clerky_wa` creada
+- [ ] Visual Studio 2022 o JetBrains Rider instalado
+
+### Ejecución
+- [ ] `dotnet restore` → sin errores
+- [ ] `dotnet build` → sin errores de compilación
+- [ ] `dotnet run` → aplicación inicia sin excepciones
+
+### Verificación de Endpoints
+- [ ] Swagger UI: `http://localhost:8097/swagger/index.html`
+- [ ] OpenAPI JSON: `http://localhost:8097/swagger/v1/swagger.json`
+- [ ] `POST /api/v1/covenants` → 201 Created (con datos válidos)
+- [ ] `POST /api/v1/covenants` → 409 Conflict (mismo `documentIdentifier`)
+- [ ] `POST /api/v1/covenants` → 400 Bad Request (`periodEndDate` <= `periodStartDate`)
+- [ ] `POST /api/v1/covenants` → 400 Bad Request (`monetaryAmountValue` < 0)
+- [ ] `POST /api/v1/covenants` → 400 Bad Request (`monetaryAmountCurrency` vacío)
+
+### Verificación de Localización
+- [ ] Header `Accept-Language: es` → mensajes en español
+- [ ] Header `Accept-Language: en` → mensajes en inglés
+- [ ] Header `Accept-Language: es-PE` → mensajes en español
+- [ ] Sin header Accept-Language → mensajes en inglés (default)
+
+### Verificación de Base de Datos
+- [ ] Tabla `covenants` creada automáticamente en `clerky_wa`
+- [ ] Columnas en snake_case: `id`, `document_identifier`, `client_id`, `period_start_date`, `period_end_date`, `monetary_amount_value`, `monetary_amount_currency`, `status`, `footnotes`, `created_at`, `updated_at`
+- [ ] Índice único en `document_identifier`
+- [ ] `id` auto-incrementable
+
+### Verificación de Estructura
+- [ ] Sin carpetas `bin/` ni `obj/`
+- [ ] Sin carpeta `.vs/`
+- [ ] Sin carpeta `.idea/`
+- [ ] Sin archivos `.DS_Store`
+- [ ] Sin archivos `.user` o `.suo`
+
+### Convenciones de Código
+- [ ] XML comments en inglés con `Author: Victor Jhosef Laura Acosta - u202418655`
+- [ ] Nombres de clases en PascalCase
+- [ ] Nombres de métodos en PascalCase (C# convention)
+- [ ] Nombres de variables en camelCase
+- [ ] Nombres de tablas en plural y snake_case
+- [ ] Nombres de columnas en snake_case
+- [ ] URLs en minúsculas y plural (`/api/v1/covenants`)
 
 ---
 
-## Estructura Final del Proyecto (33 archivos .java + 5 archivos de configuración)
+## Diferencias clave entre este proyecto (Aplicaciones Web) y Facturease (Open Source)
+
+| Aspecto | Facturease (Open Source - Java/Spring) | Capbase (Aplicaciones Web - .NET/C#) |
+|---|---|---|
+| **Lenguaje** | Java 26 | C# 14 |
+| **Framework** | Spring Boot 4.1.0 | ASP.NET Core 10.0 |
+| **ORM** | Spring Data JPA / Hibernate | Entity Framework Core 10.0 |
+| **Gestor dependencias** | Maven (pom.xml) | NuGet (.csproj) |
+| **Configuración** | application.properties | appsettings.json |
+| **Clase principal** | `@SpringBootApplication` | `WebApplication.CreateBuilder` |
+| **Base de datos** | PostgreSQL | MySQL (o PostgreSQL) |
+| **Documentación API** | springdoc-openapi (Swagger) | Swashbuckle.AspNetCore (Swagger) |
+| **Arquitectura** | DDD + CQRS + Layered | DDD + CQRS + Layered (mismo patrón) |
+| **Patrón Result** | `sealed interface Result<T,E>` | `class Result<T>` (misma idea) |
+| **Value Objects** | Java records + validación en compact constructor | C# records + validación en constructor |
+| **i18n** | ResourceBundle + messages.properties | .resx files + IStringLocalizer |
+| **Naming BD** | SnakeCaseWithPluralizedTablePhysicalNamingStrategy | Fluent API manual snake_case |
+| **IDE** | IntelliJ IDEA | Visual Studio 2022 / Rider |
+| **Curso** | Open Source (OpenSource) | Aplicaciones Web |
+
+---
+
+## Estructura Final del Proyecto (26 archivos .cs + 6 archivos de configuración)
 
 ```
-pc211990u202418655
-├── pom.xml
+pc212190u202418655/
+├── pc212190u202418655.sln
 ├── README.md
-├── mvnw
-├── mvnw.cmd
-├── HELP.md
-├── src
-│   ├── main
-│   │   ├── java/pe/com/facturease/platform/u202418655
-│   │   │   ├── Pc211990u202418655Application.java
-│   │   │   ├── shared
-│   │   │   │   ├── application/result
-│   │   │   │   │   ├── Result.java
-│   │   │   │   │   └── ApplicationError.java
-│   │   │   │   ├── domain/model
-│   │   │   │   │   ├── aggregates
-│   │   │   │   │   │   └── AbstractDomainAggregateRoot.java
-│   │   │   │   │   └── valueobjects
-│   │   │   │   │       └── TaxSummary.java
-│   │   │   │   ├── infrastructure
-│   │   │   │   │   ├── documentation/openapi/configuration
-│   │   │   │   │   │   └── OpenApiConfiguration.java
-│   │   │   │   │   ├── i18n/configuration
-│   │   │   │   │   │   └── LocaleConfiguration.java
-│   │   │   │   │   └── persistence/jpa
-│   │   │   │   │       ├── configuration/strategy
-│   │   │   │   │       │   └── SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
-│   │   │   │   │       └── entities
-│   │   │   │   │           └── AuditableAbstractPersistenceEntity.java
-│   │   │   │   └── interfaces/rest
-│   │   │   │       ├── GlobalExceptionHandler.java
-│   │   │   │       ├── resources
-│   │   │   │       │   ├── ErrorResource.java
-│   │   │   │       │   └── MessageResource.java
-│   │   │   │       └── transform
-│   │   │   │           ├── ErrorResponseAssembler.java
-│   │   │   │           └── ResponseEntityAssembler.java
-│   │   │   └── billing
-│   │   │       ├── domain
-│   │   │       │   ├── model
-│   │   │       │   │   ├── aggregates
-│   │   │       │   │   │   └── Invoice.java
-│   │   │       │   │   ├── commands
-│   │   │       │   │   │   └── CreateInvoiceCommand.java
-│   │   │       │   │   ├── queries
-│   │   │       │   │   │   └── GetInvoiceById.java
-│   │   │       │   │   └── valueobjects
-│   │   │       │   │       ├── InvoiceIdentifier.java
-│   │   │       │   │       └── InvoiceStatus.java
-│   │   │       │   └── repositories
-│   │   │       │       └── InvoiceRepository.java
-│   │   │       ├── application
-│   │   │       │   ├── commandservices
-│   │   │       │   │   └── InvoiceCommandService.java
-│   │   │       │   ├── queryservices
-│   │   │       │   │   └── InvoiceQueryService.java
-│   │   │       │   └── internal
-│   │   │       │       ├── commandservices
-│   │   │       │       │   └── InvoiceCommandServiceImpl.java
-│   │   │       │       └── queryservices
-│   │   │       │           └── InvoiceQueryServiceImpl.java
-│   │   │       ├── infrastructure/persistence/jpa
-│   │   │       │   ├── adapters
-│   │   │       │   │   └── InvoiceRepositoryImpl.java
-│   │   │       │   ├── assemblers
-│   │   │       │   │   └── InvoicePersistenceAssembler.java
-│   │   │       │   ├── converters
-│   │   │       │   │   └── InvoiceIdentifierPersistenceConverter.java
-│   │   │       │   ├── entities
-│   │   │       │   │   └── InvoicePersistenceEntity.java
-│   │   │       │   └── repositories
-│   │   │       │       └── InvoicePersistenceRepository.java
-│   │   │       └── interfaces/rest
-│   │   │           ├── InvoicesController.java
-│   │   │           ├── resources
-│   │   │           │   ├── CreateInvoiceResource.java
-│   │   │           │   └── InvoiceResource.java
-│   │   │           └── transform
-│   │   │               ├── CreateInvoiceCommandFromResourceAssembler.java
-│   │   │               └── InvoiceResourceFromEntityAssembler.java
-│   │   └── resources
-│   │       ├── application.properties
-│   │       ├── messages.properties
-│   │       ├── messages_es.properties
-│   │       ├── static
-│   │       └── templates
-│   └── test/java/pe/com/facturease/platform/u202418655
-│       └── Pc211990u202418655ApplicationTests.java
+└── PC212190.U202418655.Capbase.Platform/
+    ├── PC212190.U202418655.Capbase.Platform.csproj
+    ├── Program.cs
+    ├── appsettings.json
+    ├── appsettings.Development.json
+    ├── Properties/
+    │   └── launchSettings.json
+    ├── Resources/
+    │   ├── ErrorMessages.cs
+    │   ├── ErrorMessages.resx
+    │   └── ErrorMessages.es.resx
+    ├── Shared/
+    │   ├── Application/
+    │   │   └── Model/
+    │   │       └── Result.cs
+    │   ├── Domain/
+    │   │   ├── Model/
+    │   │   │   ├── IAuditableEntity.cs
+    │   │   │   ├── LegalityPeriod.cs
+    │   │   │   └── MonetaryAmount.cs
+    │   │   └── Repositories/
+    │   │       ├── IBaseRepository.cs
+    │   │       └── IUnitOfWork.cs
+    │   └── Infrastructure/
+    │       └── Persistence/
+    │           └── EntityFrameworkCore/
+    │               ├── Configuration/
+    │               │   └── AppDbContext.cs
+    │               └── Repositories/
+    │                   ├── BaseRepository.cs
+    │                   └── UnitOfWork.cs
+    └── Paperwork/
+        ├── Resources/
+        │   ├── PaperworkMessages.cs
+        │   ├── PaperworkMessages.resx
+        │   └── PaperworkMessages.es.resx
+        ├── Domain/
+        │   ├── Model/
+        │   │   ├── Aggregates/
+        │   │   │   ├── Covenant.cs
+        │   │   │   ├── CovenantAudit.cs
+        │   │   │   ├── CovenantStatus.cs
+        │   │   │   └── PaperworkError.cs
+        │   │   ├── ValueObjects/
+        │   │   │   ├── CapbaseIdentifier.cs
+        │   │   │   └── PartyId.cs
+        │   │   └── Commands/
+        │   │       └── CreateCovenantCommand.cs
+        │   └── Repositories/
+        │       └── ICovenantRepository.cs
+        ├── Application/
+        │   ├── CommandServices/
+        │   │   └── ICovenantCommandService.cs
+        │   └── Internal/
+        │       └── CommandServices/
+        │           └── CovenantCommandService.cs
+        ├── Interfaces/
+        │   └── Rest/
+        │       ├── CovenantsController.cs
+        │       ├── Resources/
+        │       │   ├── CreateCovenantResource.cs
+        │       │   └── CovenantResource.cs
+        │       └── Transform/
+        │           ├── CreateCovenantCommandFromResourceAssembler.cs
+        │           └── CovenantResourceFromEntityAssembler.cs
+        └── Infrastructure/
+            └── Persistence/
+                └── EntityFrameworkCore/
+                    ├── Configuration/
+                    │   └── ModelBuilderExtensions.cs
+                    └── Repositories/
+                        └── CovenantRepository.cs
 ```
+
+**Resumen de archivos:**
+- 26 archivos `.cs` (código fuente C#)
+- 4 archivos `.resx` (recursos localizados)
+- 2 archivos de configuración (`appsettings.json`, `appsettings.Development.json`)
+- 1 archivo de proyecto (`.csproj`)
+- 1 solución (`.sln`)
+- 1 punto de entrada (`Program.cs`)
+- 1 configuración de lanzamiento (`launchSettings.json`)
+- 1 README.md
+- **Total: 37 archivos fuente** (excluyendo bin/, obj/, .vs/)
+
+### Leyenda de la estructura:
+
+```
+📁 pc212190u202418655/          ← Solución (contiene .sln)
+   📁 PC212190.U202418655.Capbase.Platform/   ← Proyecto Web API
+      📁 Shared/                ← Infraestructura transversal
+         📁 Application/        ← Patrón Result
+         📁 Domain/             ← Interfaces y Value Objects compartidos
+         📁 Infrastructure/     ← DbContext, BaseRepository, UnitOfWork
+      📁 Paperwork/             ← Bounded Context de Trámites Documentarios
+         📁 Domain/             ← Aggregate, Value Objects, Commands
+         📁 Application/        ← Servicios de aplicación
+         📁 Infrastructure/     ← Persistencia EF Core
+         📁 Interfaces/         ← Controladores REST, DTOs, Assemblers
+      📁 Resources/             ← Archivos .resx para i18n
+```
+
+### ¿Por qué esta estructura?
+
+| Razón | Explicación |
+|---|---|
+| **Separación de concerns** | Cada capa tiene una responsabilidad única y bien definida |
+| **Testabilidad** | Las capas se pueden probar de forma aislada (unit testing) |
+| **Mantenibilidad** | Los cambios en una capa no afectan a las otras |
+| **Escalabilidad** | Se pueden agregar nuevos bounded contexts fácilmente |
+| **Profesionalismo** | Sigue los estándares de la industria (DDD, CQRS) |
+| **Alineación con el profesor** | Estructura idéntica a Learning Center, aprobada por el profesor |
+
+---
+
+---
+
+## Apéndice A: Referencia Rápida de Entity Framework Core
+
+### Conceptos Clave de EF Core usados en el proyecto:
+
+| Concepto | Uso en el proyecto | Archivo |
+|---|---|---|
+| `DbContext` | Clase principal que coordina las operaciones con la BD | `AppDbContext.cs` |
+| `DbSet<T>` | Representa una tabla en la BD | `AppDbContext.Covenants` |
+| `Entity<T>()` | Configuración Fluent API para una entidad | `ModelBuilderExtensions.cs` |
+| `ToTable()` | Especifica el nombre de la tabla en la BD | `ModelBuilderExtensions.cs` línea 22 |
+| `HasKey()` | Define la clave primaria | `ModelBuilderExtensions.cs` línea 24 |
+| `Property()` | Configura una propiedad/columna | `ModelBuilderExtensions.cs` líneas 25-43 |
+| `HasColumnName()` | Especifica el nombre de la columna en snake_case | `ModelBuilderExtensions.cs` varias líneas |
+| `IsRequired()` | Marca columna como NOT NULL | `ModelBuilderExtensions.cs` varias líneas |
+| `ValueGeneratedOnAdd()` | Marca columna como auto-increment | `ModelBuilderExtensions.cs` línea 28 |
+| `HasConversion<T>()` | Convierte enum a string en la BD | `ModelBuilderExtensions.cs` línea 33 |
+| `HasColumnType()` | Especifica el tipo SQL exacto | `ModelBuilderExtensions.cs` línea 78 |
+| `OwnsOne()` | Mapea un value object como columnas embebidas | `ModelBuilderExtensions.cs` líneas 46-84 |
+| `HasIndex().IsUnique()` | Crea un índice único | `ModelBuilderExtensions.cs` líneas 51-52 |
+| `FindAsync()` | Busca por clave primaria | `BaseRepository.cs` línea 22 |
+| `AddAsync()` | Agrega una entidad al contexto | `BaseRepository.cs` línea 30 |
+| `SaveChangesAsync()` | Persiste todos los cambios | `UnitOfWork.cs` línea 16 |
+| `EnsureCreated()` | Crea la BD y tablas si no existen | `Program.cs` línea 71 |
+
+### Flujo de SaveChanges con Auditoría:
+
+```
+1. Llamada a unitOfWork.CompleteAsync()
+2. → AppDbContext.SaveChangesAsync()
+3.    → Itera ChangeTracker.Entries<IAuditableEntity>()
+4.    → Si Added: asigna CreatedAt = UtcNow
+5.    → Si Added o Modified: asigna UpdatedAt = UtcNow
+6.    → base.SaveChangesAsync() ejecuta el INSERT/UPDATE en BD
+```
+
+### Mapeo de Value Objects con OwnsOne:
+
+EF Core permite mapear value objects (como `LegalityPeriod`) como columnas embebidas en la misma tabla, en lugar de crear una tabla separada. Esto se logra con `OwnsOne()`:
+
+```csharp
+entity.OwnsOne(c => c.Period, p =>
+{
+    p.Property(x => x.StartDate)
+        .HasColumnName("period_start_date")
+        .IsRequired();
+    p.Property(x => x.EndDate)
+        .HasColumnName("period_end_date")
+        .IsRequired();
+});
+```
+
+Esto produce la siguiente estructura en la tabla `covenants`:
+
+```sql
+CREATE TABLE covenants (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    document_identifier CHAR(36) NOT NULL,
+    client_id CHAR(36) NOT NULL,
+    period_start_date DATE NOT NULL,     -- ← De LegalityPeriod
+    period_end_date DATE NOT NULL,       -- ← De LegalityPeriod
+    monetary_amount_value DECIMAL(18,4) NOT NULL,  -- ← De MonetaryAmount
+    monetary_amount_currency VARCHAR(3) NOT NULL,  -- ← De MonetaryAmount
+    status VARCHAR(20) NOT NULL,
+    footnotes TEXT,
+    created_at DATETIME,
+    updated_at DATETIME,
+    UNIQUE INDEX ix_covenants_document_identifier (document_identifier)
+);
+```
+
+---
+
+## Apéndice B: Glosario de Términos
+
+| Término | Definición |
+|---|---|
+| **Aggregate Root** | Entidad raíz que garantiza la consistencia de un grupo de objetos relacionados (Covenant) |
+| **Bounded Context** | Límite explícito dentro del cual un modelo de dominio es válido (Paperwork) |
+| **CQRS** | Command Query Responsibility Segregation - separación de operaciones de escritura y lectura |
+| **DDD** | Domain-Driven Design - diseño guiado por el dominio |
+| **DTO** | Data Transfer Object - objeto para transferir datos entre capas |
+| **Fluent API** | API de EF Core para configurar el mapeo objeto-relacional mediante código |
+| **i18n** | Internacionalización - soporte para múltiples idiomas |
+| **ORM** | Object-Relational Mapper - mapeador objeto-relacional (EF Core) |
+| **Result Pattern** | Patrón que encapsula el éxito/fracaso de una operación en un objeto |
+| **Unit of Work** | Patrón que agrupa operaciones en una transacción atómica |
+| **Value Object** | Objeto inmutable definido por sus atributos, no por identidad (LegalityPeriod) |
+
+---
+
+## Nota Final
+
+Esta guía ha sido elaborada por Victor Jhosef Laura Acosta (u202418655) como material de apoyo para el curso de Aplicaciones Web (NRC 12190) bajo la supervisión del profesor Hugo Allan Mori Paiva.
+
+El objetivo es proporcionar una referencia completa, paso a paso, para construir un proyecto ASP.NET Core siguiendo la arquitectura DDD + CQRS, con la misma estructura de carpetas y patrones que el proyecto Learning Center Platform, pero adaptado al dominio de negocio del caso Capbase (Paperwork bounded context).
+
+> **Importante:** Antes de entregar, asegúrate de:
+> 1. Reemplazar `u202418655` con tu código si es diferente
+> 2. Verificar el NRC 12190 en nombres de archivos
+> 3. Eliminar carpetas bin/, obj/, .vs/
+> 4. Compilar con `dotnet build` para verificar que no hay errores
+> 5. Probar el endpoint con curl o Postman
+> 6. Verificar Swagger UI en `http://localhost:8097/swagger`
+> 7. Crear el ZIP con nombre `pc212190u202418655.zip`
+
+---
+
+## Créditos
+
+- **Plantilla de guía basada en:** Proyecto Facturease Perú - Invoice Management (Open Source - Java/Spring)
+- **Estructura de carpetas basada en:** Learning Center Platform (.NET - ASP.NET Core)
+- **Lógica de negocio basada en:** Capbase Platform - Paperwork bounded context
+- **Curso:** Aplicaciones Web - NRC 12190
+- **Profesor:** Hugo Allan Mori Paiva
+- **Alumno:** Victor Jhosef Laura Acosta - u202418655
+
+---
+
+## Licencia
+
+Este documento es de uso educativo para el curso de Aplicaciones Web. Distribución libre entre fines académicos.
+
+---
+
+**Fin de la guía** — Total: ~3700 líneas
