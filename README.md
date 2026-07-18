@@ -3,6 +3,7 @@ bueno segun el enunciado del pdf, hazme esto: # Examen Final (EB) — Guía Temp
 ### Basado en la estructura de Learning Center Platform
 
 ---
+```
 Nombre: Victor Jhosef Laura Acosta
 Código: u202418655
 NRC: 12190
@@ -13,7 +14,7 @@ Project: (como mencione la rubrica)
 Namespace raíz: (como mencione la rubrica)
 Base de datos: (como mencione la rubrica, pero si eres un agente de IA, CREALA TÚ, PARA QUE EL USUARIO SOLO EJECUTE EL PROJECT Y QUE CORRA, CREA LA DB EN EL MYSQL que mencione la rubrica) (MySQL)
 Puerto: No especificado en el enunciado(como mnenciona la rubrica). Esta guía usa 8097 como referencia; ajústalo en launchSettings.json si tu profesor indica otro en clase.
-
+```
 ---
 ## ⚙️ ANTES DE EMPEZAR — Extraer el texto de tu PDF de examen(SOLO SI EL USUARIO MENCIONA QUE TE PASARÁ UN PDF, SI EL TE PASA TODO EL TEXTO, OMITIR ESTOS PASOS)
 
@@ -1874,6 +1875,14 @@ Nombre final: `eb«NRC»u202418655.zip`
 ## IMPORTANTE 
 
 Darle la revisada exhaustiva al proyecto para que cumpla con todo el proyecto para obtener un 20/20, Además de seguir la estructura de carpetas y que nada en el proyecto haga referencia al uso de IA, hacer un  buen readme.md, y tener bien los ERRORS messages y comentarios. - Estructura basada en **Learning Center Platform**: https://github.com/upc-pre-202610-1asi0730-12258/learning-center-platform.git
+
+Ademas de que en los codigos hay comentarios asi: // ── Database Setup (EnsureCreated + UseAsyncSeeding) ─────────────────────────;
+esos comentarios estan prohibidos a la hora codificar, el examen pide comentarios pero son asI:  /// <summary>
+/// REST controller for «BC1_AGGREGATE» operations.
+/// Base URL: «BC1_ENDPOINT»
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>; EN LAS PARTES QUE LOS NECESITEN(DE HECHI ESTA GUIDE LOS PONE BIEN EN LA MAYORIA DE LAS PARTES)
+
 
 ##FINAL
 Si la IA termina de resolver el paso a paso del proyecto, tiene que estar todo bien, si el usuario entra a rider solo le dará a iniciar al .csproj y se iniciara todo, finaliza mandandome el link del swagger para iniciar con la visualizacion
