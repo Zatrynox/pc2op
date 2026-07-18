@@ -3,8 +3,19 @@ bueno segun el enunciado del pdf, hazme esto: # Examen Final (EB) — Guía Temp
 ### Basado en la estructura de Learning Center Platform
 
 ---
+Nombre: Victor Jhosef Laura Acosta
+Código: u202418655
+NRC: 12190
+Curso: 1ASI0730 - Aplicaciones Web
+Profesor: Mori Paiva, Hugo Allan
+Solution: eb112190u202418655
+Project: (como mencione la rubrica)
+Namespace raíz: (como mencione la rubrica)
+Base de datos: (como mencione la rubrica, pero si eres un agente de IA, CREALA TÚ, PARA QUE EL USUARIO SOLO EJECUTE EL PROJECT Y QUE CORRA, CREA LA DB EN EL MYSQL que mencione la rubrica) (MySQL)
+Puerto: No especificado en el enunciado(como mnenciona la rubrica). Esta guía usa 8097 como referencia; ajústalo en launchSettings.json si tu profesor indica otro en clase.
 
-## ⚙️ ANTES DE EMPEZAR — Extraer el texto de tu PDF de examen
+---
+## ⚙️ ANTES DE EMPEZAR — Extraer el texto de tu PDF de examen(SOLO SI EL USUARIO MENCIONA QUE TE PASARÁ UN PDF, SI EL TE PASA TODO EL TEXTO, OMITIR ESTOS PASOS)
 
 Si tu enunciado llega como PDF con texto seleccionable:
 
@@ -41,7 +52,7 @@ with pdfplumber.open("mi_examen.pdf") as pdf:
 - `«PLACEHOLDER»` → reemplazar con el valor de **tu examen**
 - Código sin ángulos → **copiar y pegar tal cual**
 - Sigue los pasos **en orden**
-- Esta guía soporta hasta **3 Bounded Contexts** (Shared + BC1 + BC2 + BC3 opcional)
+- Esta guía soporta hasta **3 Bounded Contexts** (Shared + BC1 + BC2 + BC3 opcional)(segun rubrica)
 - Estructura basada en **Learning Center Platform**: https://github.com/upc-pre-202610-1asi0730-12258/learning-center-platform.git
 
 ---
@@ -83,6 +94,33 @@ CREATE SCHEMA IF NOT EXISTS «BD_ESQUEMA»
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 ```
+(LA IA HARÁ ESTO: 
+## Configuración Inicial
+ 
+### 1. Verificar .NET 10 SDK
+ 
+````bash
+dotnet --version
+# Debe mostrar: 10.0.x
+````
+ 
+### 2. Instalación de MySQL
+ 
+Descargar MySQL Community Server o usar XAMPP/WAMP. Durante instalación:
+- Puerto: `3306`
+- Usuario: `root`
+- Contraseña: `12345678`
+### 3. Creación del esquema
+ 
+````sql
+CREATE SCHEMA IF NOT EXISTS clerky_wa
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+ 
+USE clerky_wa;
+````
+ 
+---)
 
 ---
 
@@ -1817,7 +1855,7 @@ Nombre final: `eb«NRC»u202418655.zip`
 
 ---
 
-## ⚡ Correcciones incorporadas vs PC2 (C04/C05)
+## Correcciones CON RESPECTO A VERSIONS DIFERENTES
 
 | Problema anterior | Corrección en esta guía |
 |---|---|
@@ -1828,3 +1866,10 @@ Nombre final: `eb«NRC»u202418655.zip`
 | **C05**: Eventos sin idempotencia | `ProcessedEvents` table + verificación antes de emitir |
 | **C05**: ACL sin facade explícita | `«ACL_FACADE_NAME»` con métodos específicos de dominio |
 | **C05**: Propiedades calculadas persistidas | Computed properties (`AvailableStock`, etc.) solo en el aggregate, no en BD | , soy victor jhosef laura acosta, mi codigo es u202418655, el nrc del curso es 12190, profesor allan mori. Y si falta algo de esta guia dime que es
+
+## IMPORTANTE 
+
+Darle la revisada exhaustiva al proyecto para que cumpla con todo el proyecto para obtener un 20/20, Además de seguir la estructura de carpetas y que nada en el proyecto haga referencia al uso de IA, hacer un  buen readme.md, y tener bien los ERRORS messages y comentarios. - Estructura basada en **Learning Center Platform**: https://github.com/upc-pre-202610-1asi0730-12258/learning-center-platform.git
+
+##FINAL
+Si la IA termina de resolver el paso a paso del proyecto, tiene que estar todo bien, si el usuario entra a rider solo le dará a iniciar al .csproj y se iniciara todo, finaliza mandandome el link del swagger para iniciar con la visualizacion
