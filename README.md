@@ -379,15 +379,19 @@ Built with C# / .NET 10 / ASP.NET Core / Entity Framework Core / MySQL.
 - **Student code:** u202418655
 - **Course:** 1ASI0730 - Aplicaciones Web
 
-## Running
-```bash
-dotnet run
+## API Documentation
+Once running, access the interactive documentation at:
+- **Swagger UI:** `http://localhost:XXX/swagger-ui/index.html`
+- **OpenAPI JSON:** `http://localhost:XXX/XX/api-docs`
+
+
 ```
 
 ## API Documentation
-Swagger UI: `/swagger`
+SEGUN RUBRICA
 
 ## Localization
+```
 Supports `Accept-Language: en`, `en-US`, `es`, `es-PE`.
 ```
 
