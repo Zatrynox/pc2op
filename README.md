@@ -1,66 +1,82 @@
-# PC2 - SENSIBO Guía Template Paso a Paso
-## 1ASI0729 - Desarrollo de Aplicaciones Open Source
+bueno segun el enunciado del pdf, hazme esto: # Examen Final (EB) — Guía Template Paso a Paso
+## 1ASI0730 - Aplicaciones Web (.NET / C# / ASP.NET Core)
+### Basado en la estructura de Learning Center Platform
+
+---
+
+## ⚙️ ANTES DE EMPEZAR — Extraer el texto de tu PDF de examen
+
+Si tu enunciado llega como PDF con texto seleccionable:
+
+```python
+# pip install pdfplumber
+import pdfplumber
+
+with pdfplumber.open("mi_examen.pdf") as pdf:
+    for page in pdf.pages:
+        print(page.extract_text())
+```
+
+Si el PDF tiene partes como **imagen** (texto no seleccionable), usar OCR:
+
+```python
+# pip install pdfplumber pytesseract pillow
+import pdfplumber, pytesseract
+
+with pdfplumber.open("mi_examen.pdf") as pdf:
+    for page in pdf.pages:
+        text = page.extract_text()
+        if not text:
+            img = page.to_image(resolution=300)
+            text = pytesseract.image_to_string(img.original)
+        print(text)
+```
+
+> Para Tesseract en Windows: descargar desde https://github.com/UB-Mannheim/tesseract/wiki
 
 ---
 
 ## ⚠️ CÓMO USAR ESTA GUÍA
 
-- Todo lo que aparece como `«ESTO_EN_ANGULOS»` lo **reemplazas con el valor de tu examen**
-- Todo lo que aparece en bloques de código **sin ángulos se copia y pega tal cual**
-- Sigue los pasos **en orden estricto**
-- Esta guía cubre el patrón de los Exámenes Finales: **2 bounded contexts + shared + ACL + eventos de dominio + data seeding**
+- `«PLACEHOLDER»` → reemplazar con el valor de **tu examen**
+- Código sin ángulos → **copiar y pegar tal cual**
+- Sigue los pasos **en orden**
+- Esta guía soporta hasta **3 Bounded Contexts** (Shared + BC1 + BC2 + BC3 opcional)
+- Estructura basada en **Learning Center Platform**: https://github.com/upc-pre-202610-1asi0730-12258/learning-center-platform.git
 
 ---
 
 ## PASO 0 — Lee tu examen y llena esta tabla ANTES de empezar
 
-| Variable | Ejemplo EB 202520 (RecipeVault) | Ejemplo EB 202610 (Whirlpool) | **TU EXAMEN** |
-|---|---|---|---|
-| **NRC** | 7385 | 20262 | _______ |
-| **Código estudiante** | u202418655 | u202418655 | u202418655 |
-| **Nombre proyecto (ZIP)** | eb7385u202418655 | eb20262u202418655 | eb«NRC»u202418655 |
-| **Java version** | 25 | 26 | _______ |
-| **Spring Boot version** | 3.5.8 | 4.1.0 | _______ |
-| **BD tipo** | PostgreSQL | MySQL | _______ |
-| **BD esquema** | nutrilog | whirlpool_os | _______ |
-| **Package raíz** | app.recipevault.platform | com.whirlpool.care.platform | _______ |
-| **BC1 nombre** | consumption-tracking | entitlement | _______ |
-| **BC1 package** | consumptiontracking | entitlement | _______ |
-| **BC1 aggregate** | ConsumptionRecord | Claim | _______ |
-| **BC1 endpoint** | /api/v1/consumption-records | /api/v1/claims | _______ |
-| **BC1 operación** | POST | POST | _______ |
-| **BC2 nombre** | catalog-management | contracts | _______ |
-| **BC2 package** | catalogmanagement | contracts | _______ |
-| **BC2 aggregate** | Ingredient | Policy | _______ |
-| **BC2 endpoint** | /api/v1/ingredients | /api/v1/policies | _______ |
-| **BC2 operación** | GET | GET | _______ |
-| **Value Object en Shared** | IngredientCode | Period | _______ |
-| **Evento de integración** | ConsumptionRecordRegisteredEvent | ClaimCreatedEvent | _______ |
-| **Enums del dominio** | MealType, DietaryTag | ClaimStatus | _______ |
-| **Puerto servidor** | (ver enunciado) | (ver enunciado) | _______ |
-| **¿Cuál BC hace data seeding?** | BC2 (Ingredient) | BC2 (Policy) | _______ |
+| Variable | Ejemplo MiFarma | **TU EXAMEN** |
+|---|---|---|
+| **NRC** | (el de tu sección) | _______ |
+| **Código estudiante** | u202418655 | u202418655 |
+| **Nombre solución (ZIP)** | eb«NRC»u202418655.API | eb«NRC»u202418655.API |
+| **Nombre proyecto** | MiFarma.PharmacyManagement.Platform.u202418655 | «EMPRESA».«DOMINIO».Platform.u202418655 |
+| **Namespace raíz** | MiFarma.PharmacyManagement.Platform.u202418655 | «EMPRESA».«DOMINIO».Platform.u202418655 |
+| **BD esquema** | mifarma | _______ |
+| **Puerto** | (ver enunciado / launchSettings) | _______ |
+| **BC Pharmacy/Contracts** | Pharmacy | _______ (BC que tiene la entidad "principal" con POST) |
+| **BC Inventory/Entitlement** | Inventory | _______ (BC que tiene entidades secundarias) |
+| **Aggregate BC1** | Prescription | _______ |
+| **Aggregate BC2a** | Medicine | _______ |
+| **Aggregate BC2b** | Dispensation | _______ (si hay 2 en el mismo BC) |
+| **Endpoint BC1** | /api/v1/prescriptions | _______ |
+| **Endpoint BC2a** | /api/v1/medicines | _______ |
+| **Endpoint BC2b** | /api/v1/dispensations | _______ |
+| **Value Objects en Shared** | PrescriptionPeriod | _______ |
+| **Value Objects en BC1** | PrescriptionIdentifier, PatientId | _______ |
+| **Evento de integración** | DispensationRegisteredEvent | _______ |
+| **ACL Facade** | PrescriptionContextFacade | _______ |
+| **Tabla idempotencia** | ProcessedEvents | ProcessedEvents (suele ser igual) |
+| **Aggregate que hace seeding** | Medicine | _______ |
 
 ---
 
-## PASO 1 — Configuración de la Base de Datos
+## PASO 1 — Base de datos (MySQL)
 
-### Si tu examen usa PostgreSQL
-
-Abrir `pgAdmin`, ingresar contraseña `12345678` y crear la base de datos:
-
-```sql
-CREATE DATABASE «BD_ESQUEMA»;
-```
-
-Luego ejecutar:
-
-```sql
-CREATE SCHEMA «BD_ESQUEMA»;
-```
-
-### Si tu examen usa MySQL
-
-Abrir MySQL CLI o phpMyAdmin y ejecutar:
+Abrir MySQL (XAMPP / MySQL Workbench / CLI) y ejecutar:
 
 ```sql
 CREATE SCHEMA IF NOT EXISTS «BD_ESQUEMA»
@@ -70,2047 +86,1745 @@ CREATE SCHEMA IF NOT EXISTS «BD_ESQUEMA»
 
 ---
 
-## PASO 2 — Creación del proyecto (Spring Initializr)
+## PASO 2 — Crear el proyecto (JetBrains Rider)
 
-Cargar el navegador y pegar la URL correspondiente:
+1. Abrir Rider → **New Solution**
+2. Template: **ASP.NET Core Web API**
+3. Configurar:
+   - **Solution name:** `eb«NRC»u202418655.API`
+   - **Project name:** `«NAMESPACE_RAIZ»`
+   - **Framework:** .NET 10.0
+   - **Authentication type:** None
+   - **Use controllers:** ✅
+   - **Enable OpenAPI support:** ✅
+4. Crear.
 
-### Si PostgreSQL:
-```
-https://start.spring.io/#!type=maven-project&language=java&platformVersion=«SPRING_BOOT_VERSION»&packaging=jar&configurationFileFormat=properties&jvmVersion=«JAVA_VERSION»&groupId=«PACKAGE_RAIZ»&artifactId=eb«NRC»u202418655&packageName=«PACKAGE_RAIZ».u202418655&dependencies=data-jpa,validation,web,devtools,postgresql,lombok,springdoc-openapi
-```
-
-### Si MySQL:
-```
-https://start.spring.io/#!type=maven-project&language=java&platformVersion=«SPRING_BOOT_VERSION»&packaging=jar&configurationFileFormat=properties&jvmVersion=«JAVA_VERSION»&groupId=«PACKAGE_RAIZ»&artifactId=eb«NRC»u202418655&packageName=«PACKAGE_RAIZ».u202418655&dependencies=data-jpa,validation,web,devtools,mysql,lombok,springdoc-openapi
-```
-
-> Generar el proyecto, guardarlo en `IdeaProjects/1ASI0729/` y abrirlo en IntelliJ IDEA.
-
----
-
-## PASO 3 — Configuración del SDK
-
-File → Project Structure → Project → SDK: seleccionar versión `«JAVA_VERSION»`. Si no está instalada, descargarla. Click en OK.
+Eliminar archivos por defecto:
+- `WeatherForecast.cs` ← eliminar
+- `Controllers/WeatherForecastController.cs` ← eliminar
 
 ---
 
-## PASO 4 — Archivo pom.xml
+## PASO 3 — Archivo .csproj
 
-Abrir `pom.xml` y modificar la versión de Java en `<properties>`:
+Abrir `«NAMESPACE_RAIZ».csproj` y reemplazar con:
 
 ```xml
-<properties>
-    <java.version>«JAVA_VERSION»</java.version>
-</properties>
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <InvariantGlobalization>false</InvariantGlobalization>
+        <LangVersion>14</LangVersion>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <!-- Entity Framework Core -->
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.8"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8"/>
+
+        <!-- MySQL provider -->
+        <PackageReference Include="MySql.EntityFrameworkCore" Version="10.0.7"/>
+
+        <!-- Naming conventions (snake_case + plural) -->
+        <PackageReference Include="Humanizer" Version="3.0.10"/>
+
+        <!-- Event handling (Mediator pattern - Learning Center style) -->
+        <PackageReference Include="Cortex.Mediator" Version="1.0.0"/>
+
+        <!-- OpenAPI documentation -->
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.0"/>
+        <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.2.0"/>
+    </ItemGroup>
+
+    <!-- i18n EmbeddedResource entries — agregar uno por cada BC que tenga .resx -->
+    <ItemGroup>
+        <EmbeddedResource Update="«BC1_FOLDER»\Resources\«BC1_NAME»Messages.es.resx">
+            <DependentUpon>«BC1_NAME»Messages.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Update="«BC2_FOLDER»\Resources\«BC2_NAME»Messages.es.resx">
+            <DependentUpon>«BC2_NAME»Messages.cs</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Update="Shared\Resources\SharedMessages.es.resx">
+            <DependentUpon>SharedMessages.cs</DependentUpon>
+        </EmbeddedResource>
+    </ItemGroup>
+
+</Project>
 ```
 
-Agregar la dependencia de pluralize después de springdoc-openapi:
-
-```xml
-<!-- https://mvnrepository.com/artifact/io.github.encryptorcode/pluralize -->
-<dependency>
-    <groupId>io.github.encryptorcode</groupId>
-    <artifactId>pluralize</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
-
-> ✅ El resto del `pom.xml` queda como lo generó Spring Initializr.
+> **Nota Cortex.Mediator:** Si la versión `1.0.0` no existe, buscar en NuGet la última disponible, o reemplazar con `MediatR` versión 12+ con la misma lógica.
 
 ---
 
-## PASO 5 — Clase Application principal
+## PASO 4 — Program.cs
 
-Abrir `Eb«NRC»u202418655Application.java` en el package `«PACKAGE_RAIZ».u202418655` y reemplazar con:
+```csharp
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Application.CommandServices;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Application.Internal.CommandServices;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Repositories;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Application.CommandServices;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Application.Internal.CommandServices;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Application.Internal.EventHandlers;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Application.QueryServices;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Domain.Repositories;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+using «NAMESPACE_RAIZ».Shared.Domain.Repositories;
+using «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
-```java
-package «PACKAGE_RAIZ».u202418655;
+var builder = WebApplication.CreateBuilder(args);
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+// ── Database ──────────────────────────────────────────────────────────────────
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-/**
- * Main application class for the «NOMBRE_CASO» platform.
- *
- * <p>Enables JPA auditing for automatic management of entity creation
- * and last-updated timestamps across all aggregate roots.</p>
- *
- * @author Victor Jhosef Laura Acosta
- */
-@SpringBootApplication
-@EnableJpaAuditing
-public class Eb«NRC»u202418655Application {
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySQL(connectionString));
 
-    /**
-     * Entry point of the Spring Boot application.
-     *
-     * @param args command-line arguments
-     */
-    public static void main(String[] args) {
-        SpringApplication.run(Eb«NRC»u202418655Application.class, args);
+// ── Localization ──────────────────────────────────────────────────────────────
+builder.Services.AddLocalization();
+
+// ── Repositories & Unit of Work ───────────────────────────────────────────────
+// BC1
+builder.Services.AddScoped<I«BC1_AGGREGATE»Repository, «BC1_AGGREGATE»Repository>();
+// BC2
+builder.Services.AddScoped<I«BC2_AGGREGATE_A»Repository, «BC2_AGGREGATE_A»Repository>();
+builder.Services.AddScoped<I«BC2_AGGREGATE_B»Repository, «BC2_AGGREGATE_B»Repository>(); // si aplica
+// Shared
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+// ProcessedEvents (idempotency)
+builder.Services.AddScoped<IProcessedEventRepository, ProcessedEventRepository>();
+
+// ── Application Services ──────────────────────────────────────────────────────
+// BC1
+builder.Services.AddScoped<I«BC1_AGGREGATE»CommandService, «BC1_AGGREGATE»CommandService>();
+// BC2
+builder.Services.AddScoped<I«BC2_AGGREGATE_A»QueryService, «BC2_AGGREGATE_A»QueryService>();
+builder.Services.AddScoped<I«BC2_AGGREGATE_B»CommandService, «BC2_AGGREGATE_B»CommandService>(); // si aplica
+
+// ── ACL (Anti-Corruption Layer) ───────────────────────────────────────────────
+builder.Services.AddScoped<«ACL_FACADE_NAME»>();
+
+// ── Event Handlers (Cortex.Mediator) ─────────────────────────────────────────
+builder.Services.AddScoped<«DOMAIN_EVENT_NAME»Handler>();
+// Si usas Cortex.Mediator:
+// builder.Services.AddCortexMediator(typeof(Program).Assembly);
+
+// ── Controllers ───────────────────────────────────────────────────────────────
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(
+            new System.Text.Json.Serialization.JsonStringEnumConverter());
+    });
+
+// ── OpenAPI / Swagger ─────────────────────────────────────────────────────────
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "«NOMBRE_CASO» Platform API",
+        Version = "v1",
+        Description = "RESTful API for the «NOMBRE_CASO» platform.",
+        Contact = new OpenApiContact
+        {
+            Name = "Victor Jhosef Laura Acosta - u202418655"
+        }
+    });
+    options.EnableAnnotations();
+});
+
+var app = builder.Build();
+
+// ── Request Localization ──────────────────────────────────────────────────────
+var supportedCultures = new[] { "en", "en-US", "es", "es-PE" };
+app.UseRequestLocalization(options =>
+{
+    options.SetDefaultCulture("en");
+    options.AddSupportedCultures(supportedCultures);
+    options.AddSupportedUICultures(supportedCultures);
+    options.ApplyCurrentCultureToResponseHeaders = true;
+});
+
+// ── Database Setup (EnsureCreated + UseAsyncSeeding) ─────────────────────────
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.EnsureCreatedAsync();
+    // EnsureCreated ya dispara UseAsyncSeeding (configurado en AppDbContext)
+}
+
+// ── Middleware ────────────────────────────────────────────────────────────────
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "«NOMBRE_CASO» Platform API v1");
+        options.RoutePrefix = "swagger";
+    });
+}
+
+app.UseHttpsRedirection();
+app.MapControllers();
+app.Run();
+```
+
+---
+
+## PASO 5 — appsettings.json
+
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=3306;Database=«BD_ESQUEMA»;User=root;Password=12345678;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
     }
+  },
+  "AllowedHosts": "*"
+}
+```
+
+### Properties/launchSettings.json
+
+```json
+{
+  "profiles": {
+    "«NAMESPACE_RAIZ»": {
+      "applicationUrl": "https://localhost:«PUERTO»;http://localhost:5088",
+      "commandName": "Project",
+      "dotnetRunMessages": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      }
+    }
+  }
 }
 ```
 
 ---
 
-## PASO 6 — Archivo application.properties
-
-### Si PostgreSQL:
-
-```ini
-spring.application.name=eb«NRC»u202418655
-
-# Spring DataSource Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/«BD_ESQUEMA»?currentSchema=«BD_ESQUEMA»
-spring.datasource.username=postgres
-spring.datasource.password=12345678
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-# Spring Data JPA Configuration
-spring.jpa.database=postgresql
-spring.jpa.show-sql=true
-
-# Spring Data JPA Hibernate Configuration
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.open-in-view=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.hibernate.naming.physical-strategy=«PACKAGE_RAIZ».u202418655.shared.infrastructure.persistence.jpa.configuration.strategy.SnakeCaseWithPluralizedTablePhysicalNamingStrategy
-
-server.port=«PUERTO»
-
-documentation.application.description=«NOMBRE_CASO» RESTful API
-documentation.application.version=@project.version@
-
-spring.messages.basename=messages
-spring.messages.encoding=UTF-8
-```
-
-### Si MySQL:
-
-```ini
-spring.application.name=eb«NRC»u202418655
-
-# Spring DataSource Configuration
-spring.datasource.url=jdbc:mysql://localhost:3306/«BD_ESQUEMA»
-spring.datasource.username=root
-spring.datasource.password=12345678
-spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-
-# Spring Data JPA Configuration
-spring.jpa.database=mysql
-spring.jpa.show-sql=true
-
-# Spring Data JPA Hibernate Configuration
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.open-in-view=true
-spring.jpa.properties.hibernate.format_sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
-spring.jpa.hibernate.naming.physical-strategy=«PACKAGE_RAIZ».u202418655.shared.infrastructure.persistence.jpa.configuration.strategy.SnakeCaseWithPluralizedTablePhysicalNamingStrategy
-
-server.port=«PUERTO»
-
-documentation.application.description=«NOMBRE_CASO» RESTful API
-documentation.application.version=@project.version@
-
-spring.messages.basename=messages
-spring.messages.encoding=UTF-8
-```
-
----
-
-## PASO 7 — Archivos i18n
-
-### Crear `src/main/resources/messages.properties`
-
-```properties
-# Validation messages
-validation.field.prefix=Field
-validation.request.failed=Request validation failed
-validation.request.argument=request-argument
-
-# Error messages
-error.validation.message=Validation failed: {0}
-error.business-rule.message=Business rule violation: {0}
-error.unexpected.message=An unexpected error occurred
-error.not-found.message={0} not found
-error.conflict.message=Conflict: {0}
-error.generic.message=An error occurred
-```
-
-### Crear `src/main/resources/messages_es.properties`
-
-```properties
-# Validation messages
-validation.field.prefix=Campo
-validation.request.failed=Falló la validación de la solicitud
-validation.request.argument=argumento-de-solicitud
-
-# Error messages
-error.validation.message=Error de validación: {0}
-error.business-rule.message=Violación de regla de negocio: {0}
-error.unexpected.message=Ocurrió un error inesperado
-error.not-found.message={0} no encontrado
-error.conflict.message=Conflicto: {0}
-error.generic.message=Ocurrió un error
-```
-
----
-
-## PASO 8 — README.md
-
-Crear `README.md` en la raíz del proyecto:
+## PASO 6 — README.md
 
 ```markdown
-# «NOMBRE_CASO» API
+# «NOMBRE_CASO» Platform API
 
 ## Description
-RESTful API for the «NOMBRE_CASO» case study, implementing Domain-Driven Design,
-CQRS, Anti-Corruption Layer, and domain events.
-Built with Java «JAVA_VERSION» / Spring Boot «SPRING_BOOT_VERSION» / Spring Data JPA.
+RESTful API for the «NOMBRE_CASO» case study.
+Implements Domain-Driven Design, CQRS, Anti-Corruption Layer, and domain events
+following the Learning Center Platform architecture.
+Built with C# / .NET 10 / ASP.NET Core / Entity Framework Core / MySQL.
 
 ## Technologies
-- Java «JAVA_VERSION»
-- Spring Boot «SPRING_BOOT_VERSION»
-- Spring Data JPA
-- «BD_TIPO»
-- Lombok
-- OpenAPI (Swagger UI)
+- .NET 10.0 (C# 14)
+- ASP.NET Core 10.0
+- Entity Framework Core 10.0.8
+- MySQL (MySql.EntityFrameworkCore 10.0.7)
+- Humanizer 3.0.10
+- Cortex.Mediator
+- Swashbuckle (Swagger UI) 10.2.0
 
 ## Author
-Victor Jhosef Laura Acosta
+- **Name:** Victor Jhosef Laura Acosta
+- **Student code:** u202418655
+- **Course:** 1ASI0730 - Aplicaciones Web
 
-## License
-Apache 2.0
+## Running
+```bash
+dotnet run
+```
+
+## API Documentation
+Swagger UI: `/swagger`
+
+## Localization
+Supports `Accept-Language: en`, `en-US`, `es`, `es-PE`.
 ```
 
 ---
 
-## PASO 9 — Estructura de carpetas completa
-
-Crear toda la siguiente estructura bajo `src/main/java/«PACKAGE_RAIZ»/u202418655/`:
+## PASO 7 — Estructura de carpetas completa del proyecto
 
 ```
-u202418655/
-├── shared/
-│   ├── application/result/
-│   │   ├── Result.java
-│   │   └── ApplicationError.java
-│   ├── domain/model/aggregates/
-│   │   └── AbstractDomainAggregateRoot.java
-│   ├── domain/model/valueobjects/
-│   │   └── «SHARED_VALUE_OBJECT».java       ← El VO que pida tu examen en Shared
-│   ├── infrastructure/documentation/openapi/configuration/
-│   │   └── OpenApiConfiguration.java
-│   ├── infrastructure/i18n/configuration/
-│   │   └── LocaleConfiguration.java
-│   ├── infrastructure/persistence/jpa/configuration/strategy/
-│   │   └── SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
-│   └── infrastructure/persistence/jpa/entities/
-│       └── AuditableAbstractPersistenceEntity.java
-│   └── interfaces/rest/
-│       ├── GlobalExceptionHandler.java
-│       ├── resources/
-│       │   ├── ErrorResource.java
-│       │   └── MessageResource.java
-│       └── transform/
-│           ├── ErrorResponseAssembler.java
-│           └── ResponseEntityAssembler.java
+«NAMESPACE_RAIZ»/
+├── Shared/
+│   ├── Application/
+│   │   └── Model/
+│   │       └── Result.cs
+│   ├── Domain/
+│   │   ├── Model/
+│   │   │   ├── IAuditableEntity.cs
+│   │   │   └── «SHARED_VALUE_OBJECT».cs     ← VO que pide tu examen en Shared
+│   │   └── Repositories/
+│   │       ├── IBaseRepository.cs
+│   │       └── IUnitOfWork.cs
+│   ├── Infrastructure/
+│   │   └── Persistence/
+│   │       └── EntityFrameworkCore/
+│   │           ├── Configuration/
+│   │           │   ├── AppDbContext.cs
+│   │           │   └── NamingConventions.cs  ← snake_case + plural strategy
+│   │           └── Repositories/
+│   │               ├── BaseRepository.cs
+│   │               └── UnitOfWork.cs
+│   ├── Interfaces/
+│   │   └── Rest/
+│   │       ├── GlobalExceptionHandler.cs (middleware)
+│   │       └── ProblemDetailsFactory.cs
+│   └── Resources/
+│       ├── SharedMessages.cs
+│       ├── SharedMessages.resx
+│       └── SharedMessages.es.resx
 │
-├── «BC1_PACKAGE»/                          ← BC1: «BC1_NOMBRE»
-│   ├── domain/model/aggregates/
-│   │   └── «BC1_AGGREGATE».java
-│   ├── domain/model/valueobjects/
-│   │   └── (value objects específicos de BC1)
-│   ├── domain/model/commands/
-│   │   └── Create«BC1_AGGREGATE»Command.java
-│   ├── domain/model/queries/
-│   │   └── GetAll«BC1_AGGREGATE»sQuery.java (si aplica GET)
-│   ├── domain/model/events/                ← Eventos de integración
-│   │   └── «DOMAIN_EVENT_NAME».java
-│   ├── domain/repositories/
-│   │   └── I«BC1_AGGREGATE»Repository.java
-│   ├── application/commandservices/
-│   │   └── I«BC1_AGGREGATE»CommandService.java
-│   ├── application/queryservices/ (si aplica)
-│   │   └── I«BC1_AGGREGATE»QueryService.java
-│   ├── application/internal/commandservices/
-│   │   └── «BC1_AGGREGATE»CommandServiceImpl.java
-│   ├── application/internal/queryservices/ (si aplica)
-│   │   └── «BC1_AGGREGATE»QueryServiceImpl.java
-│   ├── application/internal/eventhandlers/  ← Si BC1 recibe eventos de BC2
-│   │   └── «DOMAIN_EVENT_NAME»Handler.java
-│   ├── infrastructure/acl/                  ← Anti-Corruption Layer
-│   │   └── «BC2_AGGREGATE»ContextFacade.java
-│   ├── infrastructure/persistence/jpa/adapters/
-│   │   └── «BC1_AGGREGATE»RepositoryImpl.java
-│   ├── infrastructure/persistence/jpa/assemblers/
-│   │   └── «BC1_AGGREGATE»PersistenceAssembler.java
-│   ├── infrastructure/persistence/jpa/converters/
-│   │   └── (converters de value objects si aplica)
-│   ├── infrastructure/persistence/jpa/entities/
-│   │   └── «BC1_AGGREGATE»PersistenceEntity.java
-│   └── infrastructure/persistence/jpa/repositories/
-│       └── «BC1_AGGREGATE»PersistenceRepository.java
-│   └── interfaces/rest/
-│       ├── «BC1_AGGREGATE»sController.java
-│       ├── resources/
-│       │   ├── Create«BC1_AGGREGATE»Resource.java
-│       │   └── «BC1_AGGREGATE»Resource.java
-│       └── transform/
-│           ├── Create«BC1_AGGREGATE»CommandFromResourceAssembler.java
-│           └── «BC1_AGGREGATE»ResourceFromEntityAssembler.java
+├── «BC1_FOLDER»/                    ← Bounded Context 1 (ej: Pharmacy)
+│   ├── Application/
+│   │   ├── CommandServices/
+│   │   │   └── I«BC1_AGGREGATE»CommandService.cs
+│   │   └── Internal/
+│   │       └── CommandServices/
+│   │           └── «BC1_AGGREGATE»CommandService.cs
+│   ├── Domain/
+│   │   ├── Model/
+│   │   │   ├── Aggregates/
+│   │   │   │   ├── «BC1_AGGREGATE».cs
+│   │   │   │   └── «BC1_AGGREGATE»Audit.cs  ← partial class para auditoría
+│   │   │   ├── Commands/
+│   │   │   │   └── Create«BC1_AGGREGATE»Command.cs
+│   │   │   └── ValueObjects/
+│   │   │       └── (VOs específicos de BC1)
+│   │   └── Repositories/
+│   │       └── I«BC1_AGGREGATE»Repository.cs
+│   ├── Infrastructure/
+│   │   └── Persistence/
+│   │       └── EntityFrameworkCore/
+│   │           ├── Configuration/
+│   │           │   └── ModelBuilderExtensions.cs
+│   │           └── Repositories/
+│   │               └── «BC1_AGGREGATE»Repository.cs
+│   ├── Interfaces/
+│   │   └── Rest/
+│   │       ├── «BC1_AGGREGATE»sController.cs
+│   │       ├── Resources/
+│   │       │   ├── Create«BC1_AGGREGATE»Resource.cs
+│   │       │   └── «BC1_AGGREGATE»Resource.cs
+│   │       └── Transform/
+│   │           ├── Create«BC1_AGGREGATE»CommandFromResourceAssembler.cs
+│   │           └── «BC1_AGGREGATE»ResourceFromEntityAssembler.cs
+│   └── Resources/
+│       ├── «BC1_NAME»Messages.cs
+│       ├── «BC1_NAME»Messages.resx
+│       └── «BC1_NAME»Messages.es.resx
 │
-├── «BC2_PACKAGE»/                          ← BC2: «BC2_NOMBRE»
-│   ├── domain/model/aggregates/
-│   │   └── «BC2_AGGREGATE».java
-│   ├── domain/model/valueobjects/
-│   │   └── (value objects específicos de BC2)
-│   ├── domain/model/queries/
-│   │   └── GetAll«BC2_AGGREGATE»sQuery.java
-│   ├── domain/repositories/
-│   │   └── I«BC2_AGGREGATE»Repository.java
-│   ├── application/queryservices/
-│   │   └── I«BC2_AGGREGATE»QueryService.java
-│   ├── application/internal/queryservices/
-│   │   └── «BC2_AGGREGATE»QueryServiceImpl.java
-│   ├── application/internal/eventhandlers/  ← Si BC2 recibe eventos de BC1
-│   │   └── «DOMAIN_EVENT_NAME»Handler.java
-│   ├── infrastructure/persistence/jpa/adapters/
-│   │   └── «BC2_AGGREGATE»RepositoryImpl.java
-│   ├── infrastructure/persistence/jpa/assemblers/
-│   │   └── «BC2_AGGREGATE»PersistenceAssembler.java
-│   ├── infrastructure/persistence/jpa/entities/
-│   │   └── «BC2_AGGREGATE»PersistenceEntity.java
-│   └── infrastructure/persistence/jpa/repositories/
-│       └── «BC2_AGGREGATE»PersistenceRepository.java
-│   └── interfaces/rest/
-│       ├── «BC2_AGGREGATE»sController.java
-│       ├── resources/
-│       │   └── «BC2_AGGREGATE»Resource.java
-│       └── transform/
-│           └── «BC2_AGGREGATE»ResourceFromEntityAssembler.java
+├── «BC2_FOLDER»/                    ← Bounded Context 2 (ej: Inventory)
+│   ├── Application/
+│   │   ├── CommandServices/
+│   │   │   └── I«BC2_AGGREGATE_B»CommandService.cs
+│   │   ├── Internal/
+│   │   │   ├── CommandServices/
+│   │   │   │   └── «BC2_AGGREGATE_B»CommandService.cs
+│   │   │   ├── EventHandlers/
+│   │   │   │   └── «DOMAIN_EVENT_NAME»Handler.cs
+│   │   │   └── QueryServices/
+│   │   │       └── «BC2_AGGREGATE_A»QueryService.cs
+│   │   └── QueryServices/
+│   │       └── I«BC2_AGGREGATE_A»QueryService.cs
+│   ├── Domain/
+│   │   ├── Model/
+│   │   │   ├── Aggregates/
+│   │   │   │   ├── «BC2_AGGREGATE_A».cs
+│   │   │   │   ├── «BC2_AGGREGATE_A»Audit.cs
+│   │   │   │   ├── «BC2_AGGREGATE_B».cs       ← si hay 2 en BC2
+│   │   │   │   └── «BC2_AGGREGATE_B»Audit.cs
+│   │   │   ├── Commands/
+│   │   │   │   └── Create«BC2_AGGREGATE_B»Command.cs
+│   │   │   ├── Events/
+│   │   │   │   └── «DOMAIN_EVENT_NAME».cs
+│   │   │   ├── Queries/
+│   │   │   │   └── GetAll«BC2_AGGREGATE_A»sQuery.cs
+│   │   │   └── ValueObjects/
+│   │   │       └── (VOs específicos de BC2)
+│   │   └── Repositories/
+│   │       ├── I«BC2_AGGREGATE_A»Repository.cs
+│   │       └── I«BC2_AGGREGATE_B»Repository.cs
+│   ├── Infrastructure/
+│   │   ├── Acl/
+│   │   │   └── «ACL_FACADE_NAME».cs           ← Anti-Corruption Layer
+│   │   └── Persistence/
+│   │       └── EntityFrameworkCore/
+│   │           ├── Configuration/
+│   │           │   └── ModelBuilderExtensions.cs
+│   │           └── Repositories/
+│   │               ├── «BC2_AGGREGATE_A»Repository.cs
+│   │               └── «BC2_AGGREGATE_B»Repository.cs
+│   ├── Interfaces/
+│   │   └── Rest/
+│   │       ├── «BC2_AGGREGATE_A»sController.cs
+│   │       ├── «BC2_AGGREGATE_B»sController.cs
+│   │       ├── Resources/
+│   │       │   ├── «BC2_AGGREGATE_A»Resource.cs
+│   │       │   ├── Create«BC2_AGGREGATE_B»Resource.cs
+│   │       │   └── «BC2_AGGREGATE_B»Resource.cs
+│   │       └── Transform/
+│   │           ├── «BC2_AGGREGATE_A»ResourceFromEntityAssembler.cs
+│   │           ├── Create«BC2_AGGREGATE_B»CommandFromResourceAssembler.cs
+│   │           └── «BC2_AGGREGATE_B»ResourceFromEntityAssembler.cs
+│   └── Resources/
+│       ├── «BC2_NAME»Messages.cs
+│       ├── «BC2_NAME»Messages.resx
+│       └── «BC2_NAME»Messages.es.resx
+│
+└── Program.cs
 ```
 
 ---
 
-## PASO 10 — Shared Package (SE COPIA SIEMPRE IGUAL, no cambia)
+## PASO 8 — Shared Package (SE COPIA SIEMPRE IGUAL)
 
-### 10.1 AbstractDomainAggregateRoot.java
+### 8.1 Result.cs
 
-Ruta: `shared/domain/model/aggregates/AbstractDomainAggregateRoot.java`
+Ruta: `Shared/Application/Model/Result.cs`
 
-Package: `«PACKAGE_RAIZ».u202418655.shared.domain.model.aggregates`
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Application.Model;
 
-```java
-package «PACKAGE_RAIZ».u202418655.shared.domain.model.aggregates;
+/// <summary>
+/// Represents the outcome of an operation that produces a value of type T.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class Result<T>
+{
+    public T? Value { get; }
+    public bool IsSuccess { get; }
+    public string? ErrorCode { get; }
+    public string? ErrorMessage { get; }
 
-import org.springframework.data.domain.AbstractAggregateRoot;
-import java.util.Collection;
-
-/**
- * Base class for all domain aggregate roots.
- *
- * @param <T> the concrete aggregate root type
- * @author Victor Jhosef Laura Acosta
- */
-public abstract class AbstractDomainAggregateRoot<T extends AbstractDomainAggregateRoot<T>>
-        extends AbstractAggregateRoot<T> {
-
-    protected void registerDomainEvent(Object event) {
-        super.registerEvent(event);
+    private Result(T value) { Value = value; IsSuccess = true; }
+    private Result(string errorCode, string errorMessage)
+    {
+        ErrorCode = errorCode; ErrorMessage = errorMessage; IsSuccess = false;
     }
 
-    @Override
-    public Collection<Object> domainEvents() {
-        return super.domainEvents();
-    }
+    /// <summary>Creates a successful result containing the specified value.</summary>
+    public static Result<T> Success(T value) => new(value);
 
-    @Override
-    public void clearDomainEvents() {
-        super.clearDomainEvents();
-    }
+    /// <summary>Creates a failed result with the given error code and localized message.</summary>
+    public static Result<T> Failure(string errorCode, string errorMessage) => new(errorCode, errorMessage);
 }
 ```
 
 ---
 
-### 10.2 Result.java
+### 8.2 IAuditableEntity.cs
 
-Ruta: `shared/application/result/Result.java`
+Ruta: `Shared/Domain/Model/IAuditableEntity.cs`
 
-Package: `«PACKAGE_RAIZ».u202418655.shared.application.result`
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Domain.Model;
 
-```java
-package «PACKAGE_RAIZ».u202418655.shared.application.result;
-
-import java.util.Optional;
-import java.util.function.Function;
-
-/**
- * Represents the result of a command or operation.
- *
- * @param <T> The type of the successful result value
- * @param <E> The type of the error/failure information
- * @author Victor Jhosef Laura Acosta
- */
-public sealed interface Result<T, E> {
-
-    record Success<T, E>(T value) implements Result<T, E> {}
-    record Failure<T, E>(E error) implements Result<T, E> {}
-
-    static <T, E> Result<T, E> success(T value) { return new Success<>(value); }
-    static <T, E> Result<T, E> failure(E error)  { return new Failure<>(error); }
-
-    default boolean isSuccess() { return this instanceof Success; }
-    default boolean isFailure() { return this instanceof Failure; }
-
-    default Optional<T> toOptional() {
-        return switch (this) {
-            case Success<T, E> s -> Optional.of(s.value);
-            case Failure<T, E> f -> Optional.empty();
-        };
-    }
-
-    default T getOrElse(T defaultValue) {
-        return switch (this) {
-            case Success<T, E> s -> s.value;
-            case Failure<T, E> f -> defaultValue;
-        };
-    }
-
-    default <E2> Result<T, E2> mapError(Function<E, E2> f) {
-        return switch (this) {
-            case Success<T, E> s -> Result.success(s.value);
-            case Failure<T, E> failure -> Result.failure(f.apply(failure.error));
-        };
-    }
-
-    default <T2> Result<T2, E> flatMap(Function<T, Result<T2, E>> f) {
-        return switch (this) {
-            case Success<T, E> s -> f.apply(s.value);
-            case Failure<T, E> failure -> Result.failure(failure.error);
-        };
-    }
-
-    default <T2> Result<T2, E> map(Function<T, T2> f) {
-        return switch (this) {
-            case Success<T, E> s -> Result.success(f.apply(s.value));
-            case Failure<T, E> failure -> Result.failure(failure.error);
-        };
-    }
-
-    default Result<T, E> recover(Function<E, Result<T, E>> f) {
-        return switch (this) {
-            case Success<T, E> s -> this;
-            case Failure<T, E> failure -> f.apply(failure.error);
-        };
-    }
+/// <summary>
+/// Marker interface for auditable entities that track creation and update timestamps.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public interface IAuditableEntity
+{
+    DateTimeOffset? CreatedAt { get; set; }
+    DateTimeOffset? UpdatedAt { get; set; }
 }
 ```
 
 ---
 
-### 10.3 ApplicationError.java
+### 8.3 IBaseRepository.cs
 
-Ruta: `shared/application/result/ApplicationError.java`
+Ruta: `Shared/Domain/Repositories/IBaseRepository.cs`
 
-Package: `«PACKAGE_RAIZ».u202418655.shared.application.result`
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Domain.Repositories;
 
-```java
-package «PACKAGE_RAIZ».u202418655.shared.application.result;
-
-/**
- * Represents an error that occurred in the application layer.
- *
- * @param code     A machine-readable error code
- * @param message  A human-readable error message
- * @param details  Optional additional context
- * @author Victor Jhosef Laura Acosta
- */
-public record ApplicationError(String code, String message, String details) {
-
-    public ApplicationError(String code, String message) {
-        this(code, message, null);
-    }
-
-    public static ApplicationError validationError(String fieldOrConcept, String reason) {
-        return new ApplicationError("VALIDATION_ERROR",
-                "Validation failed: %s".formatted(fieldOrConcept), reason);
-    }
-
-    public static ApplicationError notFound(String resourceType, String identifier) {
-        return new ApplicationError("%s_NOT_FOUND".formatted(resourceType.toUpperCase()),
-                "%s not found: %s".formatted(resourceType, identifier), null);
-    }
-
-    public static ApplicationError businessRuleViolation(String rule, String reason) {
-        return new ApplicationError("BUSINESS_RULE_VIOLATION",
-                "Business rule violation: %s".formatted(rule), reason);
-    }
-
-    public static ApplicationError conflict(String resource, String reason) {
-        return new ApplicationError("%s_CONFLICT".formatted(resource.toUpperCase()),
-                "Conflict with %s".formatted(resource), reason);
-    }
-
-    public static ApplicationError unexpected(String context, String reason) {
-        return new ApplicationError("UNEXPECTED_ERROR",
-                "Unexpected error in %s".formatted(context), reason);
-    }
+/// <summary>
+/// Generic base repository interface providing standard CRUD operations.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public interface IBaseRepository<TEntity>
+{
+    Task<TEntity?> FindByIdAsync(int id, CancellationToken cancellationToken);
+    Task<IEnumerable<TEntity>> ListAsync(CancellationToken cancellationToken);
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken);
 }
 ```
 
 ---
 
-### 10.4 SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
+### 8.4 IUnitOfWork.cs
 
-Ruta: `shared/infrastructure/persistence/jpa/configuration/strategy/SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java`
+Ruta: `Shared/Domain/Repositories/IUnitOfWork.cs`
 
-Package: `«PACKAGE_RAIZ».u202418655.shared.infrastructure.persistence.jpa.configuration.strategy`
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Domain.Repositories;
 
-```java
-package «PACKAGE_RAIZ».u202418655.shared.infrastructure.persistence.jpa.configuration.strategy;
-
-import org.hibernate.boot.model.naming.Identifier;
-import org.hibernate.boot.model.naming.PhysicalNamingStrategy;
-import org.hibernate.engine.jdbc.env.spi.JdbcEnvironment;
-
-import static io.github.encryptorcode.pluralize.Pluralize.pluralize;
-
-/**
- * Snake Case With Pluralized Table Physical Naming Strategy.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public class SnakeCaseWithPluralizedTablePhysicalNamingStrategy implements PhysicalNamingStrategy {
-
-    @Override
-    public Identifier toPhysicalCatalogName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return null;
-    }
-
-    @Override
-    public Identifier toPhysicalSchemaName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(identifier);
-    }
-
-    @Override
-    public Identifier toPhysicalTableName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(this.toPlural(identifier));
-    }
-
-    @Override
-    public Identifier toPhysicalSequenceName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(identifier);
-    }
-
-    @Override
-    public Identifier toPhysicalColumnName(Identifier identifier, JdbcEnvironment jdbcEnvironment) {
-        return this.toSnakeCase(identifier);
-    }
-
-    private Identifier toSnakeCase(final Identifier identifier) {
-        if (identifier == null) return null;
-        final String newName = identifier.getText()
-                .replaceAll("([a-z])([A-Z])", "$1_$2")
-                .toLowerCase();
-        return Identifier.toIdentifier(newName);
-    }
-
-    private Identifier toPlural(final Identifier identifier) {
-        return Identifier.toIdentifier(pluralize(identifier.getText()));
-    }
+/// <summary>
+/// Unit of work abstraction that coordinates writing of changes to the database.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public interface IUnitOfWork
+{
+    Task CompleteAsync(CancellationToken cancellationToken);
 }
 ```
 
 ---
 
-### 10.5 AuditableAbstractPersistenceEntity.java
-
-Ruta: `shared/infrastructure/persistence/jpa/entities/AuditableAbstractPersistenceEntity.java`
-
-Package: `«PACKAGE_RAIZ».u202418655.shared.infrastructure.persistence.jpa.entities`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.infrastructure.persistence.jpa.entities;
-
-import jakarta.persistence.*;
-import lombok.Getter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
-import java.util.Date;
-
-/**
- * Base JPA persistence entity for all persistence entities that require auditing.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Getter
-@MappedSuperclass
-@EntityListeners(AuditingEntityListener.class)
-public abstract class AuditableAbstractPersistenceEntity {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @CreatedDate
-    @Column(nullable = false, updatable = false)
-    private Date createdAt;
-
-    @LastModifiedDate
-    @Column(nullable = false)
-    private Date updatedAt;
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-}
-```
-
----
-
-### 10.6 OpenApiConfiguration.java
-
-Ruta: `shared/infrastructure/documentation/openapi/configuration/OpenApiConfiguration.java`
-
-Package: `«PACKAGE_RAIZ».u202418655.shared.infrastructure.documentation.openapi.configuration`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.infrastructure.documentation.openapi.configuration;
-
-import io.swagger.v3.oas.models.ExternalDocumentation;
-import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Contact;
-import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.info.License;
-import io.swagger.v3.oas.models.servers.Server;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-
-import java.util.List;
-
-/**
- * Configures the OpenAPI specification exposed by the platform.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Configuration
-public class OpenApiConfiguration {
-
-    @Value("${spring.application.name}")
-    String applicationName;
-
-    @Value("${documentation.application.description}")
-    String applicationDescription;
-
-    @Value("${documentation.application.version}")
-    String applicationVersion;
-
-    /**
-     * Builds the OpenAPI document used by Swagger UI.
-     *
-     * @return configured OpenAPI descriptor
-     */
-    @Bean
-    public OpenAPI platformOpenApi() {
-        var openApi = new OpenAPI();
-        openApi.info(new Info()
-                        .title(this.applicationName)
-                        .description(this.applicationDescription)
-                        .version(this.applicationVersion)
-                        .contact(new Contact()
-                                .name("Victor Jhosef Laura Acosta")
-                                .email("u202418655@upc.edu.pe"))
-                        .license(new License()
-                                .name("Apache 2.0")
-                                .url("https://www.apache.org/licenses/LICENSE-2.0.html")));
-        openApi.servers(List.of(
-                new Server().url("http://localhost:«PUERTO»").description("Local Development Environment")
-        ));
-        return openApi;
-    }
-}
-```
-
----
-
-### 10.7 LocaleConfiguration.java
-
-Ruta: `shared/infrastructure/i18n/configuration/LocaleConfiguration.java`
-
-Package: `«PACKAGE_RAIZ».u202418655.shared.infrastructure.i18n.configuration`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.infrastructure.i18n.configuration;
-
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.servlet.LocaleResolver;
-import org.springframework.web.servlet.i18n.AcceptHeaderLocaleResolver;
-
-import java.util.List;
-import java.util.Locale;
-
-/**
- * Configures locale resolution for REST requests via Accept-Language header.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Configuration
-public class LocaleConfiguration {
-
-    /**
-     * Creates a LocaleResolver that uses the Accept-Language header.
-     *
-     * @return the locale resolver instance
-     */
-    @Bean
-    public LocaleResolver localeResolver() {
-        var resolver = new AcceptHeaderLocaleResolver();
-        resolver.setDefaultLocale(Locale.ENGLISH);
-        resolver.setSupportedLocales(List.of(Locale.ENGLISH, Locale.forLanguageTag("es")));
-        return resolver;
-    }
-}
-```
-
----
-
-### 10.8 ErrorResource.java
-
-Ruta: `shared/interfaces/rest/resources/ErrorResource.java`
-
-Package: `«PACKAGE_RAIZ».u202418655.shared.interfaces.rest.resources`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.interfaces.rest.resources;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-
-/**
- * Standard error response resource returned from REST endpoints.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@JsonInclude(JsonInclude.Include.NON_NULL)
-public record ErrorResource(String code, String message, String details) {
-    public ErrorResource(String code, String message) {
-        this(code, message, null);
-    }
-}
-```
-
----
-
-### 10.9 MessageResource.java
-
-Ruta: `shared/interfaces/rest/resources/MessageResource.java`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.interfaces.rest.resources;
-
-/**
- * Resource used for simple success or informational REST responses.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public record MessageResource(String message) {}
-```
-
----
-
-### 10.10 ErrorResponseAssembler.java
-
-Ruta: `shared/interfaces/rest/transform/ErrorResponseAssembler.java`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.interfaces.rest.transform;
-
-import «PACKAGE_RAIZ».u202418655.shared.application.result.ApplicationError;
-import «PACKAGE_RAIZ».u202418655.shared.interfaces.rest.resources.ErrorResource;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-
-/**
- * Assembler for converting application errors to HTTP responses.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class ErrorResponseAssembler {
-
-    private ErrorResponseAssembler() {}
-
-    public static ResponseEntity<ErrorResource> toErrorResponseFromApplicationError(ApplicationError error) {
-        HttpStatusCode status = toStatusFromErrorCode(error.code());
-        return new ResponseEntity<>(
-                new ErrorResource(error.code(), error.message(), error.details()), status);
-    }
-
-    public static HttpStatusCode toStatusFromErrorCode(String errorCode) {
-        return switch (errorCode) {
-            case "VALIDATION_ERROR" -> HttpStatus.BAD_REQUEST;
-            case String s when s.endsWith("_NOT_FOUND") -> HttpStatus.NOT_FOUND;
-            case "BUSINESS_RULE_VIOLATION" -> HttpStatusCode.valueOf(422);
-            case String s when s.endsWith("_CONFLICT") -> HttpStatus.CONFLICT;
-            case "UNEXPECTED_ERROR" -> HttpStatus.INTERNAL_SERVER_ERROR;
-            default -> HttpStatus.INTERNAL_SERVER_ERROR;
-        };
-    }
-}
-```
-
----
-
-### 10.11 ResponseEntityAssembler.java
-
-Ruta: `shared/interfaces/rest/transform/ResponseEntityAssembler.java`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.interfaces.rest.transform;
-
-import «PACKAGE_RAIZ».u202418655.shared.application.result.ApplicationError;
-import «PACKAGE_RAIZ».u202418655.shared.application.result.Result;
-import org.springframework.http.HttpStatusCode;
-import org.springframework.http.ResponseEntity;
-
-import java.util.function.Function;
-
-/**
- * Assembler that translates application Result values into HTTP responses.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class ResponseEntityAssembler {
-
-    private ResponseEntityAssembler() {}
-
-    public static <T, R> ResponseEntity<?> toResponseEntityFromResult(
-            Result<T, ApplicationError> result,
-            Function<T, R> successResourceAssembler,
-            HttpStatusCode successStatus) {
-        return switch (result) {
-            case Result.Success<T, ApplicationError> success ->
-                    new ResponseEntity<>(successResourceAssembler.apply(success.value()), successStatus);
-            case Result.Failure<T, ApplicationError> failure ->
-                    ErrorResponseAssembler.toErrorResponseFromApplicationError(failure.error());
-        };
-    }
-}
-```
-
----
-
-### 10.12 GlobalExceptionHandler.java
-
-Ruta: `shared/interfaces/rest/GlobalExceptionHandler.java`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.interfaces.rest;
-
-import «PACKAGE_RAIZ».u202418655.shared.application.result.ApplicationError;
-import «PACKAGE_RAIZ».u202418655.shared.interfaces.rest.transform.ErrorResponseAssembler;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-/**
- * Global exception handler for REST API.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@RestControllerAdvice
-public class GlobalExceptionHandler {
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<?> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
-        var fieldErrors = ex.getBindingResult().getFieldErrors();
-        var errorDetails = fieldErrors.isEmpty()
-                ? "Request validation failed"
-                : fieldErrors.stream()
-                        .map(error -> "Field %s: %s".formatted(error.getField(), error.getDefaultMessage()))
-                        .reduce((a, b) -> a + "; " + b)
-                        .orElse("Request validation failed");
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.validationError("request-body", errorDetails));
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.validationError("request-argument",
-                        ex.getMessage() != null ? ex.getMessage() : "Invalid request argument"));
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalStateException(IllegalStateException ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.businessRuleViolation("state-violation",
-                        ex.getMessage() != null ? ex.getMessage() : "Invalid state"));
-    }
-
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<?> handleRuntimeException(RuntimeException ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.unexpected("global-exception-handler",
-                        ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<?> handleException(Exception ex) {
-        return ErrorResponseAssembler.toErrorResponseFromApplicationError(
-                ApplicationError.unexpected("global-exception-handler",
-                        ex.getMessage() != null ? ex.getMessage() : "An unexpected error occurred"));
-    }
-}
-```
-
----
-
-### 10.13 «SHARED_VALUE_OBJECT».java
-
-> ⚠️ **Este archivo cambia según tu examen.** Aquí va el Value Object que el enunciado pide en Shared (ej: `IngredientCode`, `Period`, etc.). Sigue el mismo patrón: record con validación en compact constructor, constructor por defecto si aplica.
-
-Ruta: `shared/domain/model/valueobjects/«SHARED_VALUE_OBJECT».java`
-
-```java
-package «PACKAGE_RAIZ».u202418655.shared.domain.model.valueobjects;
-
-import java.util.Objects;
-
-/**
- * Value object representing «DESCRIPCIÓN».
- * ← COMPLETAR SEGÚN TU EXAMEN
- *
- * @author Victor Jhosef Laura Acosta
- */
-public record «SHARED_VALUE_OBJECT»(/* CAMPOS SEGÚN TU EXAMEN */) {
-
-    public «SHARED_VALUE_OBJECT» {
+### 8.5 «SHARED_VALUE_OBJECT».cs
+
+> ⚠️ **Cambia el nombre y campos según lo que pida tu examen en Shared**.
+> (Ejemplo: `PrescriptionPeriod`, `Period`, `ValidityPeriod`, etc.)
+
+Ruta: `Shared/Domain/Model/«SHARED_VALUE_OBJECT».cs`
+
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Domain.Model;
+
+/// <summary>
+/// Value object representing «DESCRIPCIÓN DEL VO SEGÚN TU EXAMEN».
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public record «SHARED_VALUE_OBJECT»
+{
+    // ← AGREGAR LAS PROPIEDADES SEGÚN TU EXAMEN
+    // Ejemplo PrescriptionPeriod: public DateOnly IssuedDate { get; private set; }
+    //                              public DateOnly ExpirationDate { get; private set; }
+
+    public «SHARED_VALUE_OBJECT»(/* PARÁMETROS SEGÚN TU EXAMEN */)
+    {
         // VALIDACIONES SEGÚN TU EXAMEN
         // Ejemplo:
-        // if (Objects.isNull(value) || value.isBlank())
-        //     throw new IllegalArgumentException("[«SHARED_VALUE_OBJECT»] value cannot be null or blank");
-        // if (!value.matches("REGEX DE TU EXAMEN"))
-        //     throw new IllegalArgumentException("[«SHARED_VALUE_OBJECT»] Invalid format");
+        // if (expirationDate <= issuedDate)
+        //     throw new ArgumentException("ExpirationDate must be after IssuedDate.");
+        // if ((expirationDate.ToDateTime(TimeOnly.MinValue) - issuedDate.ToDateTime(TimeOnly.MinValue)).Days > 30)
+        //     throw new ArgumentException("Period cannot exceed 30 calendar days.");
+        // IssuedDate = issuedDate;
+        // ExpirationDate = expirationDate;
     }
 
-    // Constructor por defecto requerido por JPA (si aplica)
-    public «SHARED_VALUE_OBJECT»() {
-        this(/* valor por defecto */);
-    }
+    /// <summary>Parameterless constructor required by EF Core.</summary>
+    protected «SHARED_VALUE_OBJECT»() { }
+
+    // ← AGREGAR MÉTODOS DE NEGOCIO SI EL EXAMEN LOS PIDE
+    // Ejemplo: public bool IsExpired(DateOnly checkDate) => checkDate > ExpirationDate;
 }
 ```
 
 ---
 
-## PASO 11 — BC2: «BC2_AGGREGATE» (el que hace DATA SEEDING y expone GET)
+### 8.6 AppDbContext.cs
 
-> Normalmente el BC que se siembra con datos es el que tiene el GET. Créalo primero porque el BC1 lo necesita via ACL.
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Configuration/AppDbContext.cs`
 
-### 11.1 Value Objects de BC2 (si aplica)
+```csharp
+using Microsoft.EntityFrameworkCore;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Domain.Model.Aggregates;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+using «NAMESPACE_RAIZ».Shared.Domain.Model;
 
-> Si BC2 tiene value objects propios (además del que ya está en Shared), créalos aquí.
+namespace «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.valueobjects;
+/// <summary>
+/// Entity Framework Core database context for the «NOMBRE_CASO» platform.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class AppDbContext(DbContextOptions options) : DbContext(options)
+{
+    // ← DbSets para cada aggregate
+    public DbSet<«BC1_AGGREGATE»> «BC1_AGGREGATE»s { get; set; }
+    public DbSet<«BC2_AGGREGATE_A»> «BC2_AGGREGATE_A»s { get; set; }
+    public DbSet<«BC2_AGGREGATE_B»> «BC2_AGGREGATE_B»s { get; set; } // si aplica
 
-// Mismo patrón que los value objects del Shared
-// ← COMPLETAR SEGÚN TU EXAMEN
-```
-
-### 11.2 «BC2_AGGREGATE».java (Aggregate Root)
-
-Ruta: `«BC2_PACKAGE»/domain/model/aggregates/«BC2_AGGREGATE».java`
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates;
-
-import «PACKAGE_RAIZ».u202418655.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
-import lombok.Getter;
-import lombok.Setter;
-
-/**
- * Aggregate root representing a «BC2_AGGREGATE» in the «BC2_NOMBRE» bounded context.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Getter
-@Setter  // ← Solo en los campos que necesiten setter
-public class «BC2_AGGREGATE» extends AbstractDomainAggregateRoot<«BC2_AGGREGATE»> {
-
-    private Long id;
-
-    // ← AGREGAR AQUÍ TODOS LOS ATRIBUTOS QUE PIDE TU EXAMEN
-    // Ejemplo:
-    // private String policyNumber;
-    // private String applianceModel;
-    // private «SHARED_VALUE_OBJECT» coveragePeriod;  ← Si usa VO de Shared
-    // private Long lastClaimId;                       ← Si es nullable
-
-    public «BC2_AGGREGATE»() {}
-
-    // Constructor con parámetros (según lo que pida tu examen)
-    public «BC2_AGGREGATE»(/* PARÁMETROS */) {
-        // INICIALIZACIÓN DE ATRIBUTOS
-    }
-}
-```
-
-### 11.3 Enums de BC2 (si aplica)
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.valueobjects;
-
-/**
- * Enumeration for «NOMBRE_ENUM».
- * ← COMPLETAR SEGÚN TU EXAMEN
- *
- * @author Victor Jhosef Laura Acosta
- */
-public enum «NOMBRE_ENUM» {
-    // VALORES SEGÚN TU EXAMEN
-    // Ejemplo: OPEN, IN_PROGRESS, RESOLVED, DENIED
-}
-```
-
-### 11.4 I«BC2_AGGREGATE»Repository.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.repositories;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates.«BC2_AGGREGATE»;
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Repository interface for «BC2_AGGREGATE» aggregate root.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public interface I«BC2_AGGREGATE»Repository {
-
-    «BC2_AGGREGATE» save(«BC2_AGGREGATE» entity);
-
-    Optional<«BC2_AGGREGATE»> findById(Long id);
-
-    List<«BC2_AGGREGATE»> findAll();
-
-    // ← AGREGAR MÉTODOS ESPECÍFICOS QUE TU EXAMEN NECESITE
-    // Ejemplo: boolean existsByPolicyNumber(String policyNumber);
-}
-```
-
-### 11.5 GetAll«BC2_AGGREGATE»sQuery.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.queries;
-
-/**
- * Query to retrieve all «BC2_AGGREGATE»s.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public record GetAll«BC2_AGGREGATE»sQuery() {}
-```
-
-### 11.6 I«BC2_AGGREGATE»QueryService.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».application.queryservices;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates.«BC2_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.queries.GetAll«BC2_AGGREGATE»sQuery;
-import java.util.List;
-
-/**
- * Service interface for handling «BC2_AGGREGATE» queries.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public interface I«BC2_AGGREGATE»QueryService {
-
-    List<«BC2_AGGREGATE»> handle(GetAll«BC2_AGGREGATE»sQuery query);
-}
-```
-
-### 11.7 «BC2_AGGREGATE»QueryServiceImpl.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».application.internal.queryservices;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».application.queryservices.I«BC2_AGGREGATE»QueryService;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates.«BC2_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.queries.GetAll«BC2_AGGREGATE»sQuery;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.repositories.I«BC2_AGGREGATE»Repository;
-import org.springframework.stereotype.Service;
-import java.util.List;
-
-/**
- * Implementation of I«BC2_AGGREGATE»QueryService.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Service
-public class «BC2_AGGREGATE»QueryServiceImpl implements I«BC2_AGGREGATE»QueryService {
-
-    private final I«BC2_AGGREGATE»Repository repository;
-
-    public «BC2_AGGREGATE»QueryServiceImpl(I«BC2_AGGREGATE»Repository repository) {
-        this.repository = repository;
+    /// <inheritdoc/>
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+        // Aplicar naming strategy (snake_case + plural)
+        modelBuilder.UseSnakeCaseNamingConventionWithPluralization();
+        // Configuraciones por BC
+        modelBuilder.Apply«BC1_NAME»Configuration();
+        modelBuilder.Apply«BC2_NAME»Configuration();
     }
 
-    @Override
-    public List<«BC2_AGGREGATE»> handle(GetAll«BC2_AGGREGATE»sQuery query) {
-        return this.repository.findAll();
-    }
-}
-```
-
-### 11.8 «BC2_AGGREGATE»PersistenceEntity.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.entities;
-
-import «PACKAGE_RAIZ».u202418655.shared.infrastructure.persistence.jpa.entities.AuditableAbstractPersistenceEntity;
-import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
-
-/**
- * JPA persistence entity for «BC2_AGGREGATE».
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Entity
-@Getter
-@Setter
-public class «BC2_AGGREGATE»PersistenceEntity extends AuditableAbstractPersistenceEntity {
-
-    // ← AGREGAR AQUÍ TODOS LOS CAMPOS PERSISTIBLES SEGÚN TU EXAMEN
-    // Usa @Column para los simples
-    // Usa @Embedded / @Convert para los value objects
-    // NO incluyas createdAt/updatedAt (ya están en el padre)
-
-    // Ejemplo:
-    // @Column(nullable = false, unique = true)
-    // private String policyNumber;
-    //
-    // @Column(nullable = false)
-    // private String applianceModel;
-    //
-    // @Column(nullable = true)
-    // private Long lastClaimId;
-
-    // Para Value Objects embebidos (si aplica):
-    // @Embedded
-    // private «SHARED_VALUE_OBJECT» coveragePeriod;
-}
-```
-
-### 11.9 «BC2_AGGREGATE»PersistenceRepository.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.repositories;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.entities.«BC2_AGGREGATE»PersistenceEntity;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-
-/**
- * Spring Data JPA repository for «BC2_AGGREGATE»PersistenceEntity.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Repository
-public interface «BC2_AGGREGATE»PersistenceRepository
-        extends JpaRepository<«BC2_AGGREGATE»PersistenceEntity, Long> {
-
-    // ← AGREGAR MÉTODOS DE CONSULTA NECESARIOS
-    // Ejemplo: boolean existsByPolicyNumber(String policyNumber);
-    // Ejemplo: Optional<«BC2_AGGREGATE»PersistenceEntity> findByPolicyNumber(String policyNumber);
-}
-```
-
-### 11.10 «BC2_AGGREGATE»PersistenceAssembler.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.assemblers;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates.«BC2_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.entities.«BC2_AGGREGATE»PersistenceEntity;
-
-/**
- * Assembler for converting between «BC2_AGGREGATE» (domain) and «BC2_AGGREGATE»PersistenceEntity (JPA).
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class «BC2_AGGREGATE»PersistenceAssembler {
-
-    private «BC2_AGGREGATE»PersistenceAssembler() {}
-
-    public static «BC2_AGGREGATE»PersistenceEntity toPersistenceFromDomain(«BC2_AGGREGATE» domain) {
-        var entity = new «BC2_AGGREGATE»PersistenceEntity();
-        entity.setId(domain.getId());
-        // ← MAPEAR CADA CAMPO DE DOMAIN A ENTITY
-        return entity;
+    /// <inheritdoc/>
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        // UseAsyncSeeding — forma recomendada por EF Core para poblar datos iniciales
+        optionsBuilder.UseAsyncSeeding(async (context, _, cancellationToken) =>
+        {
+            // ← SEED DEL «BC2_AGGREGATE_A» (el aggregate que pide tu examen sembrar)
+            var existingCount = await context.Set<«BC2_AGGREGATE_A»>()
+                .CountAsync(cancellationToken: cancellationToken);
+            if (existingCount == 0)
+            {
+                context.Set<«BC2_AGGREGATE_A»>().AddRange(
+                    // AGREGAR AQUÍ LOS REGISTROS INICIALES QUE PIDE TU EXAMEN
+                    // Ejemplo:
+                    // new «BC2_AGGREGATE_A» { /* campos */ },
+                    // new «BC2_AGGREGATE_A» { /* campos */ }
+                );
+                await context.SaveChangesAsync(cancellationToken);
+            }
+        });
     }
 
-    public static «BC2_AGGREGATE» toDomainFromPersistence(«BC2_AGGREGATE»PersistenceEntity entity) {
-        var domain = new «BC2_AGGREGATE»();
-        domain.setId(entity.getId());
-        // ← MAPEAR CADA CAMPO DE ENTITY A DOMAIN
-        return domain;
-    }
-}
-```
-
-### 11.11 «BC2_AGGREGATE»RepositoryImpl.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.adapters;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates.«BC2_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.repositories.I«BC2_AGGREGATE»Repository;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.assemblers.«BC2_AGGREGATE»PersistenceAssembler;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure.persistence.jpa.repositories.«BC2_AGGREGATE»PersistenceRepository;
-import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Implementation of I«BC2_AGGREGATE»Repository using JPA.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Repository
-public class «BC2_AGGREGATE»RepositoryImpl implements I«BC2_AGGREGATE»Repository {
-
-    private final «BC2_AGGREGATE»PersistenceRepository persistenceRepository;
-
-    public «BC2_AGGREGATE»RepositoryImpl(«BC2_AGGREGATE»PersistenceRepository persistenceRepository) {
-        this.persistenceRepository = persistenceRepository;
-    }
-
-    @Override
-    public «BC2_AGGREGATE» save(«BC2_AGGREGATE» entity) {
-        var saved = persistenceRepository
-                .save(«BC2_AGGREGATE»PersistenceAssembler.toPersistenceFromDomain(entity));
-        return «BC2_AGGREGATE»PersistenceAssembler.toDomainFromPersistence(saved);
-    }
-
-    @Override
-    public Optional<«BC2_AGGREGATE»> findById(Long id) {
-        return persistenceRepository.findById(id)
-                .map(«BC2_AGGREGATE»PersistenceAssembler::toDomainFromPersistence);
-    }
-
-    @Override
-    public List<«BC2_AGGREGATE»> findAll() {
-        return persistenceRepository.findAll().stream()
-                .map(«BC2_AGGREGATE»PersistenceAssembler::toDomainFromPersistence)
-                .toList();
-    }
-}
-```
-
-### 11.12 «BC2_AGGREGATE»Resource.java (Response DTO)
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».interfaces.rest.resources;
-
-/**
- * REST resource representing a «BC2_AGGREGATE» response.
- *
- * ← INCLUIR LOS CAMPOS QUE PIDE TU EXAMEN EN EL RESPONSE
- *   (SIN createdAt/updatedAt)
- *
- * @author Victor Jhosef Laura Acosta
- */
-public record «BC2_AGGREGATE»Resource(
-        Long id
-        // ← AGREGAR CAMPOS SEGÚN TU EXAMEN
-) {}
-```
-
-### 11.13 «BC2_AGGREGATE»ResourceFromEntityAssembler.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».interfaces.rest.transform;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates.«BC2_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».interfaces.rest.resources.«BC2_AGGREGATE»Resource;
-
-/**
- * Assembler for converting a «BC2_AGGREGATE» domain entity to a «BC2_AGGREGATE»Resource.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class «BC2_AGGREGATE»ResourceFromEntityAssembler {
-
-    private «BC2_AGGREGATE»ResourceFromEntityAssembler() {}
-
-    public static «BC2_AGGREGATE»Resource toResourceFromEntity(«BC2_AGGREGATE» entity) {
-        return new «BC2_AGGREGATE»Resource(
-                entity.getId()
-                // ← MAPEAR CAMPOS SEGÚN TU EXAMEN
-        );
-    }
-}
-```
-
-### 11.14 «BC2_AGGREGATE»sController.java (GET endpoint)
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».interfaces.rest;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».application.queryservices.I«BC2_AGGREGATE»QueryService;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.queries.GetAll«BC2_AGGREGATE»sQuery;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».interfaces.rest.resources.«BC2_AGGREGATE»Resource;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».interfaces.rest.transform.«BC2_AGGREGATE»ResourceFromEntityAssembler;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import java.util.List;
-
-/**
- * REST controller for «BC2_AGGREGATE» operations.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@RestController
-@RequestMapping(value = "«BC2_ENDPOINT»")
-@Tag(name = "«BC2_AGGREGATE»s", description = "Operations related to «BC2_AGGREGATE» management")
-public class «BC2_AGGREGATE»sController {
-
-    private final I«BC2_AGGREGATE»QueryService queryService;
-
-    public «BC2_AGGREGATE»sController(I«BC2_AGGREGATE»QueryService queryService) {
-        this.queryService = queryService;
-    }
-
-    @GetMapping
-    @Operation(summary = "Get all «BC2_AGGREGATE»s", description = "Returns all «BC2_AGGREGATE»s stored in the system.")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of «BC2_AGGREGATE»s returned successfully")
-    })
-    public ResponseEntity<List<«BC2_AGGREGATE»Resource>> getAll«BC2_AGGREGATE»s() {
-        var query = new GetAll«BC2_AGGREGATE»sQuery();
-        var result = queryService.handle(query);
-        var resources = result.stream()
-                .map(«BC2_AGGREGATE»ResourceFromEntityAssembler::toResourceFromEntity)
-                .toList();
-        return ResponseEntity.ok(resources);
-    }
-}
-```
-
-### 11.15 Data Seeding — «BC2_AGGREGATE»DataSeeder.java
-
-> El EB siempre tiene un seeder que se activa con `ApplicationReadyEvent`.
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».infrastructure;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.model.aggregates.«BC2_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.repositories.I«BC2_AGGREGATE»Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.boot.context.event.ApplicationReadyEvent;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-
-/**
- * Seeds initial «BC2_AGGREGATE» data when the application starts.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Service
-public class «BC2_AGGREGATE»DataSeeder {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(«BC2_AGGREGATE»DataSeeder.class);
-    private final I«BC2_AGGREGATE»Repository repository;
-
-    public «BC2_AGGREGATE»DataSeeder(I«BC2_AGGREGATE»Repository repository) {
-        this.repository = repository;
-    }
-
-    @EventListener
-    public void seed(ApplicationReadyEvent event) {
-        LOGGER.info("Starting «BC2_AGGREGATE» data seeding...");
-
-        // Solo sembrar si no hay datos
-        if (!repository.findAll().isEmpty()) {
-            LOGGER.info("«BC2_AGGREGATE» data already seeded. Skipping.");
-            return;
+    /// <inheritdoc/>
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        var now = DateTimeOffset.UtcNow;
+        foreach (var entry in ChangeTracker.Entries<IAuditableEntity>())
+        {
+            if (entry.State == EntityState.Added)
+                entry.Entity.CreatedAt = now;
+            if (entry.State is EntityState.Added or EntityState.Modified)
+                entry.Entity.UpdatedAt = now;
         }
-
-        // ← CREAR Y GUARDAR CADA OBJETO SEGÚN LOS DATOS DE TU EXAMEN
-        // Ejemplo:
-        // var item1 = new «BC2_AGGREGATE»(/* parámetros del primer registro */);
-        // repository.save(item1);
-        //
-        // var item2 = new «BC2_AGGREGATE»(/* parámetros del segundo registro */);
-        // repository.save(item2);
-        //
-        // ... (todos los registros que pida tu examen)
-
-        LOGGER.info("«BC2_AGGREGATE» data seeding completed.");
+        return base.SaveChangesAsync(cancellationToken);
     }
 }
 ```
 
 ---
 
-## PASO 12 — BC1: «BC1_AGGREGATE» (el que expone el POST y usa ACL hacia BC2)
+### 8.7 NamingConventions.cs (snake_case + plural)
 
-### 12.1 Enums de BC1
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Configuration/NamingConventions.cs`
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.valueobjects;
+```csharp
+using Humanizer;
+using Microsoft.EntityFrameworkCore;
 
-/**
- * Enumeration for «NOMBRE_ENUM_BC1».
- * ← COMPLETAR SEGÚN TU EXAMEN (ej: MealType, DietaryTag, ClaimStatus)
- *
- * @author Victor Jhosef Laura Acosta
- */
-public enum «NOMBRE_ENUM_BC1» {
-    // VALORES SEGÚN TU EXAMEN
-}
-```
+namespace «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-> Si hay varios enums (MealType Y DietaryTag, etc.), crear un archivo por cada uno.
+/// <summary>
+/// Extension methods to apply snake_case and pluralized table naming conventions.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public static class NamingConventions
+{
+    /// <summary>
+    /// Applies snake_case naming for columns and plural snake_case for table names.
+    /// </summary>
+    public static void UseSnakeCaseNamingConventionWithPluralization(this ModelBuilder modelBuilder)
+    {
+        foreach (var entity in modelBuilder.Model.GetEntityTypes())
+        {
+            // Table name: PascalCase → snake_case plural
+            var tableName = entity.GetTableName();
+            if (tableName != null)
+                entity.SetTableName(tableName.Underscore().Pluralize());
 
-### 12.2 «BC1_AGGREGATE».java (Aggregate Root)
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.aggregates;
-
-import «PACKAGE_RAIZ».u202418655.shared.domain.model.aggregates.AbstractDomainAggregateRoot;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.commands.Create«BC1_AGGREGATE»Command;
-import lombok.Getter;
-import lombok.Setter;
-
-/**
- * Aggregate root representing a «BC1_AGGREGATE» in the «BC1_NOMBRE» bounded context.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Getter
-@Setter
-public class «BC1_AGGREGATE» extends AbstractDomainAggregateRoot<«BC1_AGGREGATE»> {
-
-    private Long id;
-
-    // ← AGREGAR AQUÍ TODOS LOS ATRIBUTOS SEGÚN TU EXAMEN
-
-    public «BC1_AGGREGATE»() {}
-
-    /**
-     * Creates a new «BC1_AGGREGATE» from the given command.
-     *
-     * @param command the create command
-     */
-    public «BC1_AGGREGATE»(Create«BC1_AGGREGATE»Command command) {
-        // ← INICIALIZAR ATRIBUTOS DESDE EL COMANDO
-        // Ejemplo:
-        // this.ingredientCode = new IngredientCode(command.ingredientCode());
-        // this.mealType = MealType.valueOf(command.mealType());
-        // ...
-
-        // Si debes emitir un evento al crear:
-        // registerDomainEvent(new «DOMAIN_EVENT_NAME»(/* parámetros del evento */));
+            // Column names: PascalCase → snake_case
+            foreach (var property in entity.GetProperties())
+            {
+                var columnName = property.GetColumnName();
+                if (columnName != null)
+                    property.SetColumnName(columnName.Underscore());
+            }
+        }
     }
 }
 ```
 
-### 12.3 Create«BC1_AGGREGATE»Command.java
+---
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.commands;
+### 8.8 BaseRepository.cs
 
-/**
- * Command to create a new «BC1_AGGREGATE».
- *
- * ← PARÁMETROS SEGÚN LO QUE PIDA TU EXAMEN
- *    Los value objects se pasan como primitivos (String, Long, etc.)
- *    La conversión a value objects ocurre en el constructor del aggregate
- *
- * @author Victor Jhosef Laura Acosta
- */
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/BaseRepository.cs`
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+using «NAMESPACE_RAIZ».Shared.Domain.Repositories;
+using «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+
+namespace «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+
+/// <summary>
+/// Base EF Core repository implementing standard CRUD operations.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public abstract class BaseRepository<TEntity>(AppDbContext context) : IBaseRepository<TEntity>
+    where TEntity : class
+{
+    protected AppDbContext Context { get; } = context;
+
+    public async Task<TEntity?> FindByIdAsync(int id, CancellationToken cancellationToken)
+        => await Context.Set<TEntity>().FindAsync([id], cancellationToken);
+
+    public async Task<IEnumerable<TEntity>> ListAsync(CancellationToken cancellationToken)
+        => await Context.Set<TEntity>().ToListAsync(cancellationToken);
+
+    public async Task AddAsync(TEntity entity, CancellationToken cancellationToken)
+        => await Context.Set<TEntity>().AddAsync(entity, cancellationToken);
+}
+```
+
+---
+
+### 8.9 UnitOfWork.cs
+
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/UnitOfWork.cs`
+
+```csharp
+using «NAMESPACE_RAIZ».Shared.Domain.Repositories;
+using «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+
+namespace «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+
+/// <summary>
+/// EF Core implementation of IUnitOfWork.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class UnitOfWork(AppDbContext context) : IUnitOfWork
+{
+    public async Task CompleteAsync(CancellationToken cancellationToken)
+        => await context.SaveChangesAsync(cancellationToken);
+}
+```
+
+---
+
+### 8.10 GlobalExceptionHandler.cs (Middleware — RFC 7807 ProblemDetails)
+
+Ruta: `Shared/Interfaces/Rest/GlobalExceptionHandler.cs`
+
+```csharp
+using Microsoft.AspNetCore.Mvc;
+
+namespace «NAMESPACE_RAIZ».Shared.Interfaces.Rest;
+
+/// <summary>
+/// Global exception handling middleware that converts unhandled exceptions
+/// to RFC 7807 ProblemDetails responses.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class GlobalExceptionHandler(RequestDelegate next, ILogger<GlobalExceptionHandler> logger)
+{
+    public async Task InvokeAsync(HttpContext context)
+    {
+        try
+        {
+            await next(context);
+        }
+        catch (ArgumentException ex)
+        {
+            logger.LogWarning(ex, "Argument exception occurred");
+            await WriteProblemDetailsAsync(context, StatusCodes.Status400BadRequest,
+                "Bad Request", ex.Message);
+        }
+        catch (InvalidOperationException ex)
+        {
+            logger.LogWarning(ex, "Invalid operation exception occurred");
+            await WriteProblemDetailsAsync(context, StatusCodes.Status422UnprocessableEntity,
+                "Business Rule Violation", ex.Message);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            logger.LogWarning(ex, "Not found exception occurred");
+            await WriteProblemDetailsAsync(context, StatusCodes.Status404NotFound,
+                "Not Found", ex.Message);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An unexpected error occurred");
+            await WriteProblemDetailsAsync(context, StatusCodes.Status500InternalServerError,
+                "Internal Server Error", "An unexpected error occurred. Please try again later.");
+        }
+    }
+
+    private static async Task WriteProblemDetailsAsync(
+        HttpContext context, int statusCode, string title, string detail)
+    {
+        var problem = new ProblemDetails
+        {
+            Status = statusCode,
+            Title = title,
+            Detail = detail,
+            Instance = context.Request.Path
+        };
+        context.Response.StatusCode = statusCode;
+        context.Response.ContentType = "application/problem+json";
+        await context.Response.WriteAsJsonAsync(problem);
+    }
+}
+```
+
+> Registrar en `Program.cs` ANTES de `app.UseHttpsRedirection()`:
+> ```csharp
+> app.UseMiddleware<GlobalExceptionHandler>();
+> ```
+
+---
+
+### 8.11 Shared Resources (.resx)
+
+Crear `Shared/Resources/SharedMessages.cs`:
+
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Resources;
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class SharedMessages;
+```
+
+Crear `Shared/Resources/SharedMessages.resx` (EN):
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="NotFound" xml:space="preserve"><value>The requested resource was not found.</value></data>
+  <data name="Conflict" xml:space="preserve"><value>The resource already exists.</value></data>
+  <data name="BadRequest" xml:space="preserve"><value>The request is invalid.</value></data>
+  <data name="InternalServerError" xml:space="preserve"><value>An unexpected error occurred.</value></data>
+</root>
+```
+
+Crear `Shared/Resources/SharedMessages.es.resx` (ES):
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="NotFound" xml:space="preserve"><value>El recurso solicitado no fue encontrado.</value></data>
+  <data name="Conflict" xml:space="preserve"><value>El recurso ya existe.</value></data>
+  <data name="BadRequest" xml:space="preserve"><value>La solicitud es inválida.</value></data>
+  <data name="InternalServerError" xml:space="preserve"><value>Ocurrió un error inesperado.</value></data>
+</root>
+```
+
+---
+
+## PASO 9 — ProcessedEvents (Idempotencia)
+
+### IProcessedEventRepository.cs
+
+Ruta: `Shared/Domain/Repositories/IProcessedEventRepository.cs`
+
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Domain.Repositories;
+
+/// <summary>
+/// Repository for tracking processed domain events (idempotency).
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public interface IProcessedEventRepository
+{
+    Task<bool> ExistsByEventIdAsync(Guid eventId, CancellationToken cancellationToken);
+    Task AddAsync(Guid eventId, string eventType, string aggregateId, CancellationToken cancellationToken);
+}
+```
+
+### ProcessedEvent.cs (Entity)
+
+Ruta: `Shared/Domain/Model/ProcessedEvent.cs`
+
+```csharp
+namespace «NAMESPACE_RAIZ».Shared.Domain.Model;
+
+/// <summary>
+/// Tracks processed domain events to ensure idempotent event handling.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class ProcessedEvent
+{
+    public Guid EventId { get; private set; }
+    public string EventType { get; private set; } = string.Empty;
+    public string AggregateId { get; private set; } = string.Empty;
+    public DateTimeOffset ProcessedAt { get; private set; }
+
+    protected ProcessedEvent() { }
+
+    public ProcessedEvent(Guid eventId, string eventType, string aggregateId)
+    {
+        EventId = eventId;
+        EventType = eventType;
+        AggregateId = aggregateId;
+        ProcessedAt = DateTimeOffset.UtcNow;
+    }
+}
+```
+
+### ProcessedEventRepository.cs
+
+Ruta: `Shared/Infrastructure/Persistence/EntityFrameworkCore/Repositories/ProcessedEventRepository.cs`
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+using «NAMESPACE_RAIZ».Shared.Domain.Model;
+using «NAMESPACE_RAIZ».Shared.Domain.Repositories;
+using «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
+
+namespace «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Repositories;
+
+/// <summary>
+/// EF Core implementation of IProcessedEventRepository.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class ProcessedEventRepository(AppDbContext context) : IProcessedEventRepository
+{
+    public async Task<bool> ExistsByEventIdAsync(Guid eventId, CancellationToken cancellationToken)
+        => await context.Set<ProcessedEvent>()
+            .AnyAsync(e => e.EventId == eventId, cancellationToken);
+
+    public async Task AddAsync(Guid eventId, string eventType, string aggregateId,
+        CancellationToken cancellationToken)
+    {
+        var processed = new ProcessedEvent(eventId, eventType, aggregateId);
+        await context.Set<ProcessedEvent>().AddAsync(processed, cancellationToken);
+    }
+}
+```
+
+> Agregar `DbSet<ProcessedEvent>` al `AppDbContext` y agregar a la tabla en `ModelBuilderExtensions`.
+
+---
+
+## PASO 10 — BC1: «BC1_NAME» (Aggregate con POST)
+
+### 10.1 Value Objects de BC1
+
+> Crear uno por cada VO que BC1 tenga propio (no los de Shared).
+
+Ruta: `«BC1_FOLDER»/Domain/Model/ValueObjects/«VO_NAME».cs`
+
+```csharp
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.ValueObjects;
+
+/// <summary>
+/// Value object representing «DESCRIPCIÓN».
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+/// <param name="Value">The underlying value.</param>
+public record «VO_NAME»(Guid Value)
+{
+    // ← Si el VO es un UUID generado en otro BC, solo necesita el Guid
+    // Si tiene validación propia, agregar aquí:
+    // public «VO_NAME» { if (Value == Guid.Empty) throw new ArgumentException("..."); }
+
+    public override string ToString() => Value.ToString();
+}
+```
+
+### 10.2 Enums de BC1 (si aplica)
+
+```csharp
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+
+/// <summary>Represents the status of a «BC1_AGGREGATE».</summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public enum «BC1_ENUM_NAME»
+{
+    // ← VALORES SEGÚN TU EXAMEN (ej: Active, Inactive, Expired)
+}
+```
+
+### 10.3 «BC1_AGGREGATE».cs (Aggregate Root)
+
+Ruta: `«BC1_FOLDER»/Domain/Model/Aggregates/«BC1_AGGREGATE».cs`
+
+```csharp
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.ValueObjects;
+using «NAMESPACE_RAIZ».Shared.Domain.Model;
+
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+
+/// <summary>
+/// Aggregate root representing a «BC1_AGGREGATE» in the «BC1_NAME» bounded context.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public partial class «BC1_AGGREGATE»
+{
+    public int Id { get; private set; }
+
+    // ← AGREGAR TODOS LOS ATRIBUTOS QUE PIDE TU EXAMEN
+    // Ejemplo:
+    // public «VO_NAME» «VO_PROP_NAME» { get; private set; }
+    // public string Name { get; private set; } = string.Empty;
+    // public «BC1_ENUM_NAME» Status { get; private set; }
+    // public «SHARED_VALUE_OBJECT» Period { get; private set; }
+    // public int? LastDispensationId { get; private set; }  ← nullable
+
+    protected «BC1_AGGREGATE»() { }
+
+    public «BC1_AGGREGATE»(/* PARÁMETROS SEGÚN TU EXAMEN */)
+    {
+        // INICIALIZAR ATRIBUTOS
+        // Ejemplo:
+        // «VO_PROP_NAME» = new «VO_NAME»(prescriptionIdentifier);
+        // Period = new «SHARED_VALUE_OBJECT»(issuedDate, expirationDate);
+        // Status = «BC1_ENUM_NAME».Active;
+    }
+
+    // ← MÉTODOS DE NEGOCIO QUE PIDA TU EXAMEN
+    // Ejemplo:
+    // public bool CanBeDispensed() =>
+    //     Status == «BC1_ENUM_NAME».Active &&
+    //     !Period.IsExpired(DateOnly.FromDateTime(DateTime.Today)) &&
+    //     LastDispensationId == null;
+    //
+    // public void SetLastDispensationId(int id) => LastDispensationId = id;
+}
+```
+
+### 10.4 «BC1_AGGREGATE»Audit.cs (partial class — IMPORTANTE para C04)
+
+Ruta: `«BC1_FOLDER»/Domain/Model/Aggregates/«BC1_AGGREGATE»Audit.cs`
+
+```csharp
+using «NAMESPACE_RAIZ».Shared.Domain.Model;
+
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+
+/// <summary>
+/// Partial class providing auditing capabilities to the «BC1_AGGREGATE» aggregate root.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public partial class «BC1_AGGREGATE» : IAuditableEntity
+{
+    public DateTimeOffset? CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
+}
+```
+
+### 10.5 Create«BC1_AGGREGATE»Command.cs
+
+```csharp
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Commands;
+
+/// <summary>
+/// Command to create a new «BC1_AGGREGATE».
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
 public record Create«BC1_AGGREGATE»Command(
-        // ← AGREGAR CAMPOS SEGÚN TU EXAMEN
-        // Ejemplo:
-        // String ingredientCode,
-        // String mealType,
-        // Double portionGrams,
-        // ...
-) {
-    public Create«BC1_AGGREGATE»Command {
-        // Validaciones básicas (null checks)
-        // Ejemplo:
-        // if (ingredientCode == null) throw new IllegalArgumentException("ingredientCode cannot be null");
-    }
+    // ← CAMPOS SEGÚN TU EXAMEN (como primitivos, no como VOs)
+    // Ejemplo:
+    // Guid PrescriptionIdentifier,
+    // Guid PatientId,
+    // DateOnly IssuedDate,
+    // DateOnly ExpirationDate,
+    // string Status
+);
+```
+
+### 10.6 I«BC1_AGGREGATE»Repository.cs
+
+```csharp
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Repositories;
+
+/// <summary>
+/// Domain repository interface for the «BC1_AGGREGATE» aggregate root.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public interface I«BC1_AGGREGATE»Repository
+{
+    Task<«BC1_AGGREGATE»?> FindByIdAsync(int id, CancellationToken cancellationToken);
+    Task AddAsync(«BC1_AGGREGATE» entity, CancellationToken cancellationToken);
+
+    // ← MÉTODOS ESPECÍFICOS DEL DOMINIO
+    // Ejemplo: Task<bool> ExistsByPrescriptionIdentifierAsync(Guid id, CancellationToken ct);
+    // Ejemplo: Task<«BC1_AGGREGATE»?> FindByPrescriptionIdentifierAsync(Guid id, CancellationToken ct);
 }
 ```
 
-### 12.4 «DOMAIN_EVENT_NAME».java (Evento de integración)
+### 10.7 I«BC1_AGGREGATE»CommandService.cs
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.events;
+```csharp
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Commands;
+using «NAMESPACE_RAIZ».Shared.Application.Model;
 
-/**
- * Integration event published when a «BC1_AGGREGATE» is successfully created.
- * This event is consumed by the «BC2_NOMBRE» bounded context.
- *
- * ← PARÁMETROS SEGÚN TU EXAMEN
- *
- * @author Victor Jhosef Laura Acosta
- */
-public record «DOMAIN_EVENT_NAME»(
-        // ← AGREGAR LOS CAMPOS QUE EL EVENTO DEBE LLEVAR
-        // Ejemplo (RecipeVault): String ingredientCode, Double portionGrams
-        // Ejemplo (Whirlpool): Long policyId, Long claimId, LocalDateTime reportedAt
-) {}
-```
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Application.CommandServices;
 
-### 12.5 I«BC1_AGGREGATE»Repository.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.repositories;
-
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.aggregates.«BC1_AGGREGATE»;
-import java.util.Optional;
-
-/**
- * Repository interface for «BC1_AGGREGATE» aggregate root.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public interface I«BC1_AGGREGATE»Repository {
-
-    «BC1_AGGREGATE» save(«BC1_AGGREGATE» entity);
-
-    Optional<«BC1_AGGREGATE»> findById(Long id);
-
-    // ← AGREGAR MÉTODOS ESPECÍFICOS QUE TU EXAMEN NECESITE
+/// <summary>
+/// Application service interface for «BC1_AGGREGATE» command operations.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public interface I«BC1_AGGREGATE»CommandService
+{
+    Task<Result<«BC1_AGGREGATE»>> Handle(
+        Create«BC1_AGGREGATE»Command command, CancellationToken cancellationToken);
 }
 ```
 
-### 12.6 ACL — «BC2_AGGREGATE»ContextFacade.java
+### 10.8 «BC1_NAME»Messages (.resx)
 
-> El ACL es la "capa anticorrupción" que BC1 usa para consultar datos de BC2 **sin acoplarse directamente a su infraestructura**.
+Crear `«BC1_FOLDER»/Resources/«BC1_NAME»Messages.cs`:
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».infrastructure.acl;
-
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.repositories.I«BC2_AGGREGATE»Repository;
-import org.springframework.stereotype.Service;
-
-/**
- * Anti-Corruption Layer facade that allows the «BC1_NOMBRE» bounded context
- * to access information from the «BC2_NOMBRE» bounded context.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Service
-public class «BC2_AGGREGATE»ContextFacade {
-
-    private final I«BC2_AGGREGATE»Repository «BC2_AGGREGATE_LOWER»Repository;
-
-    public «BC2_AGGREGATE»ContextFacade(I«BC2_AGGREGATE»Repository «BC2_AGGREGATE_LOWER»Repository) {
-        this.«BC2_AGGREGATE_LOWER»Repository = «BC2_AGGREGATE_LOWER»Repository;
-    }
-
-    /**
-     * Checks if a «BC2_AGGREGATE» with the given identifier exists.
-     * ← ADAPTAR SEGÚN LO QUE TU EXAMEN NECESITE CONSULTAR
-     *
-     * @param identifier the identifier to look up
-     * @return true if it exists; false otherwise
-     */
-    public boolean existsBy«CAMPO_CLAVE»(/* TIPO */ identifier) {
-        // ← IMPLEMENTAR LA CONSULTA USANDO EL REPOSITORIO DE BC2
-        // Ejemplo (RecipeVault):
-        // return ingredientRepository.findAll().stream()
-        //         .anyMatch(i -> i.getCode().value().equals(code));
-        // Ejemplo (Whirlpool):
-        // return policyRepository.findById(policyId).isPresent();
-        return false; // ← REEMPLAZAR
-    }
-
-    /**
-     * ← AGREGAR MÁS MÉTODOS SI TU EXAMEN LOS NECESITA
-     * Por ejemplo, obtener el coverageStatus de una Policy
-     */
-}
+```csharp
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Resources;
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class «BC1_NAME»Messages;
 ```
 
-### 12.7 I«BC1_AGGREGATE»CommandService.java
-
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».application.commandservices;
-
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.commands.Create«BC1_AGGREGATE»Command;
-import «PACKAGE_RAIZ».u202418655.shared.application.result.ApplicationError;
-import «PACKAGE_RAIZ».u202418655.shared.application.result.Result;
-
-/**
- * Service interface for handling «BC1_AGGREGATE» commands.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public interface I«BC1_AGGREGATE»CommandService {
-
-    Result<Long, ApplicationError> handle(Create«BC1_AGGREGATE»Command command);
-}
+Crear `«BC1_FOLDER»/Resources/«BC1_NAME»Messages.resx` (EN):
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="«BC1_AGGREGATE»AlreadyExists" xml:space="preserve">
+    <value>A «BC1_AGGREGATE» with the given identifier already exists.</value>
+  </data>
+  <!-- ← AGREGAR MÁS MENSAJES SEGÚN LAS REGLAS DE NEGOCIO DE TU EXAMEN -->
+</root>
 ```
 
-### 12.8 «BC1_AGGREGATE»CommandServiceImpl.java
+Crear `«BC1_FOLDER»/Resources/«BC1_NAME»Messages.es.resx` (ES):
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <data name="«BC1_AGGREGATE»AlreadyExists" xml:space="preserve">
+    <value>Ya existe un «BC1_AGGREGATE» con el identificador indicado.</value>
+  </data>
+</root>
+```
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».application.internal.commandservices;
+### 10.9 «BC1_AGGREGATE»CommandService.cs (Internal)
 
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».application.commandservices.I«BC1_AGGREGATE»CommandService;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.aggregates.«BC1_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.commands.Create«BC1_AGGREGATE»Command;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.repositories.I«BC1_AGGREGATE»Repository;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».infrastructure.acl.«BC2_AGGREGATE»ContextFacade;
-import «PACKAGE_RAIZ».u202418655.shared.application.result.ApplicationError;
-import «PACKAGE_RAIZ».u202418655.shared.application.result.Result;
-import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.stereotype.Service;
+```csharp
+using Microsoft.Extensions.Localization;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Application.CommandServices;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Commands;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Repositories;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Resources;
+using «NAMESPACE_RAIZ».Shared.Application.Model;
+using «NAMESPACE_RAIZ».Shared.Domain.Repositories;
 
-/**
- * Implementation of I«BC1_AGGREGATE»CommandService.
- *
- * Business rules enforced:
- * ← LISTAR LAS REGLAS DE NEGOCIO DE TU EXAMEN
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Service
-public class «BC1_AGGREGATE»CommandServiceImpl implements I«BC1_AGGREGATE»CommandService {
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Application.Internal.CommandServices;
 
-    private final I«BC1_AGGREGATE»Repository repository;
-    private final «BC2_AGGREGATE»ContextFacade «BC2_AGGREGATE_LOWER»ContextFacade;
-    private final ApplicationEventPublisher eventPublisher;
+/// <summary>
+/// Handles «BC1_AGGREGATE» creation commands, enforcing business rules.
+/// Business rules enforced:
+/// ← LISTAR LAS REGLAS DE NEGOCIO DE TU EXAMEN AQUÍ
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class «BC1_AGGREGATE»CommandService(
+    I«BC1_AGGREGATE»Repository repository,
+    IUnitOfWork unitOfWork,
+    IStringLocalizer<«BC1_NAME»Messages> localizer) : I«BC1_AGGREGATE»CommandService
+{
+    public async Task<Result<«BC1_AGGREGATE»>> Handle(
+        Create«BC1_AGGREGATE»Command command, CancellationToken cancellationToken)
+    {
+        // BUSINESS RULE: No duplicate «UNIQUE_FIELD»
+        // ← Adaptar según tu examen
+        // if (await repository.ExistsByAsync(command.«UNIQUE_FIELD»ID, cancellationToken))
+        //     return Result<«BC1_AGGREGATE»>.Failure(
+        //         "«BC1_AGGREGATE»AlreadyExists",
+        //         localizer["«BC1_AGGREGATE»AlreadyExists"]);
 
-    public «BC1_AGGREGATE»CommandServiceImpl(
-            I«BC1_AGGREGATE»Repository repository,
-            «BC2_AGGREGATE»ContextFacade «BC2_AGGREGATE_LOWER»ContextFacade,
-            ApplicationEventPublisher eventPublisher) {
-        this.repository = repository;
-        this.«BC2_AGGREGATE_LOWER»ContextFacade = «BC2_AGGREGATE_LOWER»ContextFacade;
-        this.eventPublisher = eventPublisher;
-    }
-
-    @Override
-    public Result<Long, ApplicationError> handle(Create«BC1_AGGREGATE»Command command) {
-
-        // BUSINESS RULE: Validar via ACL que el «BC2_AGGREGATE» referenciado existe
-        // ← ADAPTAR SEGÚN TU EXAMEN
-        // Ejemplo (RecipeVault):
-        // if (!ingredientContextFacade.existsByCode(command.ingredientCode())) {
-        //     return Result.failure(ApplicationError.notFound("Ingredient", command.ingredientCode()));
-        // }
-        //
-        // Ejemplo (Whirlpool):
-        // var policy = policyContextFacade.findById(command.policyId());
-        // if (policy.isEmpty())
-        //     return Result.failure(ApplicationError.notFound("Policy", command.policyId().toString()));
-        // if (policy.get().getCoverageStatus() == CoverageStatus.EXPIRED)
-        //     return Result.failure(ApplicationError.businessRuleViolation("policy-coverage", "Policy is EXPIRED"));
-
-        // BUSINESS RULE: Otras validaciones de tu examen
-        // ← AGREGAR AQUÍ
+        // BUSINESS RULE: Validaciones adicionales
+        // ← IMPLEMENTAR SEGÚN TU EXAMEN
 
         // Crear el aggregate
-        var entity = new «BC1_AGGREGATE»(command);
-
-        try {
-            entity = repository.save(entity);
-        } catch (Exception e) {
-            return Result.failure(ApplicationError.unexpected("create-«BC1_AGGREGATE_LOWER»", e.getMessage()));
+        «BC1_AGGREGATE» entity;
+        try
+        {
+            entity = new «BC1_AGGREGATE»(/* parámetros del command */);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<«BC1_AGGREGATE»>.Failure("ValidationError", ex.Message);
         }
 
-        // Publicar el evento de integración (si BC1 lo emite directamente)
-        // ← Si el aggregate ya registra el evento via registerDomainEvent(), Spring lo publica automáticamente
-        //    Si prefieres publicarlo manualmente aquí:
-        // eventPublisher.publishEvent(new «DOMAIN_EVENT_NAME»(/* parámetros */));
+        await repository.AddAsync(entity, cancellationToken);
+        await unitOfWork.CompleteAsync(cancellationToken);
 
-        return Result.success(entity.getId());
+        return Result<«BC1_AGGREGATE»>.Success(entity);
     }
 }
 ```
 
-### 12.9 Event Handler en BC2 — «DOMAIN_EVENT_NAME»Handler.java
+### 10.10 Fluent API para BC1
 
-> BC2 escucha el evento que emite BC1 y actualiza sus datos.
+Ruta: `«BC1_FOLDER»/Infrastructure/Persistence/EntityFrameworkCore/Configuration/ModelBuilderExtensions.cs`
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».application.internal.eventhandlers;
+```csharp
+using Microsoft.EntityFrameworkCore;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
 
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.events.«DOMAIN_EVENT_NAME»;
-import «PACKAGE_RAIZ».u202418655.«BC2_PACKAGE».domain.repositories.I«BC2_AGGREGATE»Repository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-/**
- * Event handler for «DOMAIN_EVENT_NAME».
- * Updates «BC2_AGGREGATE» data when a «BC1_AGGREGATE» event is received.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@Service
-public class «DOMAIN_EVENT_NAME»Handler {
+/// <summary>
+/// Extension methods to apply «BC1_NAME» bounded context EF Core configuration.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public static class ModelBuilderExtensions
+{
+    public static void Apply«BC1_NAME»Configuration(this ModelBuilder builder)
+    {
+        builder.Entity<«BC1_AGGREGATE»>(entity =>
+        {
+            entity.ToTable("«BC1_AGGREGATE_PLURAL_SNAKE»"); // ej: prescriptions
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(«DOMAIN_EVENT_NAME»Handler.class);
-    private final I«BC2_AGGREGATE»Repository repository;
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Id)
+                .HasColumnName("id")
+                .IsRequired()
+                .ValueGeneratedOnAdd();
 
-    public «DOMAIN_EVENT_NAME»Handler(I«BC2_AGGREGATE»Repository repository) {
-        this.repository = repository;
-    }
-
-    @EventListener
-    @Transactional
-    public void on(«DOMAIN_EVENT_NAME» event) {
-        LOGGER.info("Handling «DOMAIN_EVENT_NAME»: {}", event);
-
-        // ← IMPLEMENTAR LA LÓGICA QUE PIDA TU EXAMEN
-        // Ejemplo (RecipeVault): actualizar defaultPortionGrams si el nuevo es menor
-        // var ingredient = repository.findByCode(event.ingredientCode())
-        //         .orElseThrow(() -> new IllegalArgumentException("Ingredient not found"));
-        // if (event.portionGrams() < ingredient.getDefaultPortionGrams()) {
-        //     ingredient.setDefaultPortionGrams(event.portionGrams());
-        //     repository.save(ingredient);
-        // }
-        //
-        // Ejemplo (Whirlpool): actualizar lastClaimId en Policy
-        // var policy = repository.findById(event.policyId())
-        //         .orElseThrow(() -> new IllegalArgumentException("Policy not found"));
-        // policy.setLastClaimId(event.claimId());
-        // repository.save(policy);
+            // ← MAPEAR CADA PROPIEDAD CON HasColumnName Y CONSTRAINTS
+            // Ejemplo Value Object embebido:
+            // entity.OwnsOne(e => e.Period, vo =>
+            // {
+            //     vo.Property(x => x.IssuedDate).HasColumnName("issued_date").IsRequired();
+            //     vo.Property(x => x.ExpirationDate).HasColumnName("expiration_date").IsRequired();
+            // });
+            //
+            // Ejemplo enum como string:
+            // entity.Property(e => e.Status).HasColumnName("status").HasConversion<string>().IsRequired();
+            //
+            // Ejemplo nullable:
+            // entity.Property(e => e.LastDispensationId).HasColumnName("last_dispensation_id").IsRequired(false);
+            //
+            // Auditoría:
+            entity.Property(e => e.CreatedAt).HasColumnName("created_at");
+            entity.Property(e => e.UpdatedAt).HasColumnName("updated_at");
+        });
     }
 }
 ```
 
-### 12.10 «BC1_AGGREGATE»PersistenceEntity.java, Repository, Assembler, RepositoryImpl
+### 10.11 «BC1_AGGREGATE»Repository.cs (Infrastructure)
 
-> Seguir **el mismo patrón exacto** que BC2 (pasos 11.8 al 11.11), cambiando «BC2» por «BC1» en todos los nombres. La estructura es idéntica.
+```csharp
+using Microsoft.EntityFrameworkCore;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Repositories;
+using «NAMESPACE_RAIZ».Shared.Infrastructure.Persistence.EntityFrameworkCore.Configuration;
 
-### 12.11 Create«BC1_AGGREGATE»Resource.java (Request DTO)
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Infrastructure.Persistence.EntityFrameworkCore.Repositories;
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.resources;
+/// <summary>
+/// EF Core repository for the «BC1_AGGREGATE» aggregate root.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class «BC1_AGGREGATE»Repository(AppDbContext context) : I«BC1_AGGREGATE»Repository
+{
+    public async Task<«BC1_AGGREGATE»?> FindByIdAsync(int id, CancellationToken cancellationToken)
+        => await context.Set<«BC1_AGGREGATE»>().FindAsync([id], cancellationToken);
 
-/**
- * REST resource for creating a new «BC1_AGGREGATE».
- *
- * ← Los value objects se "aplanan" en campos primitivos.
- *   El id NO se incluye (es autogenerado).
- *
- * @author Victor Jhosef Laura Acosta
- */
+    public async Task AddAsync(«BC1_AGGREGATE» entity, CancellationToken cancellationToken)
+        => await context.Set<«BC1_AGGREGATE»>().AddAsync(entity, cancellationToken);
+
+    // ← IMPLEMENTAR MÉTODOS ESPECÍFICOS
+    // Ejemplo:
+    // public async Task<bool> ExistsByPrescriptionIdentifierAsync(Guid id, CancellationToken ct)
+    //     => await context.Set<«BC1_AGGREGATE»>()
+    //         .AnyAsync(e => e.PrescriptionIdentifier.Value == id, ct);
+}
+```
+
+### 10.12 Resources (Request/Response DTOs)
+
+`«BC1_FOLDER»/Interfaces/Rest/Resources/Create«BC1_AGGREGATE»Resource.cs`:
+
+```csharp
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Resources;
+
+/// <summary>
+/// Request resource for creating a new «BC1_AGGREGATE».
+/// Value object attributes are flattened into primitives.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
 public record Create«BC1_AGGREGATE»Resource(
-        // ← AGREGAR CAMPOS SEGÚN TU EXAMEN
-        // Todos los campos de value objects se pasan como primitivos
-        // Ejemplo:
-        // String ingredientCode,
-        // String mealType,
-        // Double portionGrams,
-        // Double calories,
-        // String dietaryTag,
-        // String recordedAt        ← Si es fecha como String "yyyy-MM-dd HH:mm:ss"
-) {
-    public Create«BC1_AGGREGATE»Resource {
-        // Validaciones en el boundary
-        // Ejemplo:
-        // if (ingredientCode == null || ingredientCode.isBlank())
-        //     throw new IllegalArgumentException("ingredientCode cannot be null or blank");
-    }
-}
+    // ← CAMPOS SEGÚN TU EXAMEN (primitivos, sin el ID autogenerado)
+    // Ejemplo:
+    // Guid PrescriptionIdentifier,
+    // Guid PatientId,
+    // DateOnly IssuedDate,
+    // DateOnly ExpirationDate,
+    // string Status
+);
 ```
 
-### 12.12 «BC1_AGGREGATE»Resource.java (Response DTO)
+`«BC1_FOLDER»/Interfaces/Rest/Resources/«BC1_AGGREGATE»Resource.cs`:
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.resources;
+```csharp
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Resources;
 
-/**
- * REST resource representing a «BC1_AGGREGATE» response.
- *
- * ← INCLUIR LOS CAMPOS QUE PIDE TU EXAMEN (SIN createdAt/updatedAt)
- *
- * @author Victor Jhosef Laura Acosta
- */
+/// <summary>
+/// Response resource representing a «BC1_AGGREGATE».
+/// Does NOT include audit fields (CreatedAt, UpdatedAt).
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
 public record «BC1_AGGREGATE»Resource(
-        Long id
-        // ← AGREGAR CAMPOS SEGÚN TU EXAMEN
-) {}
+    int Id
+    // ← AGREGAR CAMPOS SEGÚN LO QUE PIDA TU EXAMEN EN EL RESPONSE
+    // (SIN CreatedAt ni UpdatedAt)
+);
 ```
 
-### 12.13 Create«BC1_AGGREGATE»CommandFromResourceAssembler.java
+### 10.13 Assemblers
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.transform;
+`Transform/Create«BC1_AGGREGATE»CommandFromResourceAssembler.cs`:
 
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.commands.Create«BC1_AGGREGATE»Command;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.resources.Create«BC1_AGGREGATE»Resource;
+```csharp
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Commands;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Resources;
 
-/**
- * Assembler for converting a Create«BC1_AGGREGATE»Resource to a Create«BC1_AGGREGATE»Command.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class Create«BC1_AGGREGATE»CommandFromResourceAssembler {
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Transform;
 
-    private Create«BC1_AGGREGATE»CommandFromResourceAssembler() {}
-
-    public static Create«BC1_AGGREGATE»Command toCommandFromResource(Create«BC1_AGGREGATE»Resource resource) {
-        return new Create«BC1_AGGREGATE»Command(
-                // ← MAPEAR CAMPOS DEL RESOURCE AL COMANDO
-                // Ejemplo:
-                // resource.ingredientCode(),
-                // resource.mealType(),
-                // resource.portionGrams()
-        );
-    }
+/// <summary>
+/// Assembler that transforms a Create«BC1_AGGREGATE»Resource into a Create«BC1_AGGREGATE»Command.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public static class Create«BC1_AGGREGATE»CommandFromResourceAssembler
+{
+    public static Create«BC1_AGGREGATE»Command ToCommandFromResource(
+        Create«BC1_AGGREGATE»Resource resource)
+        => new(/* MAPEAR CAMPOS DEL RESOURCE AL COMMAND */);
 }
 ```
 
-### 12.14 «BC1_AGGREGATE»ResourceFromEntityAssembler.java
+`Transform/«BC1_AGGREGATE»ResourceFromEntityAssembler.cs`:
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.transform;
+```csharp
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Model.Aggregates;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Resources;
 
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.aggregates.«BC1_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.resources.«BC1_AGGREGATE»Resource;
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Transform;
 
-/**
- * Assembler for converting a «BC1_AGGREGATE» domain entity to a «BC1_AGGREGATE»Resource.
- *
- * @author Victor Jhosef Laura Acosta
- */
-public final class «BC1_AGGREGATE»ResourceFromEntityAssembler {
-
-    private «BC1_AGGREGATE»ResourceFromEntityAssembler() {}
-
-    public static «BC1_AGGREGATE»Resource toResourceFromEntity(«BC1_AGGREGATE» entity) {
-        return new «BC1_AGGREGATE»Resource(
-                entity.getId()
-                // ← MAPEAR CAMPOS SEGÚN TU EXAMEN
-        );
-    }
+/// <summary>
+/// Assembler that maps a «BC1_AGGREGATE» domain entity to a «BC1_AGGREGATE»Resource.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public static class «BC1_AGGREGATE»ResourceFromEntityAssembler
+{
+    public static «BC1_AGGREGATE»Resource ToResourceFromEntity(«BC1_AGGREGATE» entity)
+        => new(entity.Id /* , MAPEAR DEMÁS CAMPOS */);
 }
 ```
 
-### 12.15 «BC1_AGGREGATE»sController.java (POST endpoint)
+### 10.14 Controller BC1 (POST)
 
-```java
-package «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest;
+```csharp
+using System.Net.Mime;
+using Microsoft.AspNetCore.Mvc;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Application.CommandServices;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Resources;
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest.Transform;
+using Swashbuckle.AspNetCore.Annotations;
 
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».application.commandservices.I«BC1_AGGREGATE»CommandService;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.aggregates.«BC1_AGGREGATE»;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».domain.model.queries.GetAll«BC1_AGGREGATE»sQuery;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.resources.Create«BC1_AGGREGATE»Resource;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.resources.«BC1_AGGREGATE»Resource;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.transform.Create«BC1_AGGREGATE»CommandFromResourceAssembler;
-import «PACKAGE_RAIZ».u202418655.«BC1_PACKAGE».interfaces.rest.transform.«BC1_AGGREGATE»ResourceFromEntityAssembler;
-import «PACKAGE_RAIZ».u202418655.shared.application.result.ApplicationError;
-import «PACKAGE_RAIZ».u202418655.shared.application.result.Result;
-import «PACKAGE_RAIZ».u202418655.shared.interfaces.rest.transform.ResponseEntityAssembler;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+namespace «NAMESPACE_RAIZ».«BC1_FOLDER».Interfaces.Rest;
 
-/**
- * REST controller for «BC1_AGGREGATE» operations.
- *
- * @author Victor Jhosef Laura Acosta
- */
-@RestController
-@RequestMapping(value = "«BC1_ENDPOINT»")
-@Tag(name = "«BC1_AGGREGATE»s", description = "Operations related to «BC1_AGGREGATE» management")
-public class «BC1_AGGREGATE»sController {
+/// <summary>
+/// REST controller for «BC1_AGGREGATE» operations.
+/// Base URL: «BC1_ENDPOINT»
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+[ApiController]
+[Route("«BC1_ENDPOINT»")]
+[Produces(MediaTypeNames.Application.Json)]
+[SwaggerTag("«BC1_AGGREGATE» management operations")]
+public class «BC1_AGGREGATE»sController(
+    I«BC1_AGGREGATE»CommandService commandService) : ControllerBase
+{
+    [HttpPost]
+    [SwaggerOperation(
+        Summary = "Create a new «BC1_AGGREGATE»",
+        Description = "Registers a new «BC1_AGGREGATE». The id is auto-generated.",
+        OperationId = "Create«BC1_AGGREGATE»")]
+    [SwaggerResponse(StatusCodes.Status201Created,
+        "«BC1_AGGREGATE» created successfully.", typeof(«BC1_AGGREGATE»Resource))]
+    [SwaggerResponse(StatusCodes.Status400BadRequest, "Invalid input data.")]
+    [SwaggerResponse(StatusCodes.Status409Conflict,
+        "A «BC1_AGGREGATE» with the same identifier already exists.")]
+    public async Task<IActionResult> Create«BC1_AGGREGATE»(
+        [FromBody] Create«BC1_AGGREGATE»Resource resource,
+        CancellationToken cancellationToken)
+    {
+        var command = Create«BC1_AGGREGATE»CommandFromResourceAssembler
+            .ToCommandFromResource(resource);
+        var result = await commandService.Handle(command, cancellationToken);
 
-    private final I«BC1_AGGREGATE»CommandService commandService;
-    // ← Si también necesita queryService (si BC1 también expone GET), agregarlo aquí
+        if (!result.IsSuccess)
+        {
+            var body = new { message = result.ErrorMessage };
+            return result.ErrorCode switch
+            {
+                "«BC1_AGGREGATE»AlreadyExists" => Conflict(body),
+                _ => BadRequest(body)
+            };
+        }
 
-    public «BC1_AGGREGATE»sController(I«BC1_AGGREGATE»CommandService commandService) {
-        this.commandService = commandService;
-    }
-
-    @PostMapping
-    @Operation(
-            summary = "Create a new «BC1_AGGREGATE»",
-            description = "Registers a new «BC1_AGGREGATE» in the system. The id is auto-generated."
-    )
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "201", description = "«BC1_AGGREGATE» created successfully",
-                    content = @Content(schema = @Schema(implementation = «BC1_AGGREGATE»Resource.class))),
-            @ApiResponse(responseCode = "400", description = "Invalid input data"),
-            @ApiResponse(responseCode = "404", description = "Referenced «BC2_AGGREGATE» not found"),
-            @ApiResponse(responseCode = "422", description = "Business rule violation")
-    })
-    public ResponseEntity<?> create«BC1_AGGREGATE»(@RequestBody Create«BC1_AGGREGATE»Resource resource) {
-        var command = Create«BC1_AGGREGATE»CommandFromResourceAssembler.toCommandFromResource(resource);
-        var result = commandService.handle(command);
-
-        // Si el servicio retorna el ID y necesitas buscar la entidad completa para el response:
-        // result.flatMap(id -> queryService.handle(new GetBy Id(id))
-        //     .<Result<«BC1_AGGREGATE», ApplicationError>>map(Result::success)
-        //     .orElseGet(() -> Result.failure(ApplicationError.notFound("«BC1_AGGREGATE»", id.toString()))));
-
-        return ResponseEntityAssembler.toResponseEntityFromResult(
-                result,
-                // Si el result ya es el aggregate:
-                // «BC1_AGGREGATE»ResourceFromEntityAssembler::toResourceFromEntity,
-                // Si el result es el ID (Long) y necesitas construir el resource de otra forma:
-                id -> new «BC1_AGGREGATE»Resource(id /*, otros campos si los tienes */),
-                HttpStatus.CREATED);
+        var response = «BC1_AGGREGATE»ResourceFromEntityAssembler
+            .ToResourceFromEntity(result.Value!);
+        return CreatedAtAction(nameof(Create«BC1_AGGREGATE»),
+            new { id = response.Id }, response);
     }
 }
 ```
 
 ---
 
-## PASO 13 — Verificación rápida antes de ejecutar
+## PASO 11 — BC2: «BC2_NAME» (GET + POST + ACL + Evento)
 
-Antes de hacer `Run`, verificar que:
+### 11.1 Aggregate con GET: «BC2_AGGREGATE_A».cs + Audit partial
 
-- [ ] Todos los `package` declarations coinciden con la estructura de carpetas
-- [ ] Todos los `import` apuntan a los packages correctos
-- [ ] `application.properties` tiene la URL de BD correcta y el esquema correcto
-- [ ] `@EnableJpaAuditing` está en la clase principal
-- [ ] El `SnakeCaseWithPluralizedTablePhysicalNamingStrategy` está referenciado en `application.properties`
-- [ ] Las clases de `@Repository` e `@Service` están anotadas correctamente
-- [ ] El `GlobalExceptionHandler` tiene `@RestControllerAdvice`
+> Seguir el mismo patrón que BC1 (pasos 10.3 y 10.4), con su propio partial class de auditoría.
+
+```csharp
+// «BC2_FOLDER»/Domain/Model/Aggregates/«BC2_AGGREGATE_A».cs
+public partial class «BC2_AGGREGATE_A»
+{
+    public int Id { get; private set; }
+
+    // ← CAMPOS SEGÚN TU EXAMEN
+    // Ejemplo Medicine:
+    // public string MedicineCode { get; private set; }
+    // public string CommercialName { get; private set; }
+    // public int InitialStock { get; private set; }
+    // public decimal UnitPrice { get; private set; }
+    // public int TotalDispensedQuantity { get; private set; }  ← si se actualiza via evento
+
+    // ← PROPIEDADES CALCULADAS (NO se persisten, computed domain invariants)
+    // Ejemplo:
+    // public int AvailableStock => InitialStock - TotalDispensedQuantity;
+    // public string AvailabilityStatus => AvailableStock == 0 ? "OutOfStock"
+    //     : AvailableStock < 5 ? "LowStock" : "Available";
+
+    // ← MÉTODOS DE NEGOCIO
+    // Ejemplo:
+    // public bool HasAvailableStock(int requestedQuantity) =>
+    //     AvailableStock >= requestedQuantity;
+
+    protected «BC2_AGGREGATE_A»() { }
+    public «BC2_AGGREGATE_A»(/* parámetros */) { /* inicializar */ }
+}
+
+// «BC2_FOLDER»/Domain/Model/Aggregates/«BC2_AGGREGATE_A»Audit.cs
+public partial class «BC2_AGGREGATE_A» : IAuditableEntity
+{
+    public DateTimeOffset? CreatedAt { get; set; }
+    public DateTimeOffset? UpdatedAt { get; set; }
+}
+```
+
+### 11.2 Aggregate con POST: «BC2_AGGREGATE_B».cs + Audit partial
+
+```csharp
+// Mismo patrón que arriba
+// ← INCLUYE LOS CAMPOS QUE PIDE TU EXAMEN
+// Ejemplo Dispensation:
+// PrescriptionId, MedicineId, Quantity, DispensationStatus, DispensedAt
+// Nota: DispensedAt puede venir como string "yyyy-MM-dd HH:mm:ss" → parsear en command service
+```
+
+### 11.3 Evento de integración
+
+`«BC2_FOLDER»/Domain/Model/Events/«DOMAIN_EVENT_NAME».cs`:
+
+```csharp
+namespace «NAMESPACE_RAIZ».«BC2_FOLDER».Domain.Model.Events;
+
+/// <summary>
+/// Integration event published when a «BC2_AGGREGATE_B» is successfully created.
+/// Consumed by the event handler in the «BC2_NAME» bounded context.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public record «DOMAIN_EVENT_NAME»(
+    Guid EventId,              // Para idempotencia
+    // ← CAMPOS DEL EVENTO SEGÚN TU EXAMEN
+    // Ejemplo: int DispensationId, int MedicineId, int Quantity
+);
+```
+
+### 11.4 ACL Facade
+
+`«BC2_FOLDER»/Infrastructure/Acl/«ACL_FACADE_NAME».cs`:
+
+```csharp
+using «NAMESPACE_RAIZ».«BC1_FOLDER».Domain.Repositories;
+
+namespace «NAMESPACE_RAIZ».«BC2_FOLDER».Infrastructure.Acl;
+
+/// <summary>
+/// Anti-Corruption Layer facade that allows the «BC2_NAME» bounded context
+/// to access information from the «BC1_NAME» bounded context
+/// WITHOUT direct coupling to its repositories or domain internals.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class «ACL_FACADE_NAME»(I«BC1_AGGREGATE»Repository repository)
+{
+    /// <summary>Validates that a «BC1_AGGREGATE» with the given id exists.</summary>
+    public async Task<bool> ExistsByIdAsync(int id, CancellationToken cancellationToken)
+        => await repository.FindByIdAsync(id, cancellationToken) != null;
+
+    // ← AGREGAR MÁS MÉTODOS SEGÚN LO QUE TU EXAMEN NECESITE
+    // Ejemplo (MiFarma):
+    // public async Task<bool> IsActiveAsync(int prescriptionId, CancellationToken ct) { ... }
+    // public async Task<bool> IsExpiredAsync(int prescriptionId, CancellationToken ct) { ... }
+    // public async Task<bool> CanBeDispensedAsync(int prescriptionId, CancellationToken ct) { ... }
+}
+```
+
+### 11.5 Command Service BC2 (con ACL + Evento)
+
+```csharp
+public class «BC2_AGGREGATE_B»CommandService(
+    I«BC2_AGGREGATE_B»Repository repository,
+    I«BC2_AGGREGATE_A»Repository «BC2_AGGREGATE_A_LOWER»Repository,
+    «ACL_FACADE_NAME» aclFacade,
+    IProcessedEventRepository processedEventRepository,
+    IUnitOfWork unitOfWork,
+    IStringLocalizer<«BC2_NAME»Messages> localizer) : I«BC2_AGGREGATE_B»CommandService
+{
+    public async Task<Result<«BC2_AGGREGATE_B»>> Handle(
+        Create«BC2_AGGREGATE_B»Command command, CancellationToken cancellationToken)
+    {
+        // BUSINESS RULE: Verificar via ACL que el «BC1_AGGREGATE» existe
+        if (!await aclFacade.ExistsByIdAsync(command.«BC1_REF_ID», cancellationToken))
+            return Result<«BC2_AGGREGATE_B»>.Failure("NotFound",
+                localizer["«BC1_AGGREGATE»NotFound"]);
+
+        // ← AGREGAR MÁS VALIDACIONES VIA ACL SEGÚN TU EXAMEN
+        // Ejemplo:
+        // if (!await aclFacade.IsActiveAsync(command.PrescriptionId, cancellationToken))
+        //     return Result<Dispensation>.Failure("InvalidStatus",
+        //         localizer["PrescriptionNotActive"]);
+        // if (await aclFacade.IsExpiredAsync(command.PrescriptionId, cancellationToken))
+        //     return Result<Dispensation>.Failure("Expired",
+        //         localizer["PrescriptionExpired"]);
+
+        // BUSINESS RULE: Verificar stock (si aplica)
+        // var medicine = await medicineRepository.FindByIdAsync(command.MedicineId, ct);
+        // if (medicine == null || !medicine.HasAvailableStock(command.Quantity))
+        //     return Result<Dispensation>.Failure("InsufficientStock", localizer["InsufficientStock"]);
+
+        // Crear el aggregate
+        «BC2_AGGREGATE_B» entity;
+        try
+        {
+            entity = new «BC2_AGGREGATE_B»(/* parámetros */);
+        }
+        catch (ArgumentException ex)
+        {
+            return Result<«BC2_AGGREGATE_B»>.Failure("ValidationError", ex.Message);
+        }
+
+        await repository.AddAsync(entity, cancellationToken);
+        await unitOfWork.CompleteAsync(cancellationToken);
+
+        // Publicar el evento de integración
+        var eventId = Guid.NewGuid();
+        var domainEvent = new «DOMAIN_EVENT_NAME»(
+            eventId
+            /* , otros campos */
+        );
+
+        // Verificar idempotencia antes de emitir
+        if (!await processedEventRepository.ExistsByEventIdAsync(eventId, cancellationToken))
+        {
+            await processedEventRepository.AddAsync(
+                eventId, nameof(«DOMAIN_EVENT_NAME»),
+                entity.Id.ToString(), cancellationToken);
+            await unitOfWork.CompleteAsync(cancellationToken);
+
+            // Publicar (con Cortex.Mediator o manualmente)
+            // await mediator.Publish(domainEvent, cancellationToken);
+            // Si no usas mediator, invocar el handler directamente:
+            // await eventHandler.HandleAsync(domainEvent, cancellationToken);
+        }
+
+        return Result<«BC2_AGGREGATE_B»>.Success(entity);
+    }
+}
+```
+
+### 11.6 Event Handler
+
+`«BC2_FOLDER»/Application/Internal/EventHandlers/«DOMAIN_EVENT_NAME»Handler.cs`:
+
+```csharp
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Domain.Model.Events;
+using «NAMESPACE_RAIZ».«BC2_FOLDER».Domain.Repositories;
+using «NAMESPACE_RAIZ».Shared.Domain.Repositories;
+
+namespace «NAMESPACE_RAIZ».«BC2_FOLDER».Application.Internal.EventHandlers;
+
+/// <summary>
+/// Event handler for «DOMAIN_EVENT_NAME».
+/// Handles domain event by updating «BC2_AGGREGATE_A» state.
+/// Execution is idempotent and runs within a transaction.
+/// </summary>
+/// <remarks>Author: Victor Jhosef Laura Acosta - u202418655</remarks>
+public class «DOMAIN_EVENT_NAME»Handler(
+    I«BC2_AGGREGATE_A»Repository «BC2_AGGREGATE_A_LOWER»Repository,
+    IUnitOfWork unitOfWork)
+{
+    public async Task HandleAsync(«DOMAIN_EVENT_NAME» @event, CancellationToken cancellationToken)
+    {
+        // ← IMPLEMENTAR LA LÓGICA QUE PIDA TU EXAMEN
+        // Ejemplo (MiFarma): Actualizar inventario
+        // var medicine = await medicineRepository.FindByIdAsync(@event.MedicineId, cancellationToken);
+        // if (medicine == null) return;
+        //
+        // medicine.AddDispensedQuantity(@event.Quantity);  // método del dominio
+        // await unitOfWork.CompleteAsync(cancellationToken);
+        //
+        // Ejemplo (Whirlpool): Actualizar lastClaimId
+        // var policy = await policyRepository.FindByIdAsync(@event.PolicyId, cancellationToken);
+        // policy?.SetLastClaimId(@event.ClaimId);
+        // await unitOfWork.CompleteAsync(cancellationToken);
+    }
+}
+```
 
 ---
 
-## PASO 14 — Ejecutar y verificar
+## PASO 12 — Verificación y Ejecución
 
 ```bash
-# Compilar primero
-mvn clean compile
-
-# Si compila OK, ejecutar
-mvn spring-boot:run
+dotnet restore
+dotnet build
+dotnet run
 ```
 
-### Verificar endpoints
+### URLs a verificar
 
 ```
-GET http://localhost:«PUERTO»/swagger-ui/index.html     ← Swagger UI
-GET http://localhost:«PUERTO»/v3/api-docs               ← OpenAPI JSON
-GET «BC2_ENDPOINT»                                      ← Debe retornar los datos del seeder
-POST «BC1_ENDPOINT»                                     ← Debe crear y retornar 201
+https://localhost:«PUERTO»/swagger                  ← Swagger UI
+«BC1_ENDPOINT»                                       ← POST BC1
+«BC2_ENDPOINT_A»                                     ← GET BC2a (datos del seeding)
+«BC2_ENDPOINT_B»                                     ← POST BC2b
 ```
 
 ---
 
-## PASO 15 — Empaquetar y entregar
-
-### Limpiar antes de ZIP
+## PASO 13 — Limpiar y empaquetar
 
 ```bash
-# En IntelliJ: Build → Clean Project
-# O en terminal:
-mvn clean
+dotnet clean
 ```
 
 Eliminar manualmente:
-- `target/` ← generada por Maven
-- `.idea/` ← configuración del IDE
-- `*.iml` ← archivos de IntelliJ
+- `bin/` y `obj/` de todos los proyectos
+- `.idea/` (Rider)
+- `.vs/` (Visual Studio)
 
-### Crear el ZIP
+Crear el ZIP:
 
-Nombre: `eb«NRC»u202418655.zip`
-
-El ZIP debe contener:
 ```
-eb«NRC»u202418655/
-├── src/
-├── pom.xml
-└── README.md
+PowerShell: Compress-Archive -Path .\* -DestinationPath ..\eb«NRC»u202418655.zip
 ```
 
-**NO incluir:** `target/`, `.idea/`, `*.iml`
+Nombre final: `eb«NRC»u202418655.zip`
 
 ---
 
-## Checklist Final
+## ✅ Checklist Final
 
-### Shared (SIEMPRE IGUAL - copiar/pegar)
-- [ ] AbstractDomainAggregateRoot.java
-- [ ] Result.java + ApplicationError.java
-- [ ] SnakeCaseWithPluralizedTablePhysicalNamingStrategy.java
-- [ ] AuditableAbstractPersistenceEntity.java
-- [ ] OpenApiConfiguration.java
-- [ ] LocaleConfiguration.java
-- [ ] ErrorResource.java + MessageResource.java
-- [ ] ErrorResponseAssembler.java + ResponseEntityAssembler.java
-- [ ] GlobalExceptionHandler.java
-- [ ] «SHARED_VALUE_OBJECT».java (según tu examen)
+### Shared (copia/pega todo)
+- [ ] `Result<T>.cs`
+- [ ] `IAuditableEntity.cs`
+- [ ] `«SHARED_VALUE_OBJECT».cs`
+- [ ] `IBaseRepository.cs` + `IUnitOfWork.cs`
+- [ ] `AppDbContext.cs` (con `UseAsyncSeeding` y `SaveChangesAsync` override)
+- [ ] `NamingConventions.cs` (snake_case + plural con Humanizer)
+- [ ] `BaseRepository.cs` + `UnitOfWork.cs`
+- [ ] `GlobalExceptionHandler.cs` (middleware RFC 7807 ProblemDetails)
+- [ ] `SharedMessages.cs` + `.resx` en/es
+- [ ] `ProcessedEvent.cs` + `IProcessedEventRepository.cs` + impl
 
-### BC2 (GET + Data Seeding)
-- [ ] «BC2_AGGREGATE».java (aggregate)
-- [ ] I«BC2_AGGREGATE»Repository.java
-- [ ] GetAll«BC2_AGGREGATE»sQuery.java
-- [ ] I«BC2_AGGREGATE»QueryService.java + impl
-- [ ] PersistenceEntity + PersistenceRepository + PersistenceAssembler + RepositoryImpl
-- [ ] «BC2_AGGREGATE»Resource.java + Assembler
-- [ ] «BC2_AGGREGATE»sController.java (GET)
-- [ ] «BC2_AGGREGATE»DataSeeder.java (ApplicationReadyEvent)
-- [ ] Event handler para «DOMAIN_EVENT_NAME» (si BC2 actualiza datos al recibir evento de BC1)
+### BC1 («BC1_NAME»)
+- [ ] VOs del BC1 (records con validación)
+- [ ] Enums del BC1
+- [ ] `«BC1_AGGREGATE».cs` (partial) + `«BC1_AGGREGATE»Audit.cs` (partial con IAuditableEntity)
+- [ ] `Create«BC1_AGGREGATE»Command.cs`
+- [ ] `I«BC1_AGGREGATE»Repository.cs` + impl
+- [ ] `I«BC1_AGGREGATE»CommandService.cs` + impl (con validaciones)
+- [ ] `ModelBuilderExtensions.cs` (Fluent API)
+- [ ] `«BC1_NAME»Messages.cs` + `.resx` en/es
+- [ ] `Create«BC1_AGGREGATE»Resource.cs` + `«BC1_AGGREGATE»Resource.cs`
+- [ ] 2 Assemblers
+- [ ] Controller (POST → 201)
 
-### BC1 (POST + ACL + Evento)
-- [ ] Enums de BC1 (MealType, ClaimStatus, etc.)
-- [ ] «BC1_AGGREGATE».java (aggregate)
-- [ ] Create«BC1_AGGREGATE»Command.java
-- [ ] «DOMAIN_EVENT_NAME».java (evento de integración)
-- [ ] I«BC1_AGGREGATE»Repository.java
-- [ ] I«BC1_AGGREGATE»CommandService.java + impl (con ACL y publicación del evento)
-- [ ] «BC2_AGGREGATE»ContextFacade.java (ACL)
-- [ ] PersistenceEntity + PersistenceRepository + PersistenceAssembler + RepositoryImpl
-- [ ] Create«BC1_AGGREGATE»Resource.java + «BC1_AGGREGATE»Resource.java
-- [ ] Assemblers
-- [ ] «BC1_AGGREGATE»sController.java (POST)
+### BC2 («BC2_NAME»)
+- [ ] VOs del BC2 + Enums
+- [ ] `«BC2_AGGREGATE_A».cs` (partial con propiedades calculadas) + Audit
+- [ ] `«BC2_AGGREGATE_B».cs` (partial) + Audit
+- [ ] `«DOMAIN_EVENT_NAME».cs` (con EventId para idempotencia)
+- [ ] `I«BC2_AGGREGATE_A»Repository.cs` + impl
+- [ ] `I«BC2_AGGREGATE_B»Repository.cs` + impl
+- [ ] `I«BC2_AGGREGATE_A»QueryService.cs` + impl
+- [ ] `I«BC2_AGGREGATE_B»CommandService.cs` + impl (con ACL + evento)
+- [ ] `«ACL_FACADE_NAME».cs` (sin acceso directo a repos de BC1 desde BC2 — solo via facade)
+- [ ] `«DOMAIN_EVENT_NAME»Handler.cs` (idempotente + transaccional)
+- [ ] `ModelBuilderExtensions.cs` para BC2
+- [ ] `«BC2_NAME»Messages.cs` + `.resx` en/es
+- [ ] Resources (DTOs) + Assemblers + Controllers (GET + POST)
 
 ### Configuración
-- [ ] application.properties completo
-- [ ] messages.properties + messages_es.properties
-- [ ] README.md
-- [ ] pom.xml con dependencia pluralize y Java version correcta
-- [ ] @EnableJpaAuditing en Application.java
+- [ ] `.csproj` con todos los paquetes
+- [ ] `Program.cs` registra todos los servicios + middleware
+- [ ] `appsettings.json` con `DefaultConnection`
+- [ ] `launchSettings.json` con el puerto correcto
+- [ ] `README.md` en inglés
+- [ ] `GlobalExceptionHandler` registrado ANTES de `UseHttpsRedirection` en `Program.cs`
 
 ### Entrega
-- [ ] `mvn clean compile` sin errores
+- [ ] `dotnet build` sin errores
 - [ ] Swagger UI accesible
-- [ ] GET «BC2_ENDPOINT» retorna datos del seeder
-- [ ] POST «BC1_ENDPOINT» retorna 201 con datos correctos
-- [ ] Sin `target/` ni `.idea/` en el ZIP
+- [ ] GET retorna datos del seeding
+- [ ] POST BC1 → 201 Created
+- [ ] POST BC2b → 201 Created
+- [ ] POST BC2b con datos inválidos → 400 Bad Request
+- [ ] Sin `bin/`, `obj/`, `.idea/` en el ZIP
 - [ ] ZIP nombrado `eb«NRC»u202418655.zip`
+
+---
+
+## 📌 Diferencias clave entre PC2 y EB (Aplicaciones Web)
+
+| Aspecto | PC2 (1 BC + 1 endpoint) | EB (2-3 BCs + 2-3 endpoints) |
+|---|---|---|
+| **Nombre ZIP** | `pc2«NRC»u«código».zip` | `eb«NRC»u«código».zip` |
+| **Nombre solución** | `pc2«NRC»u«código»` | `eb«NRC»u«código».API` |
+| **BCs** | 1 BC + Shared | 2-3 BCs + Shared |
+| **Endpoints** | 1 (POST) | 2-3 (GET + POST x2) |
+| **Data seeding** | No aplica | `UseAsyncSeeding` en DbContext |
+| **Eventos** | No aplica | `«DOMAIN_EVENT_NAME»` + Handler |
+| **ACL** | No aplica | `«ACL_FACADE_NAME»` |
+| **Idempotencia** | No aplica | `ProcessedEvents` table |
+| **Partial class** | `Covenant.cs` + `CovenantAudit.cs` | Mismo patrón, uno por aggregate |
+| **Error handling** | `GlobalExceptionHandler` (basic) | `GlobalExceptionHandler` (RFC 7807 ProblemDetails) |
+| **Propiedades calculadas** | No aplica | `AvailableStock`, `CoverageStatus`, etc. (NO persisten, son computed) |
+| **Cortex.Mediator** | No aplica | Para publicar/manejar eventos |
+
+---
+
+## ⚡ Correcciones incorporadas vs PC2 (C04/C05)
+
+| Problema anterior | Corrección en esta guía |
+|---|---|
+| **C04**: Estructura no del todo alineada con Learning Center | Partial class `XAudit.cs` para cada aggregate; `Resources/` folder por BC con `.resx`; `NamingConventions.cs` en vez de strategy separada |
+| **C04**: Lógica de naming en lugar incorrecto | `NamingConventions.cs` como extension method de `ModelBuilder` en Shared Infrastructure |
+| **C05**: Middleware de errores básico | `GlobalExceptionHandler` como middleware RFC 7807 ProblemDetails |
+| **C05**: Faltaba `CancellationToken` | Todos los métodos usan `CancellationToken cancellationToken` |
+| **C05**: Eventos sin idempotencia | `ProcessedEvents` table + verificación antes de emitir |
+| **C05**: ACL sin facade explícita | `«ACL_FACADE_NAME»` con métodos específicos de dominio |
+| **C05**: Propiedades calculadas persistidas | Computed properties (`AvailableStock`, etc.) solo en el aggregate, no en BD | , soy victor jhosef laura acosta, mi codigo es u202418655, el nrc del curso es 12190, profesor allan mori. Y si falta algo de esta guia dime que es
